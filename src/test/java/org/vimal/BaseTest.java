@@ -4,6 +4,8 @@ import io.restassured.RestAssured;
 import lombok.extern.slf4j.Slf4j;
 import org.testng.annotations.BeforeSuite;
 
+import static org.vimal.helpers.AuthCallsHelper.getAccessToken;
+
 @Slf4j
 public abstract class BaseTest {
     private static final String BASE_URL = "http://localhost:8080";
@@ -21,5 +23,6 @@ public abstract class BaseTest {
         RestAssured.basePath = BASE_PATH;
         log.info("Enabling logging of request & response if validation fails.");
         RestAssured.enableLoggingOfRequestAndResponseIfValidationFails();
+        GLOBAL_ADMIN_ACCESS_TOKEN = getAccessToken(GLOBAL_ADMIN_USERNAME, GLOBAL_ADMIN_PASSWORD);
     }
 }
