@@ -5,11 +5,11 @@ import io.restassured.response.Response;
 
 import java.util.Map;
 
+import static org.vimal.api.ApiCalls.executeRequest;
 import static org.vimal.constants.Common.AUTHORIZATION;
 import static org.vimal.constants.Common.BEARER;
 import static org.vimal.constants.SubPaths.AUTH;
 import static org.vimal.enums.RequestMethods.POST;
-import static org.vimal.utils.ApiRequestUtility.executeRequest;
 
 public final class AuthenticationCalls {
     private AuthenticationCalls() {

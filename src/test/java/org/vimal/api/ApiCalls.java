@@ -1,4 +1,4 @@
-package org.vimal.utils;
+package org.vimal.api;
 
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
@@ -10,8 +10,8 @@ import java.util.Map;
 
 import static io.restassured.RestAssured.given;
 
-public final class ApiRequestUtility {
-    private ApiRequestUtility() {
+public final class ApiCalls {
+    private ApiCalls() {
     }
 
     public static Response executeRequest(RequestMethods method, String endpoint, Map<String, String> headers) {
