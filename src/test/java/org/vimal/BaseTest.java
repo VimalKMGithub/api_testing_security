@@ -1,15 +1,29 @@
 package org.vimal;
 
 import io.restassured.RestAssured;
+import io.restassured.response.Response;
 import lombok.extern.slf4j.Slf4j;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeSuite;
+import org.vimal.dtos.RoleDto;
+import org.vimal.dtos.UserDto;
 
-import static org.vimal.helpers.AuthCallsHelper.getAccessToken;
-import static org.vimal.helpers.AuthCallsHelper.logout;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+
+import static org.vimal.api.calls.AdminCallsUsingGlobalAdminUser.createUsers;
+import static org.vimal.api.calls.AuthCalls.getAccessToken;
+import static org.vimal.api.calls.AuthCalls.logout;
+import static org.vimal.constants.Common.MAX_BATCH_SIZE_OF_USER_DELETION_AT_A_TIME;
+import static org.vimal.helpers.DtosHelper.createRandomUserDto;
+import static org.vimal.helpers.DtosHelper.createRandomUserDtoWithRandomValidEmail;
 
 @Slf4j
 public abstract class BaseTest {
+    protected static final Set<UserDto> TEST_USERS = ConcurrentHashMap.newKeySet();
+    protected static final Set<RoleDto> TEST_ROLES = ConcurrentHashMap.newKeySet();
     private static final String BASE_URL = "http://localhost:8080";
     private static final String BASE_PATH = "api/v1";
     public static final String TEST_EMAIL = System.getenv("TEST_EMAIL");
@@ -36,5 +50,35 @@ public abstract class BaseTest {
         } catch (Exception ignored) {
         }
         log.info("Cleanup completed.");
+    }
+
+    protected static UserDto createTestUser() {
+        return createTestUser(createRandomUserDto());
+    }
+
+    protected static UserDto createTestUserRandomValidEmail() {
+        return createTestUser(createRandomUserDtoWithRandomValidEmail());
+    }
+
+    protected static UserDto createTestUser(Set<String> roles) {
+        return createTestUser(createRandomUserDto(roles));
+    }
+
+    protected static UserDto createTestUser(UserDto user) {
+        createTestUsers(Set.of(user));
+        return user;
+    }
+
+    protected static void createTestUsers(Set<UserDto> users) {
+        Iterator<UserDto> iterator = users.iterator();
+        while (iterator.hasNext()) {
+            Set<UserDto> batch = new HashSet<>();
+            while (iterator.hasNext() && batch.size() < MAX_BATCH_SIZE_OF_USER_DELETION_AT_A_TIME) {
+                batch.add(iterator.next());
+            }
+            Response response = createUsers(batch);
+            response.then().statusCode(200);
+            TEST_USERS.addAll(batch);
+        }
     }
 }

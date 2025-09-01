@@ -1,4 +1,4 @@
-package org.vimal.helpers;
+package org.vimal.api.calls;
 
 
 import io.restassured.response.Response;
@@ -11,8 +11,8 @@ import static org.vimal.constants.SubPaths.AUTH;
 import static org.vimal.enums.RequestMethods.POST;
 import static org.vimal.utils.ApiRequestUtility.executeRequest;
 
-public final class AuthCallsHelper {
-    private AuthCallsHelper() {
+public final class AuthCalls {
+    private AuthCalls() {
     }
 
     public static Response login(String usernameOrEmail, String password) {
