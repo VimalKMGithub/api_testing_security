@@ -5,6 +5,8 @@ import io.restassured.response.Response;
 
 import java.util.Map;
 
+import static org.vimal.constants.Common.AUTHORIZATION;
+import static org.vimal.constants.Common.BEARER;
 import static org.vimal.constants.SubPaths.AUTH;
 import static org.vimal.enums.RequestMethods.POST;
 import static org.vimal.utils.ApiRequestUtility.executeRequest;
@@ -15,6 +17,10 @@ public final class AuthCallsHelper {
 
     public static Response login(String usernameOrEmail, String password) {
         return executeRequest(POST, AUTH + "/login", null, Map.of("usernameOrEmail", usernameOrEmail, "password", password));
+    }
+
+    public static Response logout(String accessToken) {
+        return executeRequest(POST, AUTH + "/logout", Map.of(AUTHORIZATION, BEARER + accessToken));
     }
 
     public static String getAccessToken(String usernameOrEmail, String password) {

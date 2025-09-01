@@ -2,9 +2,11 @@ package org.vimal;
 
 import io.restassured.RestAssured;
 import lombok.extern.slf4j.Slf4j;
+import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeSuite;
 
 import static org.vimal.helpers.AuthCallsHelper.getAccessToken;
+import static org.vimal.helpers.AuthCallsHelper.logout;
 
 @Slf4j
 public abstract class BaseTest {
@@ -24,5 +26,15 @@ public abstract class BaseTest {
         log.info("Enabling logging of request & response if validation fails.");
         RestAssured.enableLoggingOfRequestAndResponseIfValidationFails();
         GLOBAL_ADMIN_ACCESS_TOKEN = getAccessToken(GLOBAL_ADMIN_USERNAME, GLOBAL_ADMIN_PASSWORD);
+    }
+
+    @AfterSuite
+    public void cleanupAfterSuite() {
+        log.info("Cleaning up environment after all tests.");
+        try {
+            logout(GLOBAL_ADMIN_ACCESS_TOKEN);
+        } catch (Exception ignored) {
+        }
+        log.info("Cleanup completed.");
     }
 }
