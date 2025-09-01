@@ -16,7 +16,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import static org.vimal.api.calls.AdminCallsUsingGlobalAdminUser.createUsers;
 import static org.vimal.api.calls.AuthCalls.getAccessToken;
 import static org.vimal.api.calls.AuthCalls.logout;
-import static org.vimal.constants.Common.MAX_BATCH_SIZE_OF_USER_DELETION_AT_A_TIME;
+import static org.vimal.constants.Common.MAX_BATCH_SIZE_OF_USER_CREATION_AT_A_TIME;
 import static org.vimal.helpers.DtosHelper.createRandomUserDto;
 import static org.vimal.helpers.DtosHelper.createRandomUserDtoWithRandomValidEmail;
 
@@ -73,7 +73,7 @@ public abstract class BaseTest {
         Iterator<UserDto> iterator = users.iterator();
         while (iterator.hasNext()) {
             Set<UserDto> batch = new HashSet<>();
-            while (iterator.hasNext() && batch.size() < MAX_BATCH_SIZE_OF_USER_DELETION_AT_A_TIME) {
+            while (iterator.hasNext() && batch.size() < MAX_BATCH_SIZE_OF_USER_CREATION_AT_A_TIME) {
                 batch.add(iterator.next());
             }
             Response response = createUsers(batch);
