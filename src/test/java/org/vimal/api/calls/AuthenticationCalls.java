@@ -11,8 +11,8 @@ import static org.vimal.constants.SubPaths.AUTH;
 import static org.vimal.enums.RequestMethods.POST;
 import static org.vimal.utils.ApiRequestUtility.executeRequest;
 
-public final class AuthCalls {
-    private AuthCalls() {
+public final class AuthenticationCalls {
+    private AuthenticationCalls() {
     }
 
     public static Response login(String usernameOrEmail, String password) {
