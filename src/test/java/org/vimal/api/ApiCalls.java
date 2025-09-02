@@ -28,7 +28,7 @@ public final class ApiCalls {
 
     public static Response executeRequest(RequestMethods method, String endpoint, Map<String, String> headers, Map<String, String> params, Map<String, String> pathParams, Object body) {
         if (method == null) {
-            throw new IllegalArgumentException("HTTP method cannot be null");
+            throw new IllegalArgumentException("Http method cannot be null");
         }
         RequestSpecification spec = given();
         if (headers != null) {
