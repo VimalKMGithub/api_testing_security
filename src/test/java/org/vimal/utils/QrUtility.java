@@ -11,8 +11,6 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
 import java.util.EnumMap;
 import java.util.Map;
 
@@ -40,7 +38,7 @@ public final class QrUtility {
         }
         for (String param : totpUrl.substring(queryStart + 1).split("&")) {
             if (param.startsWith("secret=")) {
-                return URLDecoder.decode(param.substring(7), StandardCharsets.UTF_8);
+                return param.substring(7);
             }
         }
         throw new IllegalArgumentException("No secret parameter found in Totp Url");
