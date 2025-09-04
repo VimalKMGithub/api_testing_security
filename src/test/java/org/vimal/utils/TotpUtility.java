@@ -18,7 +18,6 @@ public final class TotpUtility {
         if (base32Secret == null || base32Secret.isEmpty()) {
             throw new IllegalArgumentException("Secret cannot be null or empty");
         }
-        byte[] keyBytes = BASE_32.decode(base32Secret);
-        return String.format("%06d", Integer.parseInt(TOTP_GENERATOR.generateOneTimePasswordString(new SecretKeySpec(keyBytes, TOTP_GENERATOR.getAlgorithm()), Instant.now())));
+        return TOTP_GENERATOR.generateOneTimePasswordString(new SecretKeySpec(BASE_32.decode(base32Secret), TOTP_GENERATOR.getAlgorithm()), Instant.now());
     }
 }
