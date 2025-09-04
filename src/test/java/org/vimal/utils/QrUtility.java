@@ -38,8 +38,7 @@ public final class QrUtility {
         if (queryStart == -1 || queryStart == totpUrl.length() - 1) {
             throw new IllegalArgumentException("No query parameters found in Totp URL");
         }
-        String[] params = totpUrl.substring(queryStart + 1).split("&");
-        for (String param : params) {
+        for (String param : totpUrl.substring(queryStart + 1).split("&")) {
             if (param.startsWith("secret=")) {
                 return URLDecoder.decode(param.substring(7), StandardCharsets.UTF_8);
             }
