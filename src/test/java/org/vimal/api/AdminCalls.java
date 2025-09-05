@@ -10,6 +10,7 @@ import java.util.Set;
 import static org.vimal.api.ApiCalls.executeRequest;
 import static org.vimal.constants.Common.*;
 import static org.vimal.constants.SubPaths.ADMIN;
+import static org.vimal.enums.RequestMethods.DELETE;
 import static org.vimal.enums.RequestMethods.POST;
 
 public final class AdminCalls {
@@ -28,6 +29,6 @@ public final class AdminCalls {
         if (leniency != null && !leniency.isBlank()) {
             params.put(LENIENCY, leniency);
         }
-        return executeRequest(POST, ADMIN + "/delete/users", Map.of(AUTHORIZATION, BEARER + accessToken), params.isEmpty() ? null : params, null, usernamesOrEmails);
+        return executeRequest(DELETE, ADMIN + "/delete/users", Map.of(AUTHORIZATION, BEARER + accessToken), params.isEmpty() ? null : params, null, usernamesOrEmails);
     }
 }
