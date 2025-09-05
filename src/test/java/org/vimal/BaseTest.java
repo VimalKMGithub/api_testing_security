@@ -13,9 +13,9 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static org.vimal.api.calls.AdminCallsUsingGlobalAdminUser.createUsers;
-import static org.vimal.api.calls.AuthenticationCalls.getAccessToken;
-import static org.vimal.api.calls.AuthenticationCalls.logout;
+import static org.vimal.api.AdminCallsUsingGlobalAdminUser.createUsers;
+import static org.vimal.api.AuthenticationCalls.getAccessToken;
+import static org.vimal.api.AuthenticationCalls.logout;
 import static org.vimal.constants.Common.MAX_BATCH_SIZE_OF_USER_CREATION_AT_A_TIME;
 import static org.vimal.helpers.DtosHelper.createRandomUserDto;
 import static org.vimal.helpers.DtosHelper.createRandomUserDtoWithRandomValidEmail;

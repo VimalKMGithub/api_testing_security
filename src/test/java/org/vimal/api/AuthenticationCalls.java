@@ -1,4 +1,4 @@
-package org.vimal.api.calls;
+package org.vimal.api;
 
 
 import io.restassured.response.Response;

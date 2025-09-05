@@ -1,4 +1,4 @@
-package org.vimal.api.calls;
+package org.vimal.api;
 
 import io.restassured.response.Response;
 import org.vimal.dtos.UserDto;
@@ -6,7 +6,7 @@ import org.vimal.dtos.UserDto;
 import java.util.Set;
 
 import static org.vimal.BaseTest.*;
-import static org.vimal.api.calls.AuthenticationCalls.getAccessToken;
+import static org.vimal.api.AuthenticationCalls.getAccessToken;
 
 public final class AdminCallsUsingGlobalAdminUser {
     private AdminCallsUsingGlobalAdminUser() {
