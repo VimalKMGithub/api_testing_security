@@ -20,4 +20,13 @@ public final class AdminCallsUsingGlobalAdminUser {
         }
         return response;
     }
+
+    public static Response deleteUsers(Set<String> usernamesOrEmails, String hard, String leniency) {
+        Response response = AdminCalls.deleteUsers(GLOBAL_ADMIN_ACCESS_TOKEN, usernamesOrEmails, hard, leniency);
+        if (response.statusCode() == 401) {
+            GLOBAL_ADMIN_ACCESS_TOKEN = getAccessToken(GLOBAL_ADMIN_USERNAME, GLOBAL_ADMIN_PASSWORD);
+            response = AdminCalls.deleteUsers(GLOBAL_ADMIN_ACCESS_TOKEN, usernamesOrEmails, hard, leniency);
+        }
+        return response;
+    }
 }
