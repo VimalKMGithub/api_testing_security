@@ -17,6 +17,7 @@ import static org.vimal.api.AdminCallsUsingGlobalAdminUser.createUsers;
 import static org.vimal.api.AuthenticationCalls.getAccessToken;
 import static org.vimal.api.AuthenticationCalls.logout;
 import static org.vimal.constants.Common.MAX_BATCH_SIZE_OF_USER_CREATION_AT_A_TIME;
+import static org.vimal.helpers.CleanUpHelper.cleanUpTestUsers;
 import static org.vimal.helpers.DtosHelper.createRandomUserDto;
 import static org.vimal.helpers.DtosHelper.createRandomUserDtoWithRandomValidEmail;
 
@@ -45,6 +46,11 @@ public abstract class BaseTest {
     @AfterSuite
     public void cleanupAfterSuite() {
         log.info("Cleaning up environment after all tests.");
+        if (!TEST_USERS.isEmpty()) {
+            log.info("Deleting test users.");
+            cleanUpTestUsers(TEST_USERS);
+            TEST_USERS.clear();
+        }
         try {
             logout(GLOBAL_ADMIN_ACCESS_TOKEN);
         } catch (Exception ignored) {
