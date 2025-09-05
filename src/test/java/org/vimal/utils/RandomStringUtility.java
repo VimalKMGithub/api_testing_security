@@ -13,7 +13,7 @@ public final class RandomStringUtility {
         return generateRandomString(ALPHA_NUMERIC_CHARACTER_SET, DEFAULT_LENGTH);
     }
 
-    public static String generateRandomString(String characters, int length) {
+    private static String generateRandomString(String characters, int length) {
         if (length < 1) {
             throw new IllegalArgumentException("Length must be positive to generate a random string");
         }

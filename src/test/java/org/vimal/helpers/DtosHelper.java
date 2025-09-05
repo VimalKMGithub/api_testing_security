@@ -18,7 +18,7 @@ public final class DtosHelper {
         return createRandomUserDto(null);
     }
 
-    public static Set<UserDto> createRandomUserDtos(int count) {
+    private static Set<UserDto> createRandomUserDtos(int count) {
         Set<UserDto> userDtos = new HashSet<>();
         for (int i = 0; i < count; i++) {
             userDtos.add(createRandomUserDto());
@@ -30,13 +30,13 @@ public final class DtosHelper {
         return createRandomUserDtoWithGivenEmail(validRandomEmail());
     }
 
-    public static UserDto createRandomUserDtoWithGivenEmail(String email) {
+    private static UserDto createRandomUserDtoWithGivenEmail(String email) {
         UserDto user = createRandomUserDto(null);
         user.setEmail(email);
         return user;
     }
 
-    public static String validRandomEmail() {
+    private static String validRandomEmail() {
         int atIndex = TEST_EMAIL.indexOf('@');
         return TEST_EMAIL.substring(0, atIndex) + "+" + getCurrentFormattedLocalTimeStamp() + "_" + generateRandomStringAlphaNumeric() + "@" + TEST_EMAIL.substring(atIndex + 1);
     }
@@ -54,11 +54,11 @@ public final class DtosHelper {
                 .build();
     }
 
-    public static RoleDto createRandomRoleDto() {
+    private static RoleDto createRandomRoleDto() {
         return createRandomRoleDto(null);
     }
 
-    public static Set<RoleDto> createRandomRoleDtos(int count) {
+    private static Set<RoleDto> createRandomRoleDtos(int count) {
         Set<RoleDto> roleDtos = new HashSet<>();
         for (int i = 0; i < count; i++) {
             roleDtos.add(createRandomRoleDto());
@@ -66,7 +66,7 @@ public final class DtosHelper {
         return roleDtos;
     }
 
-    public static RoleDto createRandomRoleDto(Set<String> permissions) {
+    private static RoleDto createRandomRoleDto(Set<String> permissions) {
         String randomString = getCurrentFormattedLocalTimeStamp() + "_" + generateRandomStringAlphaNumeric();
         return RoleDto.builder()
                 .roleName("AutoTestRole_" + randomString)

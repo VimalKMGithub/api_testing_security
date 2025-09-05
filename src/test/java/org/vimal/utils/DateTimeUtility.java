@@ -13,7 +13,7 @@ public final class DateTimeUtility {
         return getCurrentFormattedLocalTimeStamp(DEFAULT_DATE_TIME_FORMATTER);
     }
 
-    public static String getCurrentFormattedLocalTimeStamp(DateTimeFormatter dateTimeFormatter) {
+    private static String getCurrentFormattedLocalTimeStamp(DateTimeFormatter dateTimeFormatter) {
         return LocalDateTime.now().format(dateTimeFormatter);
     }
 }
