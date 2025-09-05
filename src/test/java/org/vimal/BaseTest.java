@@ -71,12 +71,14 @@ public abstract class BaseTest {
 
     protected static void createTestUsers(Set<UserDto> users) {
         Iterator<UserDto> iterator = users.iterator();
+        Set<UserDto> batch = new HashSet<>();
+        Response response;
         while (iterator.hasNext()) {
-            Set<UserDto> batch = new HashSet<>();
+            batch.clear();
             while (iterator.hasNext() && batch.size() < MAX_BATCH_SIZE_OF_USER_CREATION_AT_A_TIME) {
                 batch.add(iterator.next());
             }
-            Response response = createUsers(batch);
+            response = createUsers(batch, null);
             response.then().statusCode(200);
             TEST_USERS.addAll(batch);
         }

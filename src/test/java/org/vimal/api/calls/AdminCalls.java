@@ -16,7 +16,7 @@ public final class AdminCalls {
     private AdminCalls() {
     }
 
-    public static Response createUsers(String accessToken, Set<UserDto> users) {
-        return executeRequest(POST, ADMIN + "/create/users", Map.of(AUTHORIZATION, BEARER + accessToken), null, null, users);
+    public static Response createUsers(String accessToken, Set<UserDto> users, String leniency) {
+        return executeRequest(POST, ADMIN + "/create/users", Map.of(AUTHORIZATION, BEARER + accessToken), (leniency == null || leniency.isBlank()) ? null : Map.of("leniency", leniency), null, users);
     }
 }
