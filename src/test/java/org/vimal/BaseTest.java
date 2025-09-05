@@ -56,20 +56,20 @@ public abstract class BaseTest {
         return createTestUser(createRandomUserDto());
     }
 
-    protected static UserDto createTestUserRandomValidEmail() {
+    private static UserDto createTestUserRandomValidEmail() {
         return createTestUser(createRandomUserDtoWithRandomValidEmail());
     }
 
-    protected static UserDto createTestUser(Set<String> roles) {
+    private static UserDto createTestUser(Set<String> roles) {
         return createTestUser(createRandomUserDto(roles));
     }
 
-    protected static UserDto createTestUser(UserDto user) {
+    private static UserDto createTestUser(UserDto user) {
         createTestUsers(Set.of(user));
         return user;
     }
 
-    protected static void createTestUsers(Set<UserDto> users) {
+    private static void createTestUsers(Set<UserDto> users) {
         Iterator<UserDto> iterator = users.iterator();
         Set<UserDto> batch = new HashSet<>();
         Response response;
