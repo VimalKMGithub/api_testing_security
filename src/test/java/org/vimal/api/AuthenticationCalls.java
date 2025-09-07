@@ -15,17 +15,33 @@ public final class AuthenticationCalls {
     private AuthenticationCalls() {
     }
 
-    public static Response login(String usernameOrEmail, String password) {
-        return executeRequest(POST, AUTH + "/login", null, Map.of("usernameOrEmail", usernameOrEmail, "password", password));
+    public static Response login(String usernameOrEmail,
+                                 String password) {
+        return executeRequest(
+                POST,
+                AUTH + "/login",
+                null,
+                Map.of("usernameOrEmail", usernameOrEmail, "password", password)
+        );
     }
 
     public static Response logout(String accessToken) {
-        return executeRequest(POST, AUTH + "/logout", Map.of(AUTHORIZATION, BEARER + accessToken));
+        return executeRequest(
+                POST,
+                AUTH + "/logout",
+                Map.of(AUTHORIZATION, BEARER + accessToken)
+        );
     }
 
-    public static String getAccessToken(String usernameOrEmail, String password) {
-        Response response = login(usernameOrEmail, password);
-        response.then().statusCode(200);
-        return response.jsonPath().getString("access_token");
+    public static String getAccessToken(String usernameOrEmail,
+                                        String password) {
+        Response response = login(
+                usernameOrEmail,
+                password
+        );
+        response.then()
+                .statusCode(200);
+        return response.jsonPath()
+                .getString("access_token");
     }
 }

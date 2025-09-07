@@ -24,12 +24,40 @@ public final class MailReaderUtility {
     private static final Pattern DEFAULT_OTP_PATTERN = Pattern.compile("\\b\\d{" + DEFAULT_OTP_LENGTH + "}\\b");
     private static final Set<String> DEFAULT_SEARCH_FOLDERS = Set.of("INBOX", "[Gmail]/Spam");
 
-    public static String getToken(String email, String appPassword, String emailSubject) throws MessagingException, InterruptedException, IOException {
-        return extractUuid(fetchParticularEmailContent(email, appPassword, emailSubject, DEFAULT_SEARCH_FOLDERS, DEFAULT_MAX_WAIT_MS, DEFAULT_POLL_INTERVAL_MS, true, true));
+    public static String getToken(String email,
+                                  String appPassword,
+                                  String emailSubject)
+            throws MessagingException, InterruptedException, IOException {
+        return extractUuid(fetchParticularEmailContent(
+                        email,
+                        appPassword,
+                        emailSubject,
+                        DEFAULT_SEARCH_FOLDERS,
+                        DEFAULT_MAX_WAIT_MS,
+                        DEFAULT_POLL_INTERVAL_MS,
+                        true,
+                        true
+                )
+        );
     }
 
-    private static String fetchParticularEmailContent(String email, String appPassword, String emailSubject, Set<String> folders, long maxWaitTimeMs, long intervalTimeMs, boolean seen, boolean delete) throws MessagingException, InterruptedException, IOException {
-        validateArguments(email, appPassword, emailSubject, folders, maxWaitTimeMs, intervalTimeMs);
+    private static String fetchParticularEmailContent(String email,
+                                                      String appPassword,
+                                                      String emailSubject,
+                                                      Set<String> folders,
+                                                      long maxWaitTimeMs,
+                                                      long intervalTimeMs,
+                                                      boolean seen,
+                                                      boolean delete)
+            throws MessagingException, InterruptedException, IOException {
+        validateArguments(
+                email,
+                appPassword,
+                emailSubject,
+                folders,
+                maxWaitTimeMs,
+                intervalTimeMs
+        );
         Properties props = new Properties();
         props.put("mail.store.protocol", "imaps");
         props.put("mail.imaps.host", "imap.gmail.com");
@@ -43,7 +71,10 @@ public final class MailReaderUtility {
         Date searchStartTime = new Date(searchStartTimeMillis);
         Folder folder = null;
         try {
-            store.connect(email, appPassword);
+            store.connect(
+                    email,
+                    appPassword
+            );
             while ((System.currentTimeMillis() - searchStartTimeMillis) < maxWaitTimeMs) {
                 for (String folderName : folders) {
                     try {
@@ -52,10 +83,18 @@ public final class MailReaderUtility {
                             continue;
                         }
                         folder.open(Folder.READ_WRITE);
-                        AndTerm searchTerm = new AndTerm(new SearchTerm[]{new SubjectTerm(emailSubject), new ReceivedDateTerm(ComparisonTerm.GE, searchStartTime), new RecipientStringTerm(Message.RecipientType.TO, email)});
+                        AndTerm searchTerm = new AndTerm(new SearchTerm[]{
+                                new SubjectTerm(emailSubject),
+                                new ReceivedDateTerm(
+                                        ComparisonTerm.GE,
+                                        searchStartTime
+                                ),
+                                new RecipientStringTerm(Message.RecipientType.TO, email)
+                        });
                         Message[] messages = folder.search(searchTerm);
                         for (Message message : messages) {
-                            if (message.getReceivedDate() != null && message.getReceivedDate().before(searchStartTime)) {
+                            if (message.getReceivedDate() != null &&
+                                    message.getReceivedDate().before(searchStartTime)) {
                                 continue;
                             }
                             String content = getTextFromMessage(message);
@@ -69,37 +108,53 @@ public final class MailReaderUtility {
                             return content;
                         }
                     } finally {
-                        if (folder != null && folder.isOpen()) {
+                        if (folder != null &&
+                                folder.isOpen()) {
                             folder.close(true);
                         }
                     }
                 }
-                log.info("No email found with subject '{}' yet, waiting for {} ms before retrying", emailSubject, intervalTimeMs);
+                log.info(
+                        "No email found with subject '{}' yet, waiting for {} ms before retrying",
+                        emailSubject,
+                        intervalTimeMs
+                );
                 Thread.sleep(intervalTimeMs);
             }
             throw new RuntimeException("No email found with subject '" + emailSubject + "' after " + searchStartTime);
         } finally {
-            if (store != null && store.isConnected()) {
+            if (store != null &&
+                    store.isConnected()) {
                 store.close();
             }
         }
     }
 
-    public static void validateArguments(String email, String appPassword, String emailSubject, Set<String> folders, long maxWaitTimeMs, long intervalTimeMs) {
-        if (email == null || email.isBlank()) {
+    public static void validateArguments(String email,
+                                         String appPassword,
+                                         String emailSubject,
+                                         Set<String> folders,
+                                         long maxWaitTimeMs,
+                                         long intervalTimeMs) {
+        if (email == null ||
+                email.isBlank()) {
             throw new IllegalArgumentException("Email cannot be null or blank");
         }
-        if (appPassword == null || appPassword.isBlank()) {
+        if (appPassword == null ||
+                appPassword.isBlank()) {
             throw new IllegalArgumentException("App password cannot be null or blank");
         }
-        if (emailSubject == null || emailSubject.isBlank()) {
+        if (emailSubject == null ||
+                emailSubject.isBlank()) {
             throw new IllegalArgumentException("Email subject cannot be null or blank");
         }
-        if (folders == null || folders.isEmpty()) {
+        if (folders == null ||
+                folders.isEmpty()) {
             throw new IllegalArgumentException("Folders cannot be null or empty");
         }
         for (String folder : folders) {
-            if (folder == null || folder.isBlank()) {
+            if (folder == null ||
+                    folder.isBlank()) {
                 throw new IllegalArgumentException("Folder name cannot be null or blank");
             }
         }
@@ -111,7 +166,8 @@ public final class MailReaderUtility {
         }
     }
 
-    private static String getTextFromMessage(Message message) throws MessagingException, IOException {
+    private static String getTextFromMessage(Message message)
+            throws MessagingException, IOException {
         if (message == null) {
             throw new IllegalArgumentException("Message cannot be null");
         }
@@ -125,7 +181,9 @@ public final class MailReaderUtility {
                 if (bodyPart.isMimeType("text/plain")) {
                     return bodyPart.getContent().toString();
                 } else if (bodyPart.isMimeType("text/html")) {
-                    return Jsoup.parse(bodyPart.getContent().toString()).text();
+                    return Jsoup.parse(bodyPart.getContent()
+                                    .toString())
+                            .text();
                 }
             }
         }
@@ -133,7 +191,8 @@ public final class MailReaderUtility {
     }
 
     private static void validateContent(String content) {
-        if (content == null || content.isBlank()) {
+        if (content == null ||
+                content.isBlank()) {
             throw new IllegalArgumentException("Email content cannot be null or blank");
         }
     }
@@ -147,8 +206,20 @@ public final class MailReaderUtility {
         throw new RuntimeException("Token not found in email content");
     }
 
-    public static String getOtp(String email, String appPassword, String emailSubject) throws MessagingException, InterruptedException, IOException {
-        return extractOtp(fetchParticularEmailContent(email, appPassword, emailSubject, DEFAULT_SEARCH_FOLDERS, DEFAULT_MAX_WAIT_MS, DEFAULT_POLL_INTERVAL_MS, true, true));
+    public static String getOtp(String email,
+                                String appPassword,
+                                String emailSubject)
+            throws MessagingException, InterruptedException, IOException {
+        return extractOtp(fetchParticularEmailContent(email,
+                        appPassword,
+                        emailSubject,
+                        DEFAULT_SEARCH_FOLDERS,
+                        DEFAULT_MAX_WAIT_MS,
+                        DEFAULT_POLL_INTERVAL_MS,
+                        true,
+                        true
+                )
+        );
     }
 
     private static String extractOtp(String content) {

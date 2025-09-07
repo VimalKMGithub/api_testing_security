@@ -17,18 +17,39 @@ public final class AdminCalls {
     private AdminCalls() {
     }
 
-    public static Response createUsers(String accessToken, Set<UserDto> users, String leniency) {
-        return executeRequest(POST, ADMIN + "/create/users", Map.of(AUTHORIZATION, BEARER + accessToken), (leniency == null || leniency.isBlank()) ? null : Map.of(LENIENCY, leniency), null, users);
+    public static Response createUsers(String accessToken,
+                                       Set<UserDto> users,
+                                       String leniency) {
+        return executeRequest(
+                POST,
+                ADMIN + "/create/users",
+                Map.of(AUTHORIZATION, BEARER + accessToken),
+                (leniency == null || leniency.isBlank()) ? null : Map.of(LENIENCY, leniency),
+                null,
+                users
+        );
     }
 
-    public static Response deleteUsers(String accessToken, Set<String> usernamesOrEmails, String hard, String leniency) {
+    public static Response deleteUsers(String accessToken,
+                                       Set<String> usernamesOrEmails,
+                                       String hard,
+                                       String leniency) {
         Map<String, String> params = new HashMap<>();
-        if (hard != null && !hard.isBlank()) {
+        if (hard != null
+                && !hard.isBlank()) {
             params.put(HARD, hard);
         }
-        if (leniency != null && !leniency.isBlank()) {
+        if (leniency != null
+                && !leniency.isBlank()) {
             params.put(LENIENCY, leniency);
         }
-        return executeRequest(DELETE, ADMIN + "/delete/users", Map.of(AUTHORIZATION, BEARER + accessToken), params.isEmpty() ? null : params, null, usernamesOrEmails);
+        return executeRequest(
+                DELETE,
+                ADMIN + "/delete/users",
+                Map.of(AUTHORIZATION, BEARER + accessToken),
+                params.isEmpty() ? null : params,
+                null,
+                usernamesOrEmails
+        );
     }
 }

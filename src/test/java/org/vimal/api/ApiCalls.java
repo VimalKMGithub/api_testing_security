@@ -14,19 +14,52 @@ public final class ApiCalls {
     private ApiCalls() {
     }
 
-    public static Response executeRequest(RequestMethods method, String endpoint, Map<String, String> headers) {
-        return executeRequest(method, endpoint, headers, null);
+    public static Response executeRequest(RequestMethods method,
+                                          String endpoint,
+                                          Map<String, String> headers) {
+        return executeRequest(
+                method,
+                endpoint,
+                headers,
+                null
+        );
     }
 
-    public static Response executeRequest(RequestMethods method, String endpoint, Map<String, String> headers, Map<String, String> params) {
-        return executeRequest(method, endpoint, headers, params, null);
+    public static Response executeRequest(RequestMethods method,
+                                          String endpoint,
+                                          Map<String, String> headers,
+                                          Map<String, String> params) {
+        return executeRequest(
+                method,
+                endpoint,
+                headers,
+                params,
+                null
+        );
     }
 
-    public static Response executeRequest(RequestMethods method, String endpoint, Map<String, String> headers, Map<String, String> params, Map<String, String> pathParams) {
-        return executeRequest(method, endpoint, headers, params, pathParams, null);
+    public static Response executeRequest(RequestMethods method,
+                                          String endpoint,
+                                          Map<String, String> headers,
+                                          Map<String, String> params,
+                                          Map<String, String> pathParams) {
+        return executeRequest(
+                method,
+                endpoint,
+                headers,
+                params,
+                pathParams,
+                null
+        );
     }
 
-    public static Response executeRequest(RequestMethods method, String endpoint, Map<String, String> headers, Map<String, String> params, Map<String, String> pathParams, Object body) {
+    public static Response executeRequest(RequestMethods method,
+                                          String endpoint,
+                                          Map<String, String> headers,
+                                          Map<String, String> params,
+                                          Map<String, String> pathParams,
+                                          Object body
+    ) {
         if (method == null) {
             throw new IllegalArgumentException("Http method cannot be null");
         }
@@ -46,15 +79,19 @@ public final class ApiCalls {
         return executeMethod(method, spec, endpoint);
     }
 
-    private static void processBody(RequestSpecification spec, Object body) {
+    private static void processBody(RequestSpecification spec,
+                                    Object body) {
         if (body instanceof File) {
             spec.multiPart((File) body);
         } else {
-            spec.contentType(ContentType.JSON).body(body);
+            spec.contentType(ContentType.JSON)
+                    .body(body);
         }
     }
 
-    private static Response executeMethod(RequestMethods method, RequestSpecification spec, String endpoint) {
+    private static Response executeMethod(RequestMethods method,
+                                          RequestSpecification spec,
+                                          String endpoint) {
         return switch (method) {
             case GET -> spec.get(endpoint);
             case POST -> spec.post(endpoint);

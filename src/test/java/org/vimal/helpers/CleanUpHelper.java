@@ -20,11 +20,16 @@ public final class CleanUpHelper {
         Set<String> batch = new HashSet<>();
         while (iterator.hasNext()) {
             batch.clear();
-            while (iterator.hasNext() && batch.size() < MAX_BATCH_SIZE_OF_USER_DELETION_AT_A_TIME) {
+            while (iterator.hasNext() &&
+                    batch.size() < MAX_BATCH_SIZE_OF_USER_DELETION_AT_A_TIME) {
                 batch.add(iterator.next());
             }
             try {
-                deleteUsers(batch, ENABLE, ENABLE);
+                deleteUsers(
+                        batch,
+                        ENABLE,
+                        ENABLE
+                );
             } catch (Exception ignored) {
             }
         }

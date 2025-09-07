@@ -35,12 +35,19 @@ public abstract class BaseTest {
 
     @BeforeSuite
     public void setUpBeforeSuite() {
-        log.info("Setting RestAssured with base Url: '{}' & base path: '{}'", BASE_URL, BASE_PATH);
+        log.info(
+                "Setting RestAssured with base Url: '{}' & base path: '{}'",
+                BASE_URL,
+                BASE_PATH
+        );
         RestAssured.baseURI = BASE_URL;
         RestAssured.basePath = BASE_PATH;
         log.info("Enabling logging of request & response if validation fails.");
         RestAssured.enableLoggingOfRequestAndResponseIfValidationFails();
-        GLOBAL_ADMIN_ACCESS_TOKEN = getAccessToken(GLOBAL_ADMIN_USERNAME, GLOBAL_ADMIN_PASSWORD);
+        GLOBAL_ADMIN_ACCESS_TOKEN = getAccessToken(
+                GLOBAL_ADMIN_USERNAME,
+                GLOBAL_ADMIN_PASSWORD
+        );
     }
 
     @AfterSuite
@@ -81,11 +88,16 @@ public abstract class BaseTest {
         Response response;
         while (iterator.hasNext()) {
             batch.clear();
-            while (iterator.hasNext() && batch.size() < MAX_BATCH_SIZE_OF_USER_CREATION_AT_A_TIME) {
+            while (iterator.hasNext() &&
+                    batch.size() < MAX_BATCH_SIZE_OF_USER_CREATION_AT_A_TIME) {
                 batch.add(iterator.next());
             }
-            response = createUsers(batch, null);
-            response.then().statusCode(200);
+            response = createUsers(
+                    batch,
+                    null
+            );
+            response.then()
+                    .statusCode(200);
             TEST_USERS.addAll(batch);
         }
     }
