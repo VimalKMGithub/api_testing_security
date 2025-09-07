@@ -54,11 +54,11 @@ public class AuthenticationServiceTests extends BaseTest {
             Response response = login(user.getUsername(), "WrongPassword@1");
             response.then().statusCode(401)
                     .body("error", containsStringIgnoringCase("Unauthorized"))
-                    .body("message", containsStringIgnoringCase("Invalid credentials"));
+                    .body("message", containsStringIgnoringCase("Bad credentials"));
         }
         Response response = login(user.getUsername(), "WrongPassword@1");
         response.then().statusCode(401)
                 .body("error", containsStringIgnoringCase("Unauthorized"))
-                .body("message", containsStringIgnoringCase("Account locked1"));
+                .body("message", containsStringIgnoringCase("Account is temporarily locked"));
     }
 }
