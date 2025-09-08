@@ -27,19 +27,9 @@ public final class QrUtility {
         return hints;
     }
 
-    public static String extractSecretFromByteArrayOfQrCode(byte[] byteArrayOfQrCode)
-            throws IOException, NotFoundException {
+    public static String extractSecretFromByteArrayOfQrCode(byte[] byteArrayOfQrCode) throws IOException, NotFoundException {
         String totpUrl = decodeByteArrayOfQrCode(byteArrayOfQrCode);
-        if (totpUrl == null ||
-                !totpUrl.startsWith("otpauth://totp/") ||
-                !totpUrl.contains("secret=")) {
-            throw new IllegalArgumentException("Invalid Totp URL format");
-        }
         int queryStart = totpUrl.indexOf('?');
-        if (queryStart == -1 ||
-                queryStart == totpUrl.length() - 1) {
-            throw new IllegalArgumentException("No query parameters found in Totp URL");
-        }
         for (String param : totpUrl.substring(queryStart + 1)
                 .split("&")) {
             if (param.startsWith("secret=")) {
@@ -49,16 +39,8 @@ public final class QrUtility {
         throw new IllegalArgumentException("No secret parameter found in Totp Url");
     }
 
-    private static String decodeByteArrayOfQrCode(byte[] byteArrayOfQrCode)
-            throws IOException, NotFoundException {
-        if (byteArrayOfQrCode == null ||
-                byteArrayOfQrCode.length == 0) {
-            throw new IllegalArgumentException("Byte array cannot be null or empty");
-        }
+    private static String decodeByteArrayOfQrCode(byte[] byteArrayOfQrCode) throws IOException, NotFoundException {
         BufferedImage bufferedImage = ImageIO.read(new ByteArrayInputStream(byteArrayOfQrCode));
-        if (bufferedImage == null) {
-            throw new IllegalArgumentException("Invalid Qr code image data");
-        }
         MultiFormatReader reader = MULTI_FORMAT_READER.get();
         try {
             return reader.decode(new BinaryBitmap(new HybridBinarizer(new BufferedImageLuminanceSource(bufferedImage))), HINTS).getText();

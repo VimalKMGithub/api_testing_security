@@ -13,16 +13,8 @@ public final class RandomStringUtility {
         return generateRandomString(ALPHA_NUMERIC_CHARACTER_SET, DEFAULT_LENGTH);
     }
 
-    private static String generateRandomString(String characters, int length) {
-        if (length < 1) {
-            throw new IllegalArgumentException("Length must be positive to generate a random string");
-        }
-        if (characters == null) {
-            throw new IllegalArgumentException("Character set must not be null");
-        }
-        if (characters.isEmpty()) {
-            throw new IllegalArgumentException("Character set must not be empty");
-        }
+    private static String generateRandomString(String characters,
+                                               int length) {
         StringBuilder sb = new StringBuilder(length);
         ThreadLocalRandom random = ThreadLocalRandom.current();
         for (int i = 0; i < length; i++) {

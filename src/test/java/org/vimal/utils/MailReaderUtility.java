@@ -26,8 +26,7 @@ public final class MailReaderUtility {
 
     public static String getToken(String email,
                                   String appPassword,
-                                  String emailSubject)
-            throws MessagingException, InterruptedException, IOException {
+                                  String emailSubject) throws MessagingException, InterruptedException, IOException {
         return extractUuid(fetchParticularEmailContent(
                         email,
                         appPassword,
@@ -48,16 +47,7 @@ public final class MailReaderUtility {
                                                       long maxWaitTimeMs,
                                                       long intervalTimeMs,
                                                       boolean seen,
-                                                      boolean delete)
-            throws MessagingException, InterruptedException, IOException {
-        validateArguments(
-                email,
-                appPassword,
-                emailSubject,
-                folders,
-                maxWaitTimeMs,
-                intervalTimeMs
-        );
+                                                      boolean delete) throws MessagingException, InterruptedException, IOException {
         Properties props = new Properties();
         props.put("mail.store.protocol", "imaps");
         props.put("mail.imaps.host", "imap.gmail.com");
@@ -130,47 +120,7 @@ public final class MailReaderUtility {
         }
     }
 
-    public static void validateArguments(String email,
-                                         String appPassword,
-                                         String emailSubject,
-                                         Set<String> folders,
-                                         long maxWaitTimeMs,
-                                         long intervalTimeMs) {
-        if (email == null ||
-                email.isBlank()) {
-            throw new IllegalArgumentException("Email cannot be null or blank");
-        }
-        if (appPassword == null ||
-                appPassword.isBlank()) {
-            throw new IllegalArgumentException("App password cannot be null or blank");
-        }
-        if (emailSubject == null ||
-                emailSubject.isBlank()) {
-            throw new IllegalArgumentException("Email subject cannot be null or blank");
-        }
-        if (folders == null ||
-                folders.isEmpty()) {
-            throw new IllegalArgumentException("Folders cannot be null or empty");
-        }
-        for (String folder : folders) {
-            if (folder == null ||
-                    folder.isBlank()) {
-                throw new IllegalArgumentException("Folder name cannot be null or blank");
-            }
-        }
-        if (maxWaitTimeMs < 1) {
-            throw new IllegalArgumentException("Max wait time must be greater than 0");
-        }
-        if (intervalTimeMs < 1) {
-            throw new IllegalArgumentException("Interval time must be greater than 0");
-        }
-    }
-
-    private static String getTextFromMessage(Message message)
-            throws MessagingException, IOException {
-        if (message == null) {
-            throw new IllegalArgumentException("Message cannot be null");
-        }
+    private static String getTextFromMessage(Message message) throws MessagingException, IOException {
         if (message.isMimeType("text/plain")) {
             return message.getContent().toString();
         } else if (message.isMimeType("multipart/*")) {
@@ -190,15 +140,7 @@ public final class MailReaderUtility {
         throw new RuntimeException("Unsupported message type");
     }
 
-    private static void validateContent(String content) {
-        if (content == null ||
-                content.isBlank()) {
-            throw new IllegalArgumentException("Email content cannot be null or blank");
-        }
-    }
-
     private static String extractUuid(String content) {
-        validateContent(content);
         Matcher matcher = UUID_PATTERN.matcher(content);
         if (matcher.find()) {
             return matcher.group(1);
@@ -223,7 +165,6 @@ public final class MailReaderUtility {
     }
 
     private static String extractOtp(String content) {
-        validateContent(content);
         Matcher matcher = DEFAULT_OTP_PATTERN.matcher(content);
         if (matcher.find()) {
             return matcher.group(1);

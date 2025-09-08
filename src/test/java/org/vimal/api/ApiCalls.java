@@ -58,11 +58,7 @@ public final class ApiCalls {
                                           Map<String, String> headers,
                                           Map<String, String> params,
                                           Map<String, String> pathParams,
-                                          Object body
-    ) {
-        if (method == null) {
-            throw new IllegalArgumentException("Http method cannot be null");
-        }
+                                          Object body) {
         RequestSpecification spec = given();
         if (headers != null) {
             headers.forEach(spec::header);
