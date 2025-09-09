@@ -190,6 +190,26 @@ public class AuthenticationServiceTests extends BaseTest {
                 .body("message", containsStringIgnoringCase("Mfa is already enabled"));
     }
 
+    @Test(dependsOnMethods = {
+            "test_Login_Success",
+            "test_Request_To_Enable_Authenticator_App_Mfa_Success",
+            "test_Verify_To_Enable_Authenticator_App_Mfa_Success",
+            "test_Get_StateToken_On_Login_When_Any_Mfa_Is_Enabled",
+            "test_Verify_Mfa_To_Login_Success"
+    })
+    public void test_Verify_To_Enable_Authenticator_App_Mfa_Failure_Already_Enabled(ITestContext context) {
+        Response response = verifyToggleMfa(
+                (String) context.getAttribute("access_token_from_test_Verify_Mfa_To_Login_Success"),
+                AUTHENTICATOR_APP_MFA,
+                ENABLE,
+                "123456"
+        );
+        response.then()
+                .statusCode(400)
+                .body("error", containsStringIgnoringCase("Bad Request"))
+                .body("message", containsStringIgnoringCase("Mfa is already enabled"));
+    }
+
     @Test
     public void test_Logout_Success() {
         UserDto user = createTestUser();
