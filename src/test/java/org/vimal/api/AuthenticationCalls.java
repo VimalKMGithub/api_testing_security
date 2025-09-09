@@ -36,6 +36,15 @@ public final class AuthenticationCalls {
         );
     }
 
+    public static Response refreshAccessToken(String refreshToken) {
+        return executeRequest(
+                POST,
+                AUTH + "/refresh/accessToken",
+                null,
+                Map.of("refreshToken", refreshToken)
+        );
+    }
+
     public static Response requestToToggleMfa(String accessToken,
                                               String type,
                                               String toggle) {
@@ -76,5 +85,17 @@ public final class AuthenticationCalls {
                 .statusCode(200);
         return response.jsonPath()
                 .getString("access_token");
+    }
+
+    public static String getRefreshToken(String usernameOrEmail,
+                                         String password) {
+        Response response = login(
+                usernameOrEmail,
+                password
+        );
+        response.then()
+                .statusCode(200);
+        return response.jsonPath()
+                .getString("refresh_token");
     }
 }

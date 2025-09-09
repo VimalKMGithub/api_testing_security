@@ -161,4 +161,19 @@ public class AuthenticationServiceTests extends BaseTest {
                 .statusCode(200)
                 .body("message", containsStringIgnoringCase("Logout successful"));
     }
+
+    @Test
+    public void test_Refresh_Access_Token_Success() {
+        UserDto user = createTestUser();
+        Response response = refreshAccessToken(getRefreshToken(
+                        user.getUsername(),
+                        user.getPassword()
+                )
+        );
+        response.then()
+                .statusCode(200)
+                .body("access_token", notNullValue())
+                .body("expires_in_seconds", equalTo(1800))
+                .body("token_type", containsStringIgnoringCase("Bearer"));
+    }
 }
