@@ -45,6 +45,14 @@ public final class AuthenticationCalls {
         );
     }
 
+    public static Response revokeAccessToken(String accessToken) {
+        return executeRequest(
+                POST,
+                AUTH + "/revoke/accessToken",
+                Map.of(AUTHORIZATION, BEARER + accessToken)
+        );
+    }
+
     public static Response requestToToggleMfa(String accessToken,
                                               String type,
                                               String toggle) {
