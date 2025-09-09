@@ -205,4 +205,20 @@ public class AuthenticationServiceTests extends BaseTest {
                     .body("message", containsStringIgnoringCase("Invalid refresh token"));
         }
     }
+
+    @Test
+    public void test_Revoke_Refresh_Token_Success() {
+        UserDto user = createTestUser();
+        Response response = login(
+                user.getUsername(),
+                user.getPassword()
+        );
+        response.then()
+                .statusCode(200);
+        response = revokeRefreshToken(response.jsonPath()
+                .getString("refresh_token"));
+        response.then()
+                .statusCode(200)
+                .body("message", containsStringIgnoringCase("Refresh token revoked successfully"));
+    }
 }

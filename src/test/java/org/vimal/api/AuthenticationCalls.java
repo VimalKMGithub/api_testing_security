@@ -53,6 +53,15 @@ public final class AuthenticationCalls {
         );
     }
 
+    public static Response revokeRefreshToken(String refreshToken) {
+        return executeRequest(
+                POST,
+                AUTH + "/revoke/refreshToken",
+                null,
+                Map.of("refreshToken", refreshToken)
+        );
+    }
+
     public static Response requestToToggleMfa(String accessToken,
                                               String type,
                                               String toggle) {
