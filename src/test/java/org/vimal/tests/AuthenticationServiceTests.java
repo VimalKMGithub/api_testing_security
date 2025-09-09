@@ -148,4 +148,12 @@ public class AuthenticationServiceTests extends BaseTest {
         context.setAttribute("state_token_from_test_Get_StateToken_On_Login_When_Any_Mfa_Is_Enabled", response.jsonPath()
                 .getString("state_token"));
     }
+
+    @Test(dependsOnMethods = {"test_Login_Success"})
+    public void test_Logout_Success(ITestContext context) {
+        Response response = logout((String) context.getAttribute("access_token_from_test_Login_Success"));
+        response.then()
+                .statusCode(200)
+                .body("message", containsStringIgnoringCase("Access token revoked successfully"));
+    }
 }
