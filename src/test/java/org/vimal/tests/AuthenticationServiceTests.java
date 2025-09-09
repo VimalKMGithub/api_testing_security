@@ -102,6 +102,97 @@ public class AuthenticationServiceTests extends BaseTest {
                 .body("message", containsStringIgnoringCase("Account is temporarily locked"));
     }
 
+    @Test(dependsOnMethods = {
+            "test_Login_Success",
+            "test_Request_To_Enable_Authenticator_App_Mfa_Success",
+            "test_Verify_To_Enable_Authenticator_App_Mfa_Success"
+    })
+    public void test_Get_StateToken_On_Login_When_Any_Mfa_Is_Enabled(ITestContext context) {
+        UserDto user = (UserDto) context.getAttribute("user_from_test_Login_Success");
+        Response response = login(
+                user.getUsername(),
+                user.getPassword()
+        );
+        response.then()
+                .statusCode(200)
+                .body("state_token", notNullValue());
+        context.setAttribute("state_token_from_test_Get_StateToken_On_Login_When_Any_Mfa_Is_Enabled", response.jsonPath()
+                .getString("state_token"));
+    }
+
+    @Test
+    public void test_Logout_Success() {
+        UserDto user = createTestUser();
+        Response response = logout(getAccessToken(
+                        user.getUsername(),
+                        user.getPassword()
+                )
+        );
+        response.then()
+                .statusCode(200)
+                .body("message", containsStringIgnoringCase("Logout successful"));
+    }
+
+    @Test(dependsOnMethods = {"test_Revoke_Access_Token_Success"})
+    public void test_Refresh_Access_Token_Success(ITestContext context) {
+        Response response = refreshAccessToken((String) context.getAttribute("refresh_token_from_test_Revoke_Access_Token_Success"));
+        response.then()
+                .statusCode(200)
+                .body("access_token", notNullValue())
+                .body("expires_in_seconds", equalTo(1800))
+                .body("token_type", containsStringIgnoringCase("Bearer"));
+    }
+
+    @Test
+    public void test_Refresh_Access_Token_Failure_Invalid_Refresh_Token() {
+        Response response = refreshAccessToken("invalidRefreshToken");
+        response.then()
+                .statusCode(400)
+                .body("error", containsStringIgnoringCase("Bad Request"))
+                .body("message", containsStringIgnoringCase("Invalid refresh token"));
+        for (String invalidRefreshToken : INVALID_UUIDS) {
+            response = refreshAccessToken(invalidRefreshToken);
+            response.then()
+                    .statusCode(400)
+                    .body("error", containsStringIgnoringCase("Bad Request"))
+                    .body("message", containsStringIgnoringCase("Invalid refresh token"));
+        }
+    }
+
+    @Test
+    public void test_Revoke_Access_Token_Success(ITestContext context) {
+        UserDto user = createTestUser();
+        Response response = login(
+                user.getUsername(),
+                user.getPassword()
+        );
+        response.then()
+                .statusCode(200);
+        context.setAttribute("refresh_token_from_test_Revoke_Access_Token_Success", response.jsonPath()
+                .getString("refresh_token"));
+        response = revokeAccessToken(response.jsonPath()
+                .getString("access_token"));
+        response.then()
+                .statusCode(200)
+                .body("message", containsStringIgnoringCase("Access token revoked successfully"));
+    }
+
+    @Test
+    public void test_Revoke_Refresh_Token_Success() {
+        UserDto user = createTestUser();
+        Response response = login(
+                user.getUsername(),
+                user.getPassword()
+        );
+        response.then()
+                .statusCode(200);
+        response = revokeRefreshToken(response.jsonPath()
+                .getString("refresh_token"));
+        response.then()
+                .statusCode(200)
+                .body("message", containsStringIgnoringCase("Refresh token revoked successfully"));
+    }
+
     @Test(dependsOnMethods = {"test_Login_Success"})
     public void test_Request_To_Enable_Authenticator_App_Mfa_Success(ITestContext context) {
         Response response = requestToToggleMfa(
@@ -129,24 +220,6 @@ public class AuthenticationServiceTests extends BaseTest {
         response.then()
                 .statusCode(200)
                 .body("message", containsStringIgnoringCase("Authenticator app Mfa enabled successfully"));
-    }
-
-    @Test(dependsOnMethods = {
-            "test_Login_Success",
-            "test_Request_To_Enable_Authenticator_App_Mfa_Success",
-            "test_Verify_To_Enable_Authenticator_App_Mfa_Success"
-    })
-    public void test_Get_StateToken_On_Login_When_Any_Mfa_Is_Enabled(ITestContext context) {
-        UserDto user = (UserDto) context.getAttribute("user_from_test_Login_Success");
-        Response response = login(
-                user.getUsername(),
-                user.getPassword()
-        );
-        response.then()
-                .statusCode(200)
-                .body("state_token", notNullValue());
-        context.setAttribute("state_token_from_test_Get_StateToken_On_Login_When_Any_Mfa_Is_Enabled", response.jsonPath()
-                .getString("state_token"));
     }
 
     @Test(dependsOnMethods = {
@@ -226,7 +299,7 @@ public class AuthenticationServiceTests extends BaseTest {
         response.then()
                 .statusCode(400)
                 .body("error", containsStringIgnoringCase("Bad Request"))
-                .body("message", containsStringIgnoringCase("Invalid Otp"));
+                .body("message", containsStringIgnoringCase("Invalid Totp"));
         for (String invalidOtp : INVALID_OTPS) {
             response = verifyToggleMfa(
                     accessToken,
@@ -237,80 +310,7 @@ public class AuthenticationServiceTests extends BaseTest {
             response.then()
                     .statusCode(400)
                     .body("error", containsStringIgnoringCase("Bad Request"))
-                    .body("message", containsStringIgnoringCase("Invalid Otp"));
+                    .body("message", containsStringIgnoringCase("Invalid Totp"));
         }
-    }
-
-    @Test
-    public void test_Logout_Success() {
-        UserDto user = createTestUser();
-        Response response = logout(getAccessToken(
-                        user.getUsername(),
-                        user.getPassword()
-                )
-        );
-        response.then()
-                .statusCode(200)
-                .body("message", containsStringIgnoringCase("Logout successful"));
-    }
-
-    @Test
-    public void test_Revoke_Access_Token_Success(ITestContext context) {
-        UserDto user = createTestUser();
-        Response response = login(
-                user.getUsername(),
-                user.getPassword()
-        );
-        response.then()
-                .statusCode(200);
-        context.setAttribute("refresh_token_from_test_Revoke_Access_Token_Success", response.jsonPath()
-                .getString("refresh_token"));
-        response = revokeAccessToken(response.jsonPath()
-                .getString("access_token"));
-        response.then()
-                .statusCode(200)
-                .body("message", containsStringIgnoringCase("Access token revoked successfully"));
-    }
-
-    @Test(dependsOnMethods = {"test_Revoke_Access_Token_Success"})
-    public void test_Refresh_Access_Token_Success(ITestContext context) {
-        Response response = refreshAccessToken((String) context.getAttribute("refresh_token_from_test_Revoke_Access_Token_Success"));
-        response.then()
-                .statusCode(200)
-                .body("access_token", notNullValue())
-                .body("expires_in_seconds", equalTo(1800))
-                .body("token_type", containsStringIgnoringCase("Bearer"));
-    }
-
-    @Test
-    public void test_Refresh_Access_Token_Failure_Invalid_Refresh_Token() {
-        Response response = refreshAccessToken("invalidRefreshToken");
-        response.then()
-                .statusCode(400)
-                .body("error", containsStringIgnoringCase("Bad Request"))
-                .body("message", containsStringIgnoringCase("Invalid refresh token"));
-        for (String invalidRefreshToken : INVALID_UUIDS) {
-            response = refreshAccessToken(invalidRefreshToken);
-            response.then()
-                    .statusCode(400)
-                    .body("error", containsStringIgnoringCase("Bad Request"))
-                    .body("message", containsStringIgnoringCase("Invalid refresh token"));
-        }
-    }
-
-    @Test
-    public void test_Revoke_Refresh_Token_Success() {
-        UserDto user = createTestUser();
-        Response response = login(
-                user.getUsername(),
-                user.getPassword()
-        );
-        response.then()
-                .statusCode(200);
-        response = revokeRefreshToken(response.jsonPath()
-                .getString("refresh_token"));
-        response.then()
-                .statusCode(200)
-                .body("message", containsStringIgnoringCase("Refresh token revoked successfully"));
     }
 }
