@@ -211,6 +211,37 @@ public class AuthenticationServiceTests extends BaseTest {
     }
 
     @Test
+    public void test_Verify_To_Enable_Authenticator_App_Mfa_Failure_Invalid_Otps() {
+        UserDto user = createTestUser();
+        String accessToken = getAccessToken(
+                user.getUsername(),
+                user.getPassword()
+        );
+        Response response = verifyToggleMfa(
+                accessToken,
+                AUTHENTICATOR_APP_MFA,
+                ENABLE,
+                "123456"
+        );
+        response.then()
+                .statusCode(400)
+                .body("error", containsStringIgnoringCase("Bad Request"))
+                .body("message", containsStringIgnoringCase("Invalid Otp"));
+        for (String invalidOtp : INVALID_OTPS) {
+            response = verifyToggleMfa(
+                    accessToken,
+                    AUTHENTICATOR_APP_MFA,
+                    ENABLE,
+                    invalidOtp
+            );
+            response.then()
+                    .statusCode(400)
+                    .body("error", containsStringIgnoringCase("Bad Request"))
+                    .body("message", containsStringIgnoringCase("Invalid Otp"));
+        }
+    }
+
+    @Test
     public void test_Logout_Success() {
         UserDto user = createTestUser();
         Response response = logout(getAccessToken(
