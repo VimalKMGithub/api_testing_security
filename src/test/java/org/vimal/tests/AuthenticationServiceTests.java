@@ -208,44 +208,6 @@ public class AuthenticationServiceTests extends BaseTest {
 
     @Test(dependsOnMethods = {
             "test_Login_Success",
-            "test_Request_To_Enable_Authenticator_App_Mfa_Success"
-    })
-    public void test_Verify_To_Enable_Authenticator_App_Mfa_Success(ITestContext context) throws NotFoundException, IOException, InvalidKeyException {
-        Response response = verifyToggleMfa(
-                (String) context.getAttribute("access_token_from_test_Login_Success"),
-                AUTHENTICATOR_APP_MFA,
-                ENABLE,
-                generateTotp(extractSecretFromByteArrayOfQrCode((byte[]) context.getAttribute("mfa_secret_from_test_Request_To_Enable_Authenticator_App_Mfa_Success")))
-        );
-        response.then()
-                .statusCode(200)
-                .body("message", containsStringIgnoringCase("Authenticator app Mfa enabled successfully"));
-    }
-
-    @Test(dependsOnMethods = {
-            "test_Login_Success",
-            "test_Request_To_Enable_Authenticator_App_Mfa_Success",
-            "test_Verify_To_Enable_Authenticator_App_Mfa_Success",
-            "test_Get_StateToken_On_Login_When_Any_Mfa_Is_Enabled"
-    })
-    public void test_Verify_Mfa_To_Login_Success(ITestContext context) throws InvalidKeyException, NotFoundException, IOException {
-        Response response = verifyMfaToLogin(
-                AUTHENTICATOR_APP_MFA,
-                (String) context.getAttribute("state_token_from_test_Get_StateToken_On_Login_When_Any_Mfa_Is_Enabled"),
-                generateTotp(extractSecretFromByteArrayOfQrCode((byte[]) context.getAttribute("mfa_secret_from_test_Request_To_Enable_Authenticator_App_Mfa_Success")))
-        );
-        response.then()
-                .statusCode(200)
-                .body("access_token", notNullValue())
-                .body("refresh_token", notNullValue())
-                .body("expires_in_seconds", equalTo(1800))
-                .body("token_type", containsStringIgnoringCase("Bearer"));
-        context.setAttribute("access_token_from_test_Verify_Mfa_To_Login_Success", response.jsonPath()
-                .getString("access_token"));
-    }
-
-    @Test(dependsOnMethods = {
-            "test_Login_Success",
             "test_Request_To_Enable_Authenticator_App_Mfa_Success",
             "test_Verify_To_Enable_Authenticator_App_Mfa_Success",
             "test_Get_StateToken_On_Login_When_Any_Mfa_Is_Enabled",
@@ -261,6 +223,22 @@ public class AuthenticationServiceTests extends BaseTest {
                 .statusCode(400)
                 .body("error", containsStringIgnoringCase("Bad Request"))
                 .body("message", containsStringIgnoringCase("Mfa is already enabled"));
+    }
+
+    @Test(dependsOnMethods = {
+            "test_Login_Success",
+            "test_Request_To_Enable_Authenticator_App_Mfa_Success"
+    })
+    public void test_Verify_To_Enable_Authenticator_App_Mfa_Success(ITestContext context) throws NotFoundException, IOException, InvalidKeyException {
+        Response response = verifyToggleMfa(
+                (String) context.getAttribute("access_token_from_test_Login_Success"),
+                AUTHENTICATOR_APP_MFA,
+                ENABLE,
+                generateTotp(extractSecretFromByteArrayOfQrCode((byte[]) context.getAttribute("mfa_secret_from_test_Request_To_Enable_Authenticator_App_Mfa_Success")))
+        );
+        response.then()
+                .statusCode(200)
+                .body("message", containsStringIgnoringCase("Authenticator app Mfa enabled successfully"));
     }
 
     @Test(dependsOnMethods = {
@@ -312,5 +290,27 @@ public class AuthenticationServiceTests extends BaseTest {
                     .body("error", containsStringIgnoringCase("Bad Request"))
                     .body("message", containsStringIgnoringCase("Invalid Otp/Totp"));
         }
+    }
+
+    @Test(dependsOnMethods = {
+            "test_Login_Success",
+            "test_Request_To_Enable_Authenticator_App_Mfa_Success",
+            "test_Verify_To_Enable_Authenticator_App_Mfa_Success",
+            "test_Get_StateToken_On_Login_When_Any_Mfa_Is_Enabled"
+    })
+    public void test_Verify_Mfa_To_Login_Success(ITestContext context) throws InvalidKeyException, NotFoundException, IOException {
+        Response response = verifyMfaToLogin(
+                AUTHENTICATOR_APP_MFA,
+                (String) context.getAttribute("state_token_from_test_Get_StateToken_On_Login_When_Any_Mfa_Is_Enabled"),
+                generateTotp(extractSecretFromByteArrayOfQrCode((byte[]) context.getAttribute("mfa_secret_from_test_Request_To_Enable_Authenticator_App_Mfa_Success")))
+        );
+        response.then()
+                .statusCode(200)
+                .body("access_token", notNullValue())
+                .body("refresh_token", notNullValue())
+                .body("expires_in_seconds", equalTo(1800))
+                .body("token_type", containsStringIgnoringCase("Bearer"));
+        context.setAttribute("access_token_from_test_Verify_Mfa_To_Login_Success", response.jsonPath()
+                .getString("access_token"));
     }
 }
