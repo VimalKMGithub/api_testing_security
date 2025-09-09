@@ -176,4 +176,20 @@ public class AuthenticationServiceTests extends BaseTest {
                 .body("expires_in_seconds", equalTo(1800))
                 .body("token_type", containsStringIgnoringCase("Bearer"));
     }
+
+    @Test
+    public void test_Refresh_Access_Token_Failure_Invalid_Refresh_Token() {
+        Response response = refreshAccessToken("invalidRefreshToken");
+        response.then()
+                .statusCode(400)
+                .body("error", containsStringIgnoringCase("Bad Request"))
+                .body("message", containsStringIgnoringCase("Invalid refresh token"));
+        for (String invalidRefreshToken : INVALID_UUIDS) {
+            response = refreshAccessToken(invalidRefreshToken);
+            response.then()
+                    .statusCode(400)
+                    .body("error", containsStringIgnoringCase("Bad Request"))
+                    .body("message", containsStringIgnoringCase("Invalid refresh token"));
+        }
+    }
 }
