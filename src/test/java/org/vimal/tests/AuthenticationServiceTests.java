@@ -149,6 +149,28 @@ public class AuthenticationServiceTests extends BaseTest {
                 .getString("state_token"));
     }
 
+    @Test(dependsOnMethods = {
+            "test_Login_Success",
+            "test_Request_To_Enable_Authenticator_App_Mfa_Success",
+            "test_Verify_To_Enable_Authenticator_App_Mfa_Success",
+            "test_Get_StateToken_On_Login_When_Any_Mfa_Is_Enabled"
+    })
+    public void test_Verify_Mfa_To_Login_Success(ITestContext context) throws InvalidKeyException, NotFoundException, IOException {
+        Response response = verifyMfaToLogin(
+                AUTHENTICATOR_APP_MFA,
+                (String) context.getAttribute("state_token_from_test_Get_StateToken_On_Login_When_Any_Mfa_Is_Enabled"),
+                generateTotp(extractSecretFromByteArrayOfQrCode((byte[]) context.getAttribute("mfa_secret_from_test_Request_To_Enable_Authenticator_App_Mfa_Success")))
+        );
+        response.then()
+                .statusCode(200)
+                .body("access_token", notNullValue())
+                .body("refresh_token", notNullValue())
+                .body("expires_in_seconds", equalTo(1800))
+                .body("token_type", containsStringIgnoringCase("Bearer"));
+        context.setAttribute("access_token_from_test_Verify_Mfa_To_Login_Success", response.jsonPath()
+                .getString("access_token"));
+    }
+
     @Test
     public void test_Logout_Success() {
         UserDto user = createTestUser();

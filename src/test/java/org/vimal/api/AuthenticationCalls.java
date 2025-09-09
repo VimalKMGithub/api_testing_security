@@ -92,6 +92,21 @@ public final class AuthenticationCalls {
         );
     }
 
+    public static Response verifyMfaToLogin(String type,
+                                            String stateToken,
+                                            String otpTotp) {
+        return executeRequest(
+                POST,
+                AUTH + "/mfa/verifyTo/login",
+                null,
+                Map.of(
+                        "type", type,
+                        "stateToken", stateToken,
+                        "otpTotp", otpTotp
+                )
+        );
+    }
+
     public static String getAccessToken(String usernameOrEmail,
                                         String password) {
         Response response = login(
