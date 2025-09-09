@@ -14,6 +14,7 @@ public final class DateTimeUtility {
     }
 
     private static String getCurrentFormattedLocalTimeStamp(DateTimeFormatter dateTimeFormatter) {
-        return LocalDateTime.now().format(dateTimeFormatter);
+        return LocalDateTime.now()
+                .format(dateTimeFormatter);
     }
 }

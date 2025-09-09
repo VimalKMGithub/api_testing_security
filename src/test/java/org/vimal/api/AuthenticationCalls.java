@@ -21,7 +21,10 @@ public final class AuthenticationCalls {
                 POST,
                 AUTH + "/login",
                 null,
-                Map.of("usernameOrEmail", usernameOrEmail, "password", password)
+                Map.of(
+                        "usernameOrEmail", usernameOrEmail,
+                        "password", password
+                )
         );
     }
 

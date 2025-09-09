@@ -24,7 +24,8 @@ public final class AdminCalls {
                 POST,
                 ADMIN + "/create/users",
                 Map.of(AUTHORIZATION, BEARER + accessToken),
-                (leniency == null || leniency.isBlank()) ? null : Map.of(LENIENCY, leniency),
+                (leniency == null ||
+                        leniency.isBlank()) ? null : Map.of(LENIENCY, leniency),
                 null,
                 users
         );
@@ -35,12 +36,12 @@ public final class AdminCalls {
                                        String hard,
                                        String leniency) {
         Map<String, String> params = new HashMap<>();
-        if (hard != null
-                && !hard.isBlank()) {
+        if (hard != null &&
+                !hard.isBlank()) {
             params.put(HARD, hard);
         }
-        if (leniency != null
-                && !leniency.isBlank()) {
+        if (leniency != null &&
+                !leniency.isBlank()) {
             params.put(LENIENCY, leniency);
         }
         return executeRequest(

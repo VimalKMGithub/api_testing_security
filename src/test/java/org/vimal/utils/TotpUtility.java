@@ -16,9 +16,11 @@ public final class TotpUtility {
 
     public static String generateTotp(String base32Secret) throws InvalidKeyException {
         return TOTP_GENERATOR.generateOneTimePasswordString(
-                new SecretKeySpec(BASE_32.get()
-                        .decode(base32Secret),
-                        TOTP_GENERATOR.getAlgorithm()),
+                new SecretKeySpec(
+                        BASE_32.get()
+                                .decode(base32Secret),
+                        TOTP_GENERATOR.getAlgorithm()
+                ),
                 Instant.now()
         );
     }

@@ -43,7 +43,11 @@ public final class QrUtility {
         BufferedImage bufferedImage = ImageIO.read(new ByteArrayInputStream(byteArrayOfQrCode));
         MultiFormatReader reader = MULTI_FORMAT_READER.get();
         try {
-            return reader.decode(new BinaryBitmap(new HybridBinarizer(new BufferedImageLuminanceSource(bufferedImage))), HINTS).getText();
+            return reader.decode(
+                            new BinaryBitmap(new HybridBinarizer(new BufferedImageLuminanceSource(bufferedImage))),
+                            HINTS
+                    )
+                    .getText();
         } finally {
             reader.reset();
         }
