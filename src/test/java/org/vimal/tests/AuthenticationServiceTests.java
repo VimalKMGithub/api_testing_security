@@ -310,7 +310,7 @@ public class AuthenticationServiceTests extends BaseTest {
             response.then()
                     .statusCode(400)
                     .body("error", containsStringIgnoringCase("Bad Request"))
-                    .body("message", containsStringIgnoringCase("Invalid Totp"));
+                    .body("message", containsStringIgnoringCase("Invalid Otp/Totp"));
         }
     }
 }
