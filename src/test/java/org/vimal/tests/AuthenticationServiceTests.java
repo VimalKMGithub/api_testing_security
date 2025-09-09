@@ -8,6 +8,9 @@ import org.vimal.dtos.UserDto;
 
 import static org.hamcrest.Matchers.*;
 import static org.vimal.api.AuthenticationCalls.login;
+import static org.vimal.api.AuthenticationCalls.requestToToggleMfa;
+import static org.vimal.constants.Common.AUTHENTICATOR_APP_MFA;
+import static org.vimal.constants.Common.ENABLE;
 import static org.vimal.helpers.InvalidInputsHelper.*;
 
 public class AuthenticationServiceTests extends BaseTest {
@@ -18,13 +21,14 @@ public class AuthenticationServiceTests extends BaseTest {
                 user.getUsername(),
                 user.getPassword()
         );
-        response.then().statusCode(200)
+        response.then()
+                .statusCode(200)
                 .body("access_token", notNullValue())
                 .body("refresh_token", notNullValue())
                 .body("expires_in_seconds", equalTo(1800))
                 .body("token_type", containsStringIgnoringCase("Bearer"));
-        context.setAttribute("user_of_test_Login_Success", user);
-        context.setAttribute("access_token", response.jsonPath()
+        context.setAttribute("user_from_test_Login_Success", user);
+        context.setAttribute("access_token_from_test_Login_Success", response.jsonPath()
                 .getString("access_token"));
     }
 
@@ -34,7 +38,8 @@ public class AuthenticationServiceTests extends BaseTest {
                 "invalidUser",
                 "wrongPassword@1"
         );
-        response.then().statusCode(401)
+        response.then()
+                .statusCode(401)
                 .body("error", containsStringIgnoringCase("Unauthorized"))
                 .body("message", containsStringIgnoringCase("Invalid credentials"));
         for (String invalidUsername : INVALID_USERNAMES) {
@@ -42,7 +47,8 @@ public class AuthenticationServiceTests extends BaseTest {
                     invalidUsername,
                     "SomePassword@1"
             );
-            response.then().statusCode(401)
+            response.then()
+                    .statusCode(401)
                     .body("error", containsStringIgnoringCase("Unauthorized"))
                     .body("message", containsStringIgnoringCase("Invalid credentials"));
         }
@@ -51,7 +57,8 @@ public class AuthenticationServiceTests extends BaseTest {
                     invalidEmail,
                     "SomePassword@1"
             );
-            response.then().statusCode(401)
+            response.then()
+                    .statusCode(401)
                     .body("error", containsStringIgnoringCase("Unauthorized"))
                     .body("message", containsStringIgnoringCase("Invalid credentials"));
         }
@@ -60,7 +67,8 @@ public class AuthenticationServiceTests extends BaseTest {
                     "SomeUser",
                     invalidPassword
             );
-            response.then().statusCode(401)
+            response.then()
+                    .statusCode(401)
                     .body("error", containsStringIgnoringCase("Unauthorized"))
                     .body("message", containsStringIgnoringCase("Invalid credentials"));
         }
@@ -74,7 +82,8 @@ public class AuthenticationServiceTests extends BaseTest {
                     user.getUsername(),
                     "WrongPassword@1"
             );
-            response.then().statusCode(401)
+            response.then()
+                    .statusCode(401)
                     .body("error", containsStringIgnoringCase("Unauthorized"))
                     .body("message", containsStringIgnoringCase("Bad credentials"));
         }
@@ -82,8 +91,22 @@ public class AuthenticationServiceTests extends BaseTest {
                 user.getUsername(),
                 "WrongPassword@1"
         );
-        response.then().statusCode(401)
+        response.then()
+                .statusCode(401)
                 .body("error", containsStringIgnoringCase("Unauthorized"))
                 .body("message", containsStringIgnoringCase("Account is temporarily locked"));
+    }
+
+    @Test(dependsOnMethods = "test_Login_Success")
+    public void test_Request_To_Enable_Authenticator_App_Mfa_Success(ITestContext context) {
+        Response response = requestToToggleMfa(
+                (String) context.getAttribute("access_token_from_test_Login_Success"),
+                AUTHENTICATOR_APP_MFA,
+                ENABLE
+        );
+        response.then()
+                .statusCode(200)
+                .contentType("image/png");
+        context.setAttribute("mfa_secret_from_test_Request_To_Enable_Authenticator_App_Mfa_Success", response.asByteArray());
     }
 }

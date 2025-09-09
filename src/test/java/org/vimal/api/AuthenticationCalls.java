@@ -36,6 +36,20 @@ public final class AuthenticationCalls {
         );
     }
 
+    public static Response requestToToggleMfa(String accessToken,
+                                              String type,
+                                              String toggle) {
+        return executeRequest(
+                POST,
+                AUTH + "/mfa/requestTo/toggle",
+                Map.of(AUTHORIZATION, BEARER + accessToken),
+                Map.of(
+                        "type", type,
+                        "toggle", toggle
+                )
+        );
+    }
+
     public static String getAccessToken(String usernameOrEmail,
                                         String password) {
         Response response = login(
