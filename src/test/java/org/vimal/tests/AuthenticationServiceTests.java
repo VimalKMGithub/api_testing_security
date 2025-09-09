@@ -262,7 +262,7 @@ public class AuthenticationServiceTests extends BaseTest {
     }
 
     @Test
-    public void test_Verify_To_Enable_Authenticator_App_Mfa_Failure_Invalid_Otps() {
+    public void test_Verify_To_Enable_Authenticator_App_Mfa_Failure_Invalid_Otp() {
         UserDto user = createTestUser();
         String accessToken = getAccessToken(
                 user.getUsername(),
