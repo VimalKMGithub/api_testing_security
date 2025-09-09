@@ -137,5 +137,15 @@ public class AuthenticationServiceTests extends BaseTest {
             "test_Verify_To_Enable_Authenticator_App_Mfa_Success"
     })
     public void test_Get_StateToken_On_Login_When_Any_Mfa_Is_Enabled(ITestContext context) {
+        UserDto user = (UserDto) context.getAttribute("user_from_test_Login_Success");
+        Response response = login(
+                user.getUsername(),
+                user.getPassword()
+        );
+        response.then()
+                .statusCode(200)
+                .body("state_token", notNullValue());
+        context.setAttribute("state_token_from_test_Get_StateToken_On_Login_When_Any_Mfa_Is_Enabled", response.jsonPath()
+                .getString("state_token"));
     }
 }
