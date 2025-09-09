@@ -180,14 +180,9 @@ public class AuthenticationServiceTests extends BaseTest {
                 .body("message", containsStringIgnoringCase("Access token revoked successfully"));
     }
 
-    @Test
-    public void test_Refresh_Access_Token_Success() {
-        UserDto user = createTestUser();
-        Response response = refreshAccessToken(getRefreshToken(
-                        user.getUsername(),
-                        user.getPassword()
-                )
-        );
+    @Test(dependsOnMethods = {"test_Revoke_Access_Token_Success"})
+    public void test_Refresh_Access_Token_Success(ITestContext context) {
+        Response response = refreshAccessToken((String) context.getAttribute("refresh_token_from_test_Revoke_Access_Token_Success"));
         response.then()
                 .statusCode(200)
                 .body("access_token", notNullValue())
