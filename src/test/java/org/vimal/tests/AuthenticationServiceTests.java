@@ -115,7 +115,10 @@ public class AuthenticationServiceTests extends BaseTest {
         context.setAttribute("mfa_secret_from_test_Request_To_Enable_Authenticator_App_Mfa_Success", response.asByteArray());
     }
 
-    @Test(dependsOnMethods = {"test_Login_Success", "test_Request_To_Enable_Authenticator_App_Mfa_Success"})
+    @Test(dependsOnMethods = {
+            "test_Login_Success",
+            "test_Request_To_Enable_Authenticator_App_Mfa_Success"
+    })
     public void test_Verify_To_Enable_Authenticator_App_Mfa_Success(ITestContext context) throws NotFoundException, IOException, InvalidKeyException {
         Response response = verifyToggleMfa(
                 (String) context.getAttribute("access_token_from_test_Login_Success"),
@@ -126,5 +129,13 @@ public class AuthenticationServiceTests extends BaseTest {
         response.then()
                 .statusCode(200)
                 .body("message", containsStringIgnoringCase("Authenticator app Mfa enabled successfully"));
+    }
+
+    @Test(dependsOnMethods = {
+            "test_Login_Success",
+            "test_Request_To_Enable_Authenticator_App_Mfa_Success",
+            "test_Verify_To_Enable_Authenticator_App_Mfa_Success"
+    })
+    public void test_Get_StateToken_On_Login_When_Any_Mfa_Is_Enabled(ITestContext context) {
     }
 }
