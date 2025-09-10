@@ -74,4 +74,17 @@ public final class UserCalls {
                 )
         );
     }
+
+    public static Response changePassword(String accessToken,
+                                          Map<String, String> body) throws ExecutionException, InterruptedException {
+        return waitForResponse(() -> executeRequest(
+                        POST,
+                        USER + "/change/password",
+                        Map.of(AUTHORIZATION, BEARER + accessToken),
+                        null,
+                        null,
+                        body
+                )
+        );
+    }
 }

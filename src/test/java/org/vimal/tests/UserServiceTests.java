@@ -133,4 +133,22 @@ public class UserServiceTests extends BaseTest {
                 .statusCode(400)
                 .body("invalid_inputs", not(empty()));
     }
+
+    @Test
+    public void test_Change_Password_Success() throws ExecutionException, InterruptedException {
+        UserDto user = createTestUser();
+        changePassword(
+                getAccessToken(
+                        user.getUsername(),
+                        user.getPassword()
+                ),
+                Map.of(
+                        "oldPassword", user.getPassword(),
+                        "password", "NewPassword@123",
+                        "confirmPassword", "NewPassword@123"
+                )
+        ).then()
+                .statusCode(200)
+                .body("message", containsStringIgnoringCase("Password changed successfully"));
+    }
 }
