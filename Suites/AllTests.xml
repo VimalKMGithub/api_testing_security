@@ -1,6 +1,6 @@
 <!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
 <suite name="All Tests Suite" parallel="methods" thread-count="6">
-    <test name="ServicePackageSuiteTests">
+    <test name="All Tests">
         <packages>
             <package name="org.vimal.tests"/>
         </packages>
