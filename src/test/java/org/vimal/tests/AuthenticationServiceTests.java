@@ -103,7 +103,9 @@ public class AuthenticationServiceTests extends BaseTest {
             "test_Verify_To_Enable_Authenticator_App_Mfa_Success"
     })
     public void test_Get_StateToken_On_Login_When_Any_Mfa_Is_Enabled(ITestContext context) throws ExecutionException, InterruptedException {
-        UserDto user = (UserDto) context.getAttribute("user_from_test_Login_Success");
+        String attributeName = "user_from_test_Login_Success";
+        UserDto user = (UserDto) context.getAttribute(attributeName);
+        context.removeAttribute(attributeName);
         Response response = login(
                 user.getUsername(),
                 user.getPassword()
@@ -129,8 +131,9 @@ public class AuthenticationServiceTests extends BaseTest {
 
     @Test(dependsOnMethods = {"test_Revoke_Access_Token_Success"})
     public void test_Refresh_Access_Token_Success(ITestContext context) throws ExecutionException, InterruptedException {
-        Response response = refreshAccessToken((String) context.getAttribute("refresh_token_from_test_Revoke_Access_Token_Success"));
-        context.removeAttribute("refresh_token_from_test_Revoke_Access_Token_Success");
+        String attributeName = "refresh_token_from_test_Revoke_Access_Token_Success";
+        Response response = refreshAccessToken((String) context.getAttribute(attributeName));
+        context.removeAttribute(attributeName);
         response.then()
                 .statusCode(200)
                 .body("access_token", notNullValue())
@@ -218,13 +221,14 @@ public class AuthenticationServiceTests extends BaseTest {
             "test_Request_To_Enable_Authenticator_App_Mfa_Success"
     })
     public void test_Verify_To_Enable_Authenticator_App_Mfa_Success(ITestContext context) throws NotFoundException, IOException, InvalidKeyException, ExecutionException, InterruptedException {
+        String attributeName = "access_token_from_test_Login_Success";
         Response response = verifyToggleMfa(
-                (String) context.getAttribute("access_token_from_test_Login_Success"),
+                (String) context.getAttribute(attributeName),
                 AUTHENTICATOR_APP_MFA,
                 ENABLE,
                 generateTotp(extractSecretFromByteArrayOfQrCode((byte[]) context.getAttribute("mfa_secret_from_test_Request_To_Enable_Authenticator_App_Mfa_Success")))
         );
-        context.removeAttribute("access_token_from_test_Login_Success");
+        context.removeAttribute(attributeName);
         response.then()
                 .statusCode(200)
                 .body("message", containsStringIgnoringCase("Authenticator app Mfa enabled successfully"));
@@ -285,12 +289,15 @@ public class AuthenticationServiceTests extends BaseTest {
             "test_Get_StateToken_On_Login_When_Any_Mfa_Is_Enabled"
     })
     public void test_Verify_Mfa_To_Login_Success(ITestContext context) throws InvalidKeyException, NotFoundException, IOException, ExecutionException, InterruptedException {
+        String attributeName = "state_token_from_test_Get_StateToken_On_Login_When_Any_Mfa_Is_Enabled";
+        String atrributeNameForMfa = "mfa_secret_from_test_Request_To_Enable_Authenticator_App_Mfa_Success";
         Response response = verifyMfaToLogin(
                 AUTHENTICATOR_APP_MFA,
-                (String) context.getAttribute("state_token_from_test_Get_StateToken_On_Login_When_Any_Mfa_Is_Enabled"),
-                generateTotp(extractSecretFromByteArrayOfQrCode((byte[]) context.getAttribute("mfa_secret_from_test_Request_To_Enable_Authenticator_App_Mfa_Success")))
+                (String) context.getAttribute(attributeName),
+                generateTotp(extractSecretFromByteArrayOfQrCode((byte[]) context.getAttribute(atrributeNameForMfa)))
         );
-        context.removeAttribute("state_token_from_test_Get_StateToken_On_Login_When_Any_Mfa_Is_Enabled");
+        context.removeAttribute(attributeName);
+        context.removeAttribute(atrributeNameForMfa);
         response.then()
                 .statusCode(200)
                 .body("access_token", notNullValue())
