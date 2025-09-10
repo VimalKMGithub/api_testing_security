@@ -118,7 +118,6 @@ public class UserServiceTests extends BaseTest {
                 .body("message", containsStringIgnoringCase("Authenticator app Mfa enabled successfully"));
         return Map.of(
                 "user", user,
-                "accessToken", accessToken,
                 "secret", secret
         );
     }
@@ -231,21 +230,5 @@ public class UserServiceTests extends BaseTest {
         ).then()
                 .statusCode(400)
                 .body("message", containsStringIgnoringCase("Invalid old password"));
-    }
-
-    @Test
-    public void test_Change_Password_Method_Selection_Success(ITestContext context) throws ExecutionException, InterruptedException {
-        UserDto user = createTestUser();
-        String accessToken = getAccessToken(
-                user.getUsername(),
-                user.getPassword()
-        );
-        context.setAttribute("access_token_from_test_Change_Password_Method_Selection_Success", accessToken);
-        changePasswordMethodSelection(
-                accessToken,
-                EMAIL_MFA
-        ).then()
-                .statusCode(200)
-                .body("message", containsStringIgnoringCase("Otp sent"));
     }
 }

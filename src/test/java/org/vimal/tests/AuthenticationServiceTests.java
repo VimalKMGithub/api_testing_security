@@ -290,14 +290,14 @@ public class AuthenticationServiceTests extends BaseTest {
     })
     public void test_Verify_Mfa_To_Login_Success(ITestContext context) throws InvalidKeyException, NotFoundException, IOException, ExecutionException, InterruptedException {
         String attributeName = "state_token_from_test_Get_StateToken_On_Login_When_Any_Mfa_Is_Enabled";
-        String atrributeNameForMfa = "mfa_secret_from_test_Request_To_Enable_Authenticator_App_Mfa_Success";
+        String attributeNameForMfa = "mfa_secret_from_test_Request_To_Enable_Authenticator_App_Mfa_Success";
         Response response = verifyMfaToLogin(
                 AUTHENTICATOR_APP_MFA,
                 (String) context.getAttribute(attributeName),
-                generateTotp(extractSecretFromByteArrayOfQrCode((byte[]) context.getAttribute(atrributeNameForMfa)))
+                generateTotp(extractSecretFromByteArrayOfQrCode((byte[]) context.getAttribute(attributeNameForMfa)))
         );
         context.removeAttribute(attributeName);
-        context.removeAttribute(atrributeNameForMfa);
+        context.removeAttribute(attributeNameForMfa);
         response.then()
                 .statusCode(200)
                 .body("access_token", notNullValue())
