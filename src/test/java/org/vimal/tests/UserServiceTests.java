@@ -121,6 +121,31 @@ public class UserServiceTests extends BaseTest {
     }
 
     @Test
+    public void test_Reset_Password_Failure_Invalid_Input() throws ExecutionException, InterruptedException {
+        Map<String, String> map = new HashMap<>();
+        map.put("usernameOrEmail", "SomeUsername");
+        map.put("method", EMAIL_MFA);
+        for (String invalidOtp : INVALID_OTPS) {
+            map.put("otpTotp", invalidOtp);
+            resetPassword(map).then()
+                    .statusCode(400)
+                    .body("invalid_inputs", not(empty()));
+        }
+        map.put("otpTotp", "123456");
+        for (String invalidPassword : INVALID_PASSWORDS) {
+            map.put("password", invalidPassword);
+            resetPassword(map).then()
+                    .statusCode(400)
+                    .body("invalid_inputs", not(empty()));
+        }
+        map.put("password", "ValidPassword@123");
+        map.put("confirmPassword", "DifferentPassword@123");
+        resetPassword(map).then()
+                .statusCode(400)
+                .body("invalid_inputs", not(empty()));
+    }
+
+    @Test
     public void test_Reset_Password_Invalid_Inputs() throws ExecutionException, InterruptedException {
         Map<String, String> map = new HashMap<>();
         map.put("usernameOrEmail", "SomeUsername");
