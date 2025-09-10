@@ -7,6 +7,7 @@ import org.vimal.BaseTest;
 import org.vimal.dtos.UserDto;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
@@ -15,6 +16,8 @@ import static org.vimal.api.AuthenticationCalls.getAccessToken;
 import static org.vimal.api.UserCalls.*;
 import static org.vimal.constants.Common.EMAIL_MFA;
 import static org.vimal.helpers.DtosHelper.createRandomUserDto;
+import static org.vimal.helpers.InvalidInputsHelper.INVALID_OTPS;
+import static org.vimal.helpers.InvalidInputsHelper.INVALID_PASSWORDS;
 import static org.vimal.utils.MailReaderUtility.getOtp;
 
 public class UserServiceTests extends BaseTest {
@@ -102,5 +105,32 @@ public class UserServiceTests extends BaseTest {
         ).then()
                 .statusCode(200)
                 .body("message", containsStringIgnoringCase("Password reset successful"));
+    }
+
+    @Test
+    public void test_Reset_Password_Invalid_Inputs() throws ExecutionException, InterruptedException {
+        Map<String, String> map = new HashMap<>();
+        map.put("usernameOrEmail", "SomeUsername");
+        map.put("method", EMAIL_MFA);
+        map.put("password", "SomePassword@123");
+        map.put("confirmPassword", "SomePassword@123");
+        for (String invalidOtp : INVALID_OTPS) {
+            map.put("otpTotp", invalidOtp);
+            resetPassword(map).then()
+                    .statusCode(400)
+                    .body("invalid_inputs", not(empty()));
+        }
+        map.put("otpTotp", "123456");
+        for (String invalidPassword : INVALID_PASSWORDS) {
+            map.put("password", invalidPassword);
+            resetPassword(map).then()
+                    .statusCode(400)
+                    .body("invalid_inputs", not(empty()));
+        }
+        map.put("password", "ValidPassword@123");
+        map.put("confirmPassword", "DifferentPassword@123");
+        resetPassword(map).then()
+                .statusCode(400)
+                .body("invalid_inputs", not(empty()));
     }
 }
