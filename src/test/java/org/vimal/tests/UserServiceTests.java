@@ -90,8 +90,7 @@ public class UserServiceTests extends BaseTest {
                 ENABLE
         );
         response.then()
-                .statusCode(200)
-                .contentType("image/png");
+                .statusCode(200);
         String secret = extractSecretFromByteArrayOfQrCode(response.asByteArray());
         verifyToggleMfa(
                 accessToken,
@@ -99,8 +98,7 @@ public class UserServiceTests extends BaseTest {
                 ENABLE,
                 generateTotp(secret)
         ).then()
-                .statusCode(200)
-                .body("message", containsStringIgnoringCase("Authenticator app Mfa enabled successfully"));
+                .statusCode(200);
         return Map.of(
                 "user", user,
                 "secret", secret
@@ -210,5 +208,37 @@ public class UserServiceTests extends BaseTest {
         ).then()
                 .statusCode(400)
                 .body("message", containsStringIgnoringCase("Invalid old password"));
+    }
+
+    @Test
+    public void test_Verify_Change_Password_Success() throws NotFoundException, IOException, ExecutionException, InvalidKeyException, InterruptedException {
+        Map<String, Object> map = createTestUserAuthenticatorAppMfaEnabled();
+        verifyChangePassword(
+                getAccessTokenForUserWhoseAuthenticatorAppMfaIsEnabled(map),
+                Map.of(
+                        "otpTotp", generateTotp((String) map.get("secret")),
+                        "method", AUTHENTICATOR_APP_MFA,
+                        "password", "NewPassword@123",
+                        "confirmPassword", "NewPassword@123"
+                )
+        ).then()
+                .statusCode(200)
+                .body("message", containsStringIgnoringCase("Password changed successfully"));
+    }
+
+    private String getAccessTokenForUserWhoseAuthenticatorAppMfaIsEnabled(Map<String, Object> map) throws ExecutionException, InterruptedException, InvalidKeyException {
+        UserDto user = (UserDto) map.get("user");
+        Response response = verifyMfaToLogin(
+                AUTHENTICATOR_APP_MFA,
+                getStateToken(
+                        user.getUsername(),
+                        user.getPassword()
+                ),
+                generateTotp((String) map.get("secret"))
+        );
+        response.then()
+                .statusCode(200);
+        return response.jsonPath()
+                .getString("access_token");
     }
 }

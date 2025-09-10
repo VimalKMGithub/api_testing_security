@@ -140,4 +140,16 @@ public final class AuthenticationCalls {
         return response.jsonPath()
                 .getString("refresh_token");
     }
+
+    public static String getStateToken(String usernameOrEmail,
+                                       String password) throws ExecutionException, InterruptedException {
+        Response response = login(
+                usernameOrEmail,
+                password
+        );
+        response.then()
+                .statusCode(200);
+        return response.jsonPath()
+                .getString("state_token");
+    }
 }
