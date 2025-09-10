@@ -136,6 +136,7 @@ public class AuthenticationServiceTests extends BaseTest {
     @Test(dependsOnMethods = {"test_Revoke_Access_Token_Success"})
     public void test_Refresh_Access_Token_Success(ITestContext context) {
         Response response = refreshAccessToken((String) context.getAttribute("refresh_token_from_test_Revoke_Access_Token_Success"));
+        context.removeAttribute("refresh_token_from_test_Revoke_Access_Token_Success");
         response.then()
                 .statusCode(200)
                 .body("access_token", notNullValue())
@@ -180,14 +181,11 @@ public class AuthenticationServiceTests extends BaseTest {
     @Test
     public void test_Revoke_Refresh_Token_Success() {
         UserDto user = createTestUser();
-        Response response = login(
-                user.getUsername(),
-                user.getPassword()
+        Response response = revokeRefreshToken(getRefreshToken(
+                        user.getUsername(),
+                        user.getPassword()
+                )
         );
-        response.then()
-                .statusCode(200);
-        response = revokeRefreshToken(response.jsonPath()
-                .getString("refresh_token"));
         response.then()
                 .statusCode(200)
                 .body("message", containsStringIgnoringCase("Refresh token revoked successfully"));
@@ -236,6 +234,7 @@ public class AuthenticationServiceTests extends BaseTest {
                 ENABLE,
                 generateTotp(extractSecretFromByteArrayOfQrCode((byte[]) context.getAttribute("mfa_secret_from_test_Request_To_Enable_Authenticator_App_Mfa_Success")))
         );
+        context.removeAttribute("access_token_from_test_Login_Success");
         response.then()
                 .statusCode(200)
                 .body("message", containsStringIgnoringCase("Authenticator app Mfa enabled successfully"));
@@ -304,6 +303,7 @@ public class AuthenticationServiceTests extends BaseTest {
                 (String) context.getAttribute("state_token_from_test_Get_StateToken_On_Login_When_Any_Mfa_Is_Enabled"),
                 generateTotp(extractSecretFromByteArrayOfQrCode((byte[]) context.getAttribute("mfa_secret_from_test_Request_To_Enable_Authenticator_App_Mfa_Success")))
         );
+        context.removeAttribute("state_token_from_test_Get_StateToken_On_Login_When_Any_Mfa_Is_Enabled");
         response.then()
                 .statusCode(200)
                 .body("access_token", notNullValue())
