@@ -4,6 +4,7 @@ import io.restassured.response.Response;
 import org.vimal.dtos.UserDto;
 
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
 
 import static org.vimal.BaseTest.*;
 import static org.vimal.api.AuthenticationCalls.getAccessToken;
@@ -13,7 +14,7 @@ public final class AdminCallsUsingGlobalAdminUser {
     }
 
     public static Response createUsers(Set<UserDto> users,
-                                       String leniency) {
+                                       String leniency) throws ExecutionException, InterruptedException {
         Response response = AdminCalls.createUsers(
                 GLOBAL_ADMIN_ACCESS_TOKEN,
                 users,
@@ -35,7 +36,7 @@ public final class AdminCallsUsingGlobalAdminUser {
 
     public static Response deleteUsers(Set<String> usernamesOrEmails,
                                        String hard,
-                                       String leniency) {
+                                       String leniency) throws ExecutionException, InterruptedException {
         Response response = AdminCalls.deleteUsers(
                 GLOBAL_ADMIN_ACCESS_TOKEN,
                 usernamesOrEmails,

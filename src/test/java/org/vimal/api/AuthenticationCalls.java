@@ -4,8 +4,10 @@ package org.vimal.api;
 import io.restassured.response.Response;
 
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 import static org.vimal.api.ApiCalls.executeRequest;
+import static org.vimal.api.Common.waitForResponse;
 import static org.vimal.constants.Common.AUTHORIZATION;
 import static org.vimal.constants.Common.BEARER;
 import static org.vimal.constants.SubPaths.AUTH;
@@ -16,62 +18,68 @@ public final class AuthenticationCalls {
     }
 
     public static Response login(String usernameOrEmail,
-                                 String password) {
-        return executeRequest(
-                POST,
-                AUTH + "/login",
-                null,
-                Map.of(
-                        "usernameOrEmail", usernameOrEmail,
-                        "password", password
+                                 String password) throws ExecutionException, InterruptedException {
+        return waitForResponse(() -> executeRequest(
+                        POST,
+                        AUTH + "/login",
+                        null,
+                        Map.of(
+                                "usernameOrEmail", usernameOrEmail,
+                                "password", password
+                        )
                 )
         );
     }
 
-    public static Response logout(String accessToken) {
-        return executeRequest(
-                POST,
-                AUTH + "/logout",
-                Map.of(AUTHORIZATION, BEARER + accessToken)
+    public static Response logout(String accessToken) throws ExecutionException, InterruptedException {
+        return waitForResponse(() -> executeRequest(
+                        POST,
+                        AUTH + "/logout",
+                        Map.of(AUTHORIZATION, BEARER + accessToken)
+                )
         );
     }
 
-    public static Response refreshAccessToken(String refreshToken) {
-        return executeRequest(
-                POST,
-                AUTH + "/refresh/accessToken",
-                null,
-                Map.of("refreshToken", refreshToken)
+    public static Response refreshAccessToken(String refreshToken) throws ExecutionException, InterruptedException {
+        return waitForResponse(() -> executeRequest(
+                        POST,
+                        AUTH + "/refresh/accessToken",
+                        null,
+                        Map.of("refreshToken", refreshToken)
+                )
         );
     }
 
-    public static Response revokeAccessToken(String accessToken) {
-        return executeRequest(
-                POST,
-                AUTH + "/revoke/accessToken",
-                Map.of(AUTHORIZATION, BEARER + accessToken)
+    public static Response revokeAccessToken(String accessToken) throws ExecutionException, InterruptedException {
+        return waitForResponse(() -> executeRequest(
+                        POST,
+                        AUTH + "/revoke/accessToken",
+                        Map.of(AUTHORIZATION, BEARER + accessToken)
+                )
         );
     }
 
-    public static Response revokeRefreshToken(String refreshToken) {
-        return executeRequest(
-                POST,
-                AUTH + "/revoke/refreshToken",
-                null,
-                Map.of("refreshToken", refreshToken)
+    public static Response revokeRefreshToken(String refreshToken) throws ExecutionException, InterruptedException {
+        return waitForResponse(() -> executeRequest(
+                        POST,
+                        AUTH + "/revoke/refreshToken",
+                        null,
+                        Map.of("refreshToken", refreshToken)
+                )
         );
     }
 
     public static Response requestToToggleMfa(String accessToken,
                                               String type,
-                                              String toggle) {
-        return executeRequest(
-                POST,
-                AUTH + "/mfa/requestTo/toggle",
-                Map.of(AUTHORIZATION, BEARER + accessToken),
-                Map.of(
-                        "type", type,
-                        "toggle", toggle
+                                              String toggle) throws ExecutionException, InterruptedException {
+        return waitForResponse(() -> executeRequest(
+                        POST,
+                        AUTH + "/mfa/requestTo/toggle",
+                        Map.of(AUTHORIZATION, BEARER + accessToken),
+                        Map.of(
+                                "type", type,
+                                "toggle", toggle
+                        )
                 )
         );
     }
@@ -79,36 +87,38 @@ public final class AuthenticationCalls {
     public static Response verifyToggleMfa(String accessToken,
                                            String type,
                                            String toggle,
-                                           String otpTotp) {
-        return executeRequest(
-                POST,
-                AUTH + "/mfa/verifyTo/toggle",
-                Map.of(AUTHORIZATION, BEARER + accessToken),
-                Map.of(
-                        "type", type,
-                        "toggle", toggle,
-                        "otpTotp", otpTotp
+                                           String otpTotp) throws ExecutionException, InterruptedException {
+        return waitForResponse(() -> executeRequest(
+                        POST,
+                        AUTH + "/mfa/verifyTo/toggle",
+                        Map.of(AUTHORIZATION, BEARER + accessToken),
+                        Map.of(
+                                "type", type,
+                                "toggle", toggle,
+                                "otpTotp", otpTotp
+                        )
                 )
         );
     }
 
     public static Response verifyMfaToLogin(String type,
                                             String stateToken,
-                                            String otpTotp) {
-        return executeRequest(
-                POST,
-                AUTH + "/mfa/verifyTo/login",
-                null,
-                Map.of(
-                        "type", type,
-                        "stateToken", stateToken,
-                        "otpTotp", otpTotp
+                                            String otpTotp) throws ExecutionException, InterruptedException {
+        return waitForResponse(() -> executeRequest(
+                        POST,
+                        AUTH + "/mfa/verifyTo/login",
+                        null,
+                        Map.of(
+                                "type", type,
+                                "stateToken", stateToken,
+                                "otpTotp", otpTotp
+                        )
                 )
         );
     }
 
     public static String getAccessToken(String usernameOrEmail,
-                                        String password) {
+                                        String password) throws ExecutionException, InterruptedException {
         Response response = login(
                 usernameOrEmail,
                 password
@@ -120,7 +130,7 @@ public final class AuthenticationCalls {
     }
 
     public static String getRefreshToken(String usernameOrEmail,
-                                         String password) {
+                                         String password) throws ExecutionException, InterruptedException {
         Response response = login(
                 usernameOrEmail,
                 password

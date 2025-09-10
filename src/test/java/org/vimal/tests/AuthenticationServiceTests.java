@@ -9,6 +9,7 @@ import org.vimal.dtos.UserDto;
 
 import java.io.IOException;
 import java.security.InvalidKeyException;
+import java.util.concurrent.ExecutionException;
 
 import static org.hamcrest.Matchers.*;
 import static org.vimal.api.AuthenticationCalls.*;
@@ -20,7 +21,7 @@ import static org.vimal.utils.TotpUtility.generateTotp;
 
 public class AuthenticationServiceTests extends BaseTest {
     @Test
-    public void test_Login_Success(ITestContext context) {
+    public void test_Login_Success(ITestContext context) throws ExecutionException, InterruptedException {
         UserDto user = createTestUser();
         Response response = login(
                 user.getUsername(),
@@ -38,7 +39,7 @@ public class AuthenticationServiceTests extends BaseTest {
     }
 
     @Test
-    public void test_Login_Failure_InvalidCredentials() {
+    public void test_Login_Failure_InvalidCredentials() throws ExecutionException, InterruptedException {
         Response response = login(
                 "invalidUser",
                 "wrongPassword@1"
@@ -80,7 +81,7 @@ public class AuthenticationServiceTests extends BaseTest {
     }
 
     @Test
-    public void test_Account_Lockout_After_Multiple_Failed_Login_Attempts() {
+    public void test_Account_Lockout_After_Multiple_Failed_Login_Attempts() throws ExecutionException, InterruptedException {
         UserDto user = createTestUser();
         for (int i = 0; i < 5; i++) {
             Response response = login(
@@ -107,7 +108,7 @@ public class AuthenticationServiceTests extends BaseTest {
             "test_Request_To_Enable_Authenticator_App_Mfa_Success",
             "test_Verify_To_Enable_Authenticator_App_Mfa_Success"
     })
-    public void test_Get_StateToken_On_Login_When_Any_Mfa_Is_Enabled(ITestContext context) {
+    public void test_Get_StateToken_On_Login_When_Any_Mfa_Is_Enabled(ITestContext context) throws ExecutionException, InterruptedException {
         UserDto user = (UserDto) context.getAttribute("user_from_test_Login_Success");
         Response response = login(
                 user.getUsername(),
@@ -121,7 +122,7 @@ public class AuthenticationServiceTests extends BaseTest {
     }
 
     @Test
-    public void test_Logout_Success() {
+    public void test_Logout_Success() throws ExecutionException, InterruptedException {
         UserDto user = createTestUser();
         Response response = logout(getAccessToken(
                         user.getUsername(),
@@ -134,7 +135,7 @@ public class AuthenticationServiceTests extends BaseTest {
     }
 
     @Test(dependsOnMethods = {"test_Revoke_Access_Token_Success"})
-    public void test_Refresh_Access_Token_Success(ITestContext context) {
+    public void test_Refresh_Access_Token_Success(ITestContext context) throws ExecutionException, InterruptedException {
         Response response = refreshAccessToken((String) context.getAttribute("refresh_token_from_test_Revoke_Access_Token_Success"));
         context.removeAttribute("refresh_token_from_test_Revoke_Access_Token_Success");
         response.then()
@@ -145,7 +146,7 @@ public class AuthenticationServiceTests extends BaseTest {
     }
 
     @Test
-    public void test_Refresh_Access_Token_Failure_Invalid_Refresh_Token() {
+    public void test_Refresh_Access_Token_Failure_Invalid_Refresh_Token() throws ExecutionException, InterruptedException {
         Response response = refreshAccessToken("invalidRefreshToken");
         response.then()
                 .statusCode(400)
@@ -161,7 +162,7 @@ public class AuthenticationServiceTests extends BaseTest {
     }
 
     @Test
-    public void test_Revoke_Access_Token_Success(ITestContext context) {
+    public void test_Revoke_Access_Token_Success(ITestContext context) throws ExecutionException, InterruptedException {
         UserDto user = createTestUser();
         Response response = login(
                 user.getUsername(),
@@ -179,7 +180,7 @@ public class AuthenticationServiceTests extends BaseTest {
     }
 
     @Test
-    public void test_Revoke_Refresh_Token_Success() {
+    public void test_Revoke_Refresh_Token_Success() throws ExecutionException, InterruptedException {
         UserDto user = createTestUser();
         Response response = revokeRefreshToken(getRefreshToken(
                         user.getUsername(),
@@ -192,7 +193,7 @@ public class AuthenticationServiceTests extends BaseTest {
     }
 
     @Test(dependsOnMethods = {"test_Login_Success"})
-    public void test_Request_To_Enable_Authenticator_App_Mfa_Success(ITestContext context) {
+    public void test_Request_To_Enable_Authenticator_App_Mfa_Success(ITestContext context) throws ExecutionException, InterruptedException {
         Response response = requestToToggleMfa(
                 (String) context.getAttribute("access_token_from_test_Login_Success"),
                 AUTHENTICATOR_APP_MFA,
@@ -211,7 +212,7 @@ public class AuthenticationServiceTests extends BaseTest {
             "test_Get_StateToken_On_Login_When_Any_Mfa_Is_Enabled",
             "test_Verify_Mfa_To_Login_Success"
     })
-    public void test_Request_To_Enable_Authenticator_App_Mfa_Failure_Already_Enabled(ITestContext context) {
+    public void test_Request_To_Enable_Authenticator_App_Mfa_Failure_Already_Enabled(ITestContext context) throws ExecutionException, InterruptedException {
         Response response = requestToToggleMfa(
                 (String) context.getAttribute("access_token_from_test_Verify_Mfa_To_Login_Success"),
                 AUTHENTICATOR_APP_MFA,
@@ -227,7 +228,7 @@ public class AuthenticationServiceTests extends BaseTest {
             "test_Login_Success",
             "test_Request_To_Enable_Authenticator_App_Mfa_Success"
     })
-    public void test_Verify_To_Enable_Authenticator_App_Mfa_Success(ITestContext context) throws NotFoundException, IOException, InvalidKeyException {
+    public void test_Verify_To_Enable_Authenticator_App_Mfa_Success(ITestContext context) throws NotFoundException, IOException, InvalidKeyException, ExecutionException, InterruptedException {
         Response response = verifyToggleMfa(
                 (String) context.getAttribute("access_token_from_test_Login_Success"),
                 AUTHENTICATOR_APP_MFA,
@@ -247,7 +248,7 @@ public class AuthenticationServiceTests extends BaseTest {
             "test_Get_StateToken_On_Login_When_Any_Mfa_Is_Enabled",
             "test_Verify_Mfa_To_Login_Success"
     })
-    public void test_Verify_To_Enable_Authenticator_App_Mfa_Failure_Already_Enabled(ITestContext context) {
+    public void test_Verify_To_Enable_Authenticator_App_Mfa_Failure_Already_Enabled(ITestContext context) throws ExecutionException, InterruptedException {
         Response response = verifyToggleMfa(
                 (String) context.getAttribute("access_token_from_test_Verify_Mfa_To_Login_Success"),
                 AUTHENTICATOR_APP_MFA,
@@ -261,7 +262,7 @@ public class AuthenticationServiceTests extends BaseTest {
     }
 
     @Test
-    public void test_Verify_To_Enable_Authenticator_App_Mfa_Failure_Invalid_Otp() {
+    public void test_Verify_To_Enable_Authenticator_App_Mfa_Failure_Invalid_Otp() throws ExecutionException, InterruptedException {
         UserDto user = createTestUser();
         String accessToken = getAccessToken(
                 user.getUsername(),
@@ -297,7 +298,7 @@ public class AuthenticationServiceTests extends BaseTest {
             "test_Verify_To_Enable_Authenticator_App_Mfa_Success",
             "test_Get_StateToken_On_Login_When_Any_Mfa_Is_Enabled"
     })
-    public void test_Verify_Mfa_To_Login_Success(ITestContext context) throws InvalidKeyException, NotFoundException, IOException {
+    public void test_Verify_Mfa_To_Login_Success(ITestContext context) throws InvalidKeyException, NotFoundException, IOException, ExecutionException, InterruptedException {
         Response response = verifyMfaToLogin(
                 AUTHENTICATOR_APP_MFA,
                 (String) context.getAttribute("state_token_from_test_Get_StateToken_On_Login_When_Any_Mfa_Is_Enabled"),

@@ -12,6 +12,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
 
 import static org.vimal.api.AdminCallsUsingGlobalAdminUser.createUsers;
 import static org.vimal.api.AuthenticationCalls.getAccessToken;
@@ -34,7 +35,7 @@ public abstract class BaseTest {
     public static String GLOBAL_ADMIN_ACCESS_TOKEN;
 
     @BeforeSuite
-    public void setUpBeforeSuite() {
+    public void setUpBeforeSuite() throws ExecutionException, InterruptedException {
         log.info(
                 "Setting RestAssured with base Url: '{}' & base path: '{}'",
                 BASE_URL,
@@ -65,24 +66,24 @@ public abstract class BaseTest {
         log.info("Cleanup completed.");
     }
 
-    protected static UserDto createTestUser() {
+    protected static UserDto createTestUser() throws ExecutionException, InterruptedException {
         return createTestUser(createRandomUserDto());
     }
 
-    private static UserDto createTestUserRandomValidEmail() {
+    private static UserDto createTestUserRandomValidEmail() throws ExecutionException, InterruptedException {
         return createTestUser(createRandomUserDtoWithRandomValidEmail());
     }
 
-    private static UserDto createTestUser(Set<String> roles) {
+    private static UserDto createTestUser(Set<String> roles) throws ExecutionException, InterruptedException {
         return createTestUser(createRandomUserDto(roles));
     }
 
-    private static UserDto createTestUser(UserDto user) {
+    private static UserDto createTestUser(UserDto user) throws ExecutionException, InterruptedException {
         createTestUsers(Set.of(user));
         return user;
     }
 
-    private static void createTestUsers(Set<UserDto> users) {
+    private static void createTestUsers(Set<UserDto> users) throws ExecutionException, InterruptedException {
         Iterator<UserDto> iterator = users.iterator();
         Set<UserDto> batch = new HashSet<>();
         Response response;
