@@ -70,7 +70,7 @@ public abstract class BaseTest {
         return createTestUser(createRandomUserDto());
     }
 
-    private static UserDto createTestUserRandomValidEmail() throws ExecutionException, InterruptedException {
+    public static UserDto createTestUserRandomValidEmail() throws ExecutionException, InterruptedException {
         return createTestUser(createRandomUserDtoWithRandomValidEmail());
     }
 

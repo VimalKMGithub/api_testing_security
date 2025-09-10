@@ -167,7 +167,7 @@ public final class MailReaderUtility {
     private static String extractOtp(String content) {
         Matcher matcher = DEFAULT_OTP_PATTERN.matcher(content);
         if (matcher.find()) {
-            return matcher.group(1);
+            return matcher.group(0);
         }
         throw new RuntimeException("Otp not found in email content");
     }

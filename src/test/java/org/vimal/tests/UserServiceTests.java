@@ -1,9 +1,13 @@
 package org.vimal.tests;
 
+import jakarta.mail.MessagingException;
+import org.testng.ITestContext;
 import org.testng.annotations.Test;
 import org.vimal.BaseTest;
 import org.vimal.dtos.UserDto;
 
+import java.io.IOException;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 import static org.hamcrest.Matchers.*;
@@ -11,6 +15,7 @@ import static org.vimal.api.AuthenticationCalls.getAccessToken;
 import static org.vimal.api.UserCalls.*;
 import static org.vimal.constants.Common.EMAIL_MFA;
 import static org.vimal.helpers.DtosHelper.createRandomUserDto;
+import static org.vimal.utils.MailReaderUtility.getOtp;
 
 public class UserServiceTests extends BaseTest {
     @Test
@@ -66,5 +71,36 @@ public class UserServiceTests extends BaseTest {
         forgotPassword(user.getEmail()).then()
                 .statusCode(400)
                 .body("message", containsStringIgnoringCase("Email is not verified"));
+    }
+
+    @Test
+    public void test_Forgot_Password_Method_Selection_Success(ITestContext context) throws ExecutionException, InterruptedException {
+        UserDto user = createTestUserRandomValidEmail();
+        context.setAttribute("user_from_test_Forgot_Password_Method_Selection_Success", user);
+        forgotPasswordMethodSelection(
+                user.getUsername(),
+                EMAIL_MFA
+        ).then()
+                .statusCode(200)
+                .body("message", containsStringIgnoringCase("Otp sent"));
+    }
+
+    @Test(dependsOnMethods = {"test_Forgot_Password_Method_Selection_Success"})
+    public void test_Reset_Password_Success(ITestContext context) throws ExecutionException, InterruptedException, MessagingException, IOException {
+        UserDto user = (UserDto) context.getAttribute("user_from_test_Forgot_Password_Method_Selection_Success");
+        resetPassword(Map.of(
+                        "usernameOrEmail", user.getUsername(),
+                        "otpTotp", getOtp(
+                                user.getEmail(),
+                                TEST_EMAIL_PASSWORD,
+                                "Otp for resetting password"
+                        ),
+                        "method", EMAIL_MFA,
+                        "password", "NewPassword@123",
+                        "confirmPassword", "NewPassword@123"
+                )
+        ).then()
+                .statusCode(200)
+                .body("message", containsStringIgnoringCase("Password reset successful"));
     }
 }
