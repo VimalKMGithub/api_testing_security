@@ -62,9 +62,9 @@ public class UserServiceTests extends BaseTest {
         createTestUser(user);
         forgotPassword(user.getUsername()).then()
                 .statusCode(400)
-                .body("error", containsStringIgnoringCase("Email is not verified"));
+                .body("message", containsStringIgnoringCase("Email is not verified"));
         forgotPassword(user.getEmail()).then()
                 .statusCode(400)
-                .body("error", containsStringIgnoringCase("Email is not verified"));
+                .body("message", containsStringIgnoringCase("Email is not verified"));
     }
 }
