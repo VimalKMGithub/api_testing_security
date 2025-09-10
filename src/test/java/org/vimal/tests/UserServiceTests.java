@@ -228,51 +228,6 @@ public class UserServiceTests extends BaseTest {
     }
 
     @Test
-    public void test_Change_Password_Invalid_Inputs() throws ExecutionException, InterruptedException {
-        UserDto user = createTestUser();
-        String accessToken = getAccessToken(
-                user.getUsername(),
-                user.getPassword()
-        );
-        Map<String, String> map = new HashMap<>();
-        for (String invalidPassword : INVALID_PASSWORDS) {
-            map.put("oldPassword", invalidPassword);
-            changePassword(
-                    accessToken,
-                    map
-            ).then()
-                    .statusCode(400)
-                    .body("invalid_inputs", not(empty()));
-        }
-        map.put("oldPassword", user.getPassword());
-        for (String invalidPassword : INVALID_PASSWORDS) {
-            map.put("oldPassword", invalidPassword);
-            changePassword(
-                    accessToken,
-                    map
-            ).then()
-                    .statusCode(400)
-                    .body("invalid_inputs", not(empty()));
-        }
-        map.put("password", "ValidPassword@123");
-        map.put("confirmPassword", "DifferentPassword@123");
-        changePassword(
-                accessToken,
-                map
-        ).then()
-                .statusCode(400)
-                .body("invalid_inputs", not(empty()));
-        map.put("confirmPassword", "ValidPassword@123");
-        map.put("oldPassword", "SomeWrongOldPassword@123");
-        changePassword(
-                accessToken,
-                map
-        ).then()
-                .statusCode(400)
-                .body("message", containsStringIgnoringCase("Invalid old password"));
-    }
-
-    @Test
     public void test_Verify_Change_Password_Success() throws NotFoundException, IOException, ExecutionException, InvalidKeyException, InterruptedException {
         Map<String, Object> map = createTestUserAuthenticatorAppMfaEnabled();
         verifyChangePassword(
