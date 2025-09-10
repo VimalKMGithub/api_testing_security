@@ -2,7 +2,6 @@ package org.vimal.tests;
 
 import com.google.zxing.NotFoundException;
 import io.restassured.response.Response;
-import jakarta.mail.MessagingException;
 import org.testng.ITestContext;
 import org.testng.annotations.Test;
 import org.vimal.BaseTest;
@@ -21,7 +20,6 @@ import static org.vimal.constants.Common.*;
 import static org.vimal.helpers.DtosHelper.createRandomUserDto;
 import static org.vimal.helpers.InvalidInputsHelper.INVALID_OTPS;
 import static org.vimal.helpers.InvalidInputsHelper.INVALID_PASSWORDS;
-import static org.vimal.utils.MailReaderUtility.getOtp;
 import static org.vimal.utils.QrUtility.extractSecretFromByteArrayOfQrCode;
 import static org.vimal.utils.TotpUtility.generateTotp;
 
@@ -126,18 +124,16 @@ public class UserServiceTests extends BaseTest {
     }
 
     @Test(dependsOnMethods = {"test_Forgot_Password_Method_Selection_Success"})
-    public void test_Reset_Password_Success(ITestContext context) throws ExecutionException, InterruptedException, MessagingException, IOException {
+    public void test_Reset_Password_Success(ITestContext context) throws ExecutionException, InterruptedException, InvalidKeyException {
         String attributeName = "user_from_test_Forgot_Password_Method_Selection_Success";
+        String attributeNameForSecret = "secret_from_test_Forgot_Password_Method_Selection_Success";
         UserDto user = (UserDto) context.getAttribute(attributeName);
         context.removeAttribute(attributeName);
+        context.removeAttribute(attributeNameForSecret);
         resetPassword(Map.of(
                         "usernameOrEmail", user.getUsername(),
-                        "otpTotp", getOtp(
-                                user.getEmail(),
-                                TEST_EMAIL_PASSWORD,
-                                "Otp for resetting password"
-                        ),
-                        "method", EMAIL_MFA,
+                        "otpTotp", generateTotp(attributeNameForSecret),
+                        "method", AUTHENTICATOR_APP_MFA,
                         "password", "NewPassword@123",
                         "confirmPassword", "NewPassword@123"
                 )
