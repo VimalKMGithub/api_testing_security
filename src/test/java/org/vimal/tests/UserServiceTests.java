@@ -225,6 +225,44 @@ public class UserServiceTests extends BaseTest {
     }
 
     @Test
+    public void test_Verify_Change_Password_Failure_Invalid_Input() throws ExecutionException, InterruptedException {
+        UserDto user = createTestUser();
+        String accessToken = getAccessToken(
+                user.getUsername(),
+                user.getPassword()
+        );
+        Map<String, String> map = new HashMap<>();
+        for (String invalidOtp : INVALID_OTPS) {
+            map.put("otpTotp", invalidOtp);
+            map.put("method", AUTHENTICATOR_APP_MFA);
+            verifyChangePassword(
+                    accessToken,
+                    map
+            ).then()
+                    .statusCode(400)
+                    .body("invalid_inputs", not(empty()));
+        }
+        map.put("otpTotp", "123456");
+        for (String invalidPassword : INVALID_PASSWORDS) {
+            map.put("password", invalidPassword);
+            verifyChangePassword(
+                    accessToken,
+                    map
+            ).then()
+                    .statusCode(400)
+                    .body("invalid_inputs", not(empty()));
+        }
+        map.put("password", "ValidPassword@123");
+        map.put("confirmPassword", "DifferentPassword@123");
+        verifyChangePassword(
+                accessToken,
+                map
+        ).then()
+                .statusCode(400)
+                .body("invalid_inputs", not(empty()));
+    }
+
+    @Test
     public void test_Delete_Account_Success() throws ExecutionException, InterruptedException {
         UserDto user = createTestUser();
         deleteAccount(getAccessToken(
