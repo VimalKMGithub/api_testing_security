@@ -128,11 +128,12 @@ public class UserServiceTests extends BaseTest {
         String attributeName = "user_from_test_Forgot_Password_Method_Selection_Success";
         String attributeNameForSecret = "secret_from_test_Forgot_Password_Method_Selection_Success";
         UserDto user = (UserDto) context.getAttribute(attributeName);
+        String secret = (String) context.getAttribute(attributeNameForSecret);
         context.removeAttribute(attributeName);
         context.removeAttribute(attributeNameForSecret);
         resetPassword(Map.of(
                         "usernameOrEmail", user.getUsername(),
-                        "otpTotp", generateTotp(attributeNameForSecret),
+                        "otpTotp", generateTotp(secret),
                         "method", AUTHENTICATOR_APP_MFA,
                         "password", "NewPassword@123",
                         "confirmPassword", "NewPassword@123"
