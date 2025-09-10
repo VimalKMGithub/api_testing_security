@@ -11,8 +11,7 @@ import static org.vimal.api.Common.waitForResponse;
 import static org.vimal.constants.Common.AUTHORIZATION;
 import static org.vimal.constants.Common.BEARER;
 import static org.vimal.constants.SubPaths.USER;
-import static org.vimal.enums.RequestMethods.GET;
-import static org.vimal.enums.RequestMethods.POST;
+import static org.vimal.enums.RequestMethods.*;
 
 public final class UserCalls {
     private UserCalls() {
@@ -83,6 +82,17 @@ public final class UserCalls {
                         null,
                         null,
                         body
+                )
+        );
+    }
+
+    public static Response deleteAccount(String accessToken,
+                                         String password) throws ExecutionException, InterruptedException {
+        return waitForResponse(() -> executeRequest(
+                        DELETE,
+                        USER + "/delete/account",
+                        Map.of(AUTHORIZATION, BEARER + accessToken),
+                        Map.of("password", password)
                 )
         );
     }

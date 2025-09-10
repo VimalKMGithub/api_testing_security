@@ -241,4 +241,17 @@ public class UserServiceTests extends BaseTest {
         return response.jsonPath()
                 .getString("access_token");
     }
+
+    @Test
+    public void test_Delete_Account_Success() throws ExecutionException, InterruptedException {
+        UserDto user = createTestUser();
+        deleteAccount(getAccessToken(
+                        user.getUsername(),
+                        user.getPassword()
+                ),
+                user.getPassword()
+        ).then()
+                .statusCode(200)
+                .body("message", containsStringIgnoringCase("Account deleted successfully"));
+    }
 }
