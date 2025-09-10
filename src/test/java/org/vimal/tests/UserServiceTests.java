@@ -303,4 +303,22 @@ public class UserServiceTests extends BaseTest {
                 .statusCode(200)
                 .body("message", containsStringIgnoringCase("Account deleted successfully"));
     }
+
+    @Test
+    public void test_Verify_Delete_Account_Failure_Invalid_Input() throws ExecutionException, InterruptedException {
+        UserDto user = createTestUser();
+        String accessToken = getAccessToken(
+                user.getUsername(),
+                user.getPassword()
+        );
+        for (String invalidOtp : INVALID_OTPS) {
+            verifyDeleteAccount(
+                    accessToken,
+                    invalidOtp,
+                    AUTHENTICATOR_APP_MFA
+            ).then()
+                    .statusCode(400)
+                    .body("message", containsStringIgnoringCase("Invalid Otp/Totp"));
+        }
+    }
 }
