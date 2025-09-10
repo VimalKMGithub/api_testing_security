@@ -2,7 +2,6 @@ package org.vimal.tests;
 
 import com.google.zxing.NotFoundException;
 import io.restassured.response.Response;
-import org.testng.ITestContext;
 import org.testng.annotations.Test;
 import org.vimal.BaseTest;
 import org.vimal.dtos.UserDto;
@@ -79,20 +78,6 @@ public class UserServiceTests extends BaseTest {
                 .body("message", containsStringIgnoringCase("Email is not verified"));
     }
 
-    @Test
-    public void test_Forgot_Password_Method_Selection_Success(ITestContext context) throws ExecutionException, InterruptedException, NotFoundException, IOException, InvalidKeyException {
-        Map<String, Object> map = createTestUserAuthenticatorAppMfaEnabled();
-        UserDto user = (UserDto) map.get("user");
-        context.setAttribute("user_from_test_Forgot_Password_Method_Selection_Success", user);
-        context.setAttribute("secret_from_test_Forgot_Password_Method_Selection_Success", map.get("secret"));
-        forgotPasswordMethodSelection(
-                user.getUsername(),
-                AUTHENTICATOR_APP_MFA
-        ).then()
-                .statusCode(200)
-                .body("message", containsStringIgnoringCase("Please proceed to verify Totp"));
-    }
-
     private Map<String, Object> createTestUserAuthenticatorAppMfaEnabled() throws ExecutionException, InterruptedException, NotFoundException, IOException, InvalidKeyException {
         UserDto user = createTestUser();
         String accessToken = getAccessToken(
@@ -122,17 +107,12 @@ public class UserServiceTests extends BaseTest {
         );
     }
 
-    @Test(dependsOnMethods = {"test_Forgot_Password_Method_Selection_Success"})
-    public void test_Reset_Password_Success(ITestContext context) throws ExecutionException, InterruptedException, InvalidKeyException {
-        String attributeName = "user_from_test_Forgot_Password_Method_Selection_Success";
-        String attributeNameForSecret = "secret_from_test_Forgot_Password_Method_Selection_Success";
-        UserDto user = (UserDto) context.getAttribute(attributeName);
-        String secret = (String) context.getAttribute(attributeNameForSecret);
-        context.removeAttribute(attributeName);
-        context.removeAttribute(attributeNameForSecret);
+    @Test
+    public void test_Reset_Password_Success() throws ExecutionException, InterruptedException, InvalidKeyException, NotFoundException, IOException {
+        Map<String, Object> map = createTestUserAuthenticatorAppMfaEnabled();
         resetPassword(Map.of(
-                        "usernameOrEmail", user.getUsername(),
-                        "otpTotp", generateTotp(secret),
+                        "usernameOrEmail", ((UserDto) map.get("user")).getUsername(),
+                        "otpTotp", generateTotp((String) map.get("secret")),
                         "method", AUTHENTICATOR_APP_MFA,
                         "password", "NewPassword@123",
                         "confirmPassword", "NewPassword@123"
