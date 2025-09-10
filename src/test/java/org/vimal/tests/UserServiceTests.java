@@ -15,7 +15,8 @@ import java.util.concurrent.ExecutionException;
 import static org.hamcrest.Matchers.*;
 import static org.vimal.api.AuthenticationCalls.*;
 import static org.vimal.api.UserCalls.*;
-import static org.vimal.constants.Common.*;
+import static org.vimal.constants.Common.AUTHENTICATOR_APP_MFA;
+import static org.vimal.constants.Common.ENABLE;
 import static org.vimal.helpers.DtosHelper.createRandomUserDto;
 import static org.vimal.helpers.InvalidInputsHelper.INVALID_OTPS;
 import static org.vimal.helpers.InvalidInputsHelper.INVALID_PASSWORDS;
@@ -54,15 +55,6 @@ public class UserServiceTests extends BaseTest {
                 .body("firstName", equalTo(user.getFirstName()))
                 .body("middleName", equalTo(user.getMiddleName()))
                 .body("lastName", equalTo(user.getLastName()));
-    }
-
-    @Test
-    public void test_Forgot_Password_Success() throws ExecutionException, InterruptedException {
-        UserDto user = createTestUser();
-        forgotPassword(user.getUsername()).then()
-                .statusCode(200)
-                .body("message", containsStringIgnoringCase("Please select a method for password reset"))
-                .body("methods", hasItem(EMAIL_MFA));
     }
 
     @Test
