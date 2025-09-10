@@ -96,4 +96,19 @@ public final class UserCalls {
                 )
         );
     }
+
+    public static Response verifyDeleteAccount(String accessToken,
+                                               String otpTotp,
+                                               String method) throws ExecutionException, InterruptedException {
+        return waitForResponse(() -> executeRequest(
+                        DELETE,
+                        USER + "/verify/delete/account",
+                        Map.of(AUTHORIZATION, BEARER + accessToken),
+                        Map.of(
+                                "otpTotp", otpTotp,
+                                "method", method
+                        )
+                )
+        );
+    }
 }

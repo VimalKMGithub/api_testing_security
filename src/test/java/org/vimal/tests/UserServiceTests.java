@@ -254,4 +254,16 @@ public class UserServiceTests extends BaseTest {
                 .statusCode(200)
                 .body("message", containsStringIgnoringCase("Account deleted successfully"));
     }
+
+    @Test
+    public void test_Verify_Delete_Account_Success() throws NotFoundException, IOException, ExecutionException, InvalidKeyException, InterruptedException {
+        Map<String, Object> map = createTestUserAuthenticatorAppMfaEnabled();
+        verifyDeleteAccount(
+                getAccessTokenForUserWhoseAuthenticatorAppMfaIsEnabled(map),
+                generateTotp((String) map.get("secret")),
+                AUTHENTICATOR_APP_MFA
+        ).then()
+                .statusCode(200)
+                .body("message", containsStringIgnoringCase("Account deleted successfully"));
+    }
 }
