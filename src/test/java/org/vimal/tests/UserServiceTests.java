@@ -276,6 +276,23 @@ public class UserServiceTests extends BaseTest {
     }
 
     @Test
+    public void test_Delete_Account_Failure_Invalid_Password() throws ExecutionException, InterruptedException {
+        UserDto user = createTestUser();
+        String accessToken = getAccessToken(
+                user.getUsername(),
+                user.getPassword()
+        );
+        for (String invalidPassword : INVALID_PASSWORDS) {
+            deleteAccount(
+                    accessToken,
+                    invalidPassword
+            ).then()
+                    .statusCode(400)
+                    .body("message", containsStringIgnoringCase("Invalid password"));
+        }
+    }
+
+    @Test
     public void test_Verify_Delete_Account_Success() throws NotFoundException, IOException, ExecutionException, InvalidKeyException, InterruptedException {
         Map<String, Object> map = createTestUserAuthenticatorAppMfaEnabled();
         verifyDeleteAccount(
