@@ -78,7 +78,7 @@ public abstract class BaseTest {
         return createTestUser(createRandomUserDto(roles));
     }
 
-    private static UserDto createTestUser(UserDto user) throws ExecutionException, InterruptedException {
+    public static UserDto createTestUser(UserDto user) throws ExecutionException, InterruptedException {
         createTestUsers(Set.of(user));
         return user;
     }

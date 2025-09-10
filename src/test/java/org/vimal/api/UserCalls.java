@@ -38,4 +38,14 @@ public final class UserCalls {
                 )
         );
     }
+
+    public static Response forgotPassword(String usernameOrEmail) throws ExecutionException, InterruptedException {
+        return waitForResponse(() -> executeRequest(
+                        POST,
+                        USER + "/forgot/password",
+                        null,
+                        Map.of("usernameOrEmail", usernameOrEmail)
+                )
+        );
+    }
 }

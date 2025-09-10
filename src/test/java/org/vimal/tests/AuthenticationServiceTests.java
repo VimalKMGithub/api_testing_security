@@ -93,11 +93,10 @@ public class AuthenticationServiceTests extends BaseTest {
                     .body("error", containsStringIgnoringCase("Unauthorized"))
                     .body("message", containsStringIgnoringCase("Bad credentials"));
         }
-        Response response = login(
+        login(
                 user.getUsername(),
                 "WrongPassword@1"
-        );
-        response.then()
+        ).then()
                 .statusCode(401)
                 .body("error", containsStringIgnoringCase("Unauthorized"))
                 .body("message", containsStringIgnoringCase("Account is temporarily locked"));
@@ -124,12 +123,11 @@ public class AuthenticationServiceTests extends BaseTest {
     @Test
     public void test_Logout_Success() throws ExecutionException, InterruptedException {
         UserDto user = createTestUser();
-        Response response = logout(getAccessToken(
+        logout(getAccessToken(
                         user.getUsername(),
                         user.getPassword()
                 )
-        );
-        response.then()
+        ).then()
                 .statusCode(200)
                 .body("message", containsStringIgnoringCase("Logout successful"));
     }
@@ -182,12 +180,11 @@ public class AuthenticationServiceTests extends BaseTest {
     @Test
     public void test_Revoke_Refresh_Token_Success() throws ExecutionException, InterruptedException {
         UserDto user = createTestUser();
-        Response response = revokeRefreshToken(getRefreshToken(
+        revokeRefreshToken(getRefreshToken(
                         user.getUsername(),
                         user.getPassword()
                 )
-        );
-        response.then()
+        ).then()
                 .statusCode(200)
                 .body("message", containsStringIgnoringCase("Refresh token revoked successfully"));
     }
@@ -213,12 +210,11 @@ public class AuthenticationServiceTests extends BaseTest {
             "test_Verify_Mfa_To_Login_Success"
     })
     public void test_Request_To_Enable_Authenticator_App_Mfa_Failure_Already_Enabled(ITestContext context) throws ExecutionException, InterruptedException {
-        Response response = requestToToggleMfa(
+        requestToToggleMfa(
                 (String) context.getAttribute("access_token_from_test_Verify_Mfa_To_Login_Success"),
                 AUTHENTICATOR_APP_MFA,
                 ENABLE
-        );
-        response.then()
+        ).then()
                 .statusCode(400)
                 .body("error", containsStringIgnoringCase("Bad Request"))
                 .body("message", containsStringIgnoringCase("Mfa is already enabled"));
@@ -249,13 +245,12 @@ public class AuthenticationServiceTests extends BaseTest {
             "test_Verify_Mfa_To_Login_Success"
     })
     public void test_Verify_To_Enable_Authenticator_App_Mfa_Failure_Already_Enabled(ITestContext context) throws ExecutionException, InterruptedException {
-        Response response = verifyToggleMfa(
+        verifyToggleMfa(
                 (String) context.getAttribute("access_token_from_test_Verify_Mfa_To_Login_Success"),
                 AUTHENTICATOR_APP_MFA,
                 ENABLE,
                 "123456"
-        );
-        response.then()
+        ).then()
                 .statusCode(400)
                 .body("error", containsStringIgnoringCase("Bad Request"))
                 .body("message", containsStringIgnoringCase("Mfa is already enabled"));
