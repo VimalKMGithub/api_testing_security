@@ -49,20 +49,6 @@ public final class UserCalls {
         );
     }
 
-    public static Response forgotPasswordMethodSelection(String usernameOrEmail,
-                                                         String method) throws ExecutionException, InterruptedException {
-        return waitForResponse(() -> executeRequest(
-                        POST,
-                        USER + "/forgot/password/methodSelection",
-                        null,
-                        Map.of(
-                                "usernameOrEmail", usernameOrEmail,
-                                "method", method
-                        )
-                )
-        );
-    }
-
     public static Response resetPassword(Map<String, String> body) throws ExecutionException, InterruptedException {
         return waitForResponse(() -> executeRequest(
                         POST,
@@ -84,17 +70,6 @@ public final class UserCalls {
                         null,
                         null,
                         body
-                )
-        );
-    }
-
-    public static Response changePasswordMethodSelection(String accessToken,
-                                                         String method) throws ExecutionException, InterruptedException {
-        return waitForResponse(() -> executeRequest(
-                        POST,
-                        USER + "/change/password/methodSelection",
-                        Map.of(AUTHORIZATION, BEARER + accessToken),
-                        Map.of("method", method)
                 )
         );
     }
