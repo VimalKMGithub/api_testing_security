@@ -15,6 +15,8 @@ import static org.vimal.api.AuthenticationCalls.getAccessToken;
 import static org.vimal.api.UserCalls.*;
 import static org.vimal.constants.Common.EMAIL_MFA;
 import static org.vimal.helpers.DtosHelper.createRandomUserDto;
+import static org.vimal.helpers.InvalidInputsHelper.INVALID_EMAILS;
+import static org.vimal.helpers.InvalidInputsHelper.INVALID_USERNAMES;
 import static org.vimal.utils.MailReaderUtility.getOtp;
 
 public class UserServiceTests extends BaseTest {
@@ -71,6 +73,20 @@ public class UserServiceTests extends BaseTest {
         forgotPassword(user.getEmail()).then()
                 .statusCode(400)
                 .body("message", containsStringIgnoringCase("Email is not verified"));
+    }
+
+    @Test
+    public void test_Forgot_Password_Failure_Invalid_Inputs() throws ExecutionException, InterruptedException {
+        for (String invalidUsername : INVALID_USERNAMES) {
+            forgotPassword(invalidUsername).then()
+                    .statusCode(400)
+                    .body("message", containsStringIgnoringCase("Invalid username or email"));
+        }
+        for (String invalidEmail : INVALID_EMAILS) {
+            forgotPassword(invalidEmail).then()
+                    .statusCode(400)
+                    .body("message", containsStringIgnoringCase("Invalid username or email"));
+        }
     }
 
     @Test

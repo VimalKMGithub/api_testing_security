@@ -40,40 +40,36 @@ public class AuthenticationServiceTests extends BaseTest {
 
     @Test
     public void test_Login_Failure_InvalidCredentials() throws ExecutionException, InterruptedException {
-        Response response = login(
+        login(
                 "invalidUser",
                 "wrongPassword@1"
-        );
-        response.then()
+        ).then()
                 .statusCode(401)
                 .body("error", containsStringIgnoringCase("Unauthorized"))
                 .body("message", containsStringIgnoringCase("Invalid credentials"));
         for (String invalidUsername : INVALID_USERNAMES) {
-            response = login(
+            login(
                     invalidUsername,
                     "SomePassword@1"
-            );
-            response.then()
+            ).then()
                     .statusCode(401)
                     .body("error", containsStringIgnoringCase("Unauthorized"))
                     .body("message", containsStringIgnoringCase("Invalid credentials"));
         }
         for (String invalidEmail : INVALID_EMAILS) {
-            response = login(
+            login(
                     invalidEmail,
                     "SomePassword@1"
-            );
-            response.then()
+            ).then()
                     .statusCode(401)
                     .body("error", containsStringIgnoringCase("Unauthorized"))
                     .body("message", containsStringIgnoringCase("Invalid credentials"));
         }
         for (String invalidPassword : INVALID_PASSWORDS) {
-            response = login(
+            login(
                     "SomeUser",
                     invalidPassword
-            );
-            response.then()
+            ).then()
                     .statusCode(401)
                     .body("error", containsStringIgnoringCase("Unauthorized"))
                     .body("message", containsStringIgnoringCase("Invalid credentials"));
@@ -84,11 +80,10 @@ public class AuthenticationServiceTests extends BaseTest {
     public void test_Account_Lockout_After_Multiple_Failed_Login_Attempts() throws ExecutionException, InterruptedException {
         UserDto user = createTestUser();
         for (int i = 0; i < 5; i++) {
-            Response response = login(
+            login(
                     user.getUsername(),
                     "WrongPassword@1"
-            );
-            response.then()
+            ).then()
                     .statusCode(401)
                     .body("error", containsStringIgnoringCase("Unauthorized"))
                     .body("message", containsStringIgnoringCase("Bad credentials"));
@@ -145,14 +140,12 @@ public class AuthenticationServiceTests extends BaseTest {
 
     @Test
     public void test_Refresh_Access_Token_Failure_Invalid_Refresh_Token() throws ExecutionException, InterruptedException {
-        Response response = refreshAccessToken("invalidRefreshToken");
-        response.then()
+        refreshAccessToken("invalidRefreshToken").then()
                 .statusCode(400)
                 .body("error", containsStringIgnoringCase("Bad Request"))
                 .body("message", containsStringIgnoringCase("Invalid refresh token"));
         for (String invalidRefreshToken : INVALID_UUIDS) {
-            response = refreshAccessToken(invalidRefreshToken);
-            response.then()
+            refreshAccessToken(invalidRefreshToken).then()
                     .statusCode(400)
                     .body("error", containsStringIgnoringCase("Bad Request"))
                     .body("message", containsStringIgnoringCase("Invalid refresh token"));
@@ -263,24 +256,22 @@ public class AuthenticationServiceTests extends BaseTest {
                 user.getUsername(),
                 user.getPassword()
         );
-        Response response = verifyToggleMfa(
+        verifyToggleMfa(
                 accessToken,
                 AUTHENTICATOR_APP_MFA,
                 ENABLE,
                 "123456"
-        );
-        response.then()
+        ).then()
                 .statusCode(400)
                 .body("error", containsStringIgnoringCase("Bad Request"))
                 .body("message", containsStringIgnoringCase("Invalid Totp"));
         for (String invalidOtp : INVALID_OTPS) {
-            response = verifyToggleMfa(
+            verifyToggleMfa(
                     accessToken,
                     AUTHENTICATOR_APP_MFA,
                     ENABLE,
                     invalidOtp
-            );
-            response.then()
+            ).then()
                     .statusCode(400)
                     .body("error", containsStringIgnoringCase("Bad Request"))
                     .body("message", containsStringIgnoringCase("Invalid Otp/Totp"));
