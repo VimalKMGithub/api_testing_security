@@ -111,4 +111,17 @@ public final class UserCalls {
                 )
         );
     }
+
+    public static Response updateDetails(String accessToken,
+                                         Map<String, String> body) throws ExecutionException, InterruptedException {
+        return waitForResponse(() -> executeRequest(
+                        PUT,
+                        USER + "/update/details",
+                        Map.of(AUTHORIZATION, BEARER + accessToken),
+                        null,
+                        null,
+                        body
+                )
+        );
+    }
 }

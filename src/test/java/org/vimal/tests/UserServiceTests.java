@@ -321,4 +321,26 @@ public class UserServiceTests extends BaseTest {
                     .body("message", containsStringIgnoringCase("Invalid Otp/Totp"));
         }
     }
+
+    @Test
+    public void test_Update_Details_Success() throws ExecutionException, InterruptedException {
+        UserDto user = createTestUser();
+        String accessToken = getAccessToken(
+                user.getUsername(),
+                user.getPassword()
+        );
+        Map<String, String> body = new HashMap<>();
+        body.put("username", "Updated_" + user.getUsername());
+        body.put("firstName", "Updated " + user.getFirstName());
+        body.put("oldPassword", user.getPassword());
+        updateDetails(
+                accessToken,
+                body
+        ).then()
+                .statusCode(200)
+                .body("message", containsStringIgnoringCase("User details updated successfully"))
+                .body("user.username", equalTo("Updated_" + user.getUsername()))
+                .body("user.firstName", equalTo("Updated " + user.getFirstName()))
+                .body("user.updatedBy", containsStringIgnoringCase("SELF"));
+    }
 }
