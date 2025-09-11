@@ -53,7 +53,8 @@ public class AdminServiceTests extends BaseTest {
     }
 
     private void createUsersAndVerifyResponse(UserDto creator,
-                                              Set<UserDto> users) throws ExecutionException, InterruptedException {
+                                              Set<UserDto> users,
+                                              int statusCode) throws ExecutionException, InterruptedException {
         String accessToken = getAccessToken(
                 creator.getUsername(),
                 creator.getPassword()
@@ -76,7 +77,8 @@ public class AdminServiceTests extends BaseTest {
             validateResponseOfUsersCreation(
                     response,
                     creator,
-                    batch
+                    batch,
+                    statusCode
             );
         }
     }
@@ -92,7 +94,8 @@ public class AdminServiceTests extends BaseTest {
         }
         createUsersAndVerifyResponse(
                 creator,
-                usersThatCanBeCreatedBySuperAdmin
+                usersThatCanBeCreatedBySuperAdmin,
+                200
         );
     }
 
@@ -107,7 +110,8 @@ public class AdminServiceTests extends BaseTest {
         }
         createUsersAndVerifyResponse(
                 creator,
-                usersThatCanBeCreatedByAdmin
+                usersThatCanBeCreatedByAdmin,
+                200
         );
     }
 
@@ -122,7 +126,8 @@ public class AdminServiceTests extends BaseTest {
         }
         createUsersAndVerifyResponse(
                 creator,
-                usersThatCanBeCreatedByManageUsers
+                usersThatCanBeCreatedByManageUsers,
+                200
         );
     }
 

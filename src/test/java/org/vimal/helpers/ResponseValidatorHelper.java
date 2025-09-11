@@ -15,9 +15,16 @@ public final class ResponseValidatorHelper {
 
     public static void validateResponseOfUsersCreation(Response response,
                                                        UserDto creator,
-                                                       Set<UserDto> users) {
+                                                       Set<UserDto> users,
+                                                       int statusCode) {
         response.then()
-                .statusCode(200)
+                .statusCode(statusCode);
+        if (statusCode != 200) {
+            response.then()
+                    .body("invalid_inputs", not(empty()));
+            return;
+        }
+        response.then()
                 .body(PATH_PREFIX_FOR_CREATED_USERS + "size()", equalTo(users.size()));
         String findPath;
         for (UserDto user : users) {
