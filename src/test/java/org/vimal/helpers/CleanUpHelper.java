@@ -15,8 +15,7 @@ public final class CleanUpHelper {
     }
 
     public static void cleanUpTestUsers(Object... inputs) {
-        Set<String> identifiers = extractUserIdentifiers(inputs);
-        Iterator<String> iterator = identifiers.iterator();
+        Iterator<String> iterator = extractUserIdentifiers(inputs).iterator();
         Set<String> batch = new HashSet<>();
         while (iterator.hasNext()) {
             batch.clear();

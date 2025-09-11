@@ -1,7 +1,6 @@
 package org.vimal;
 
 import io.restassured.RestAssured;
-import io.restassured.response.Response;
 import lombok.extern.slf4j.Slf4j;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeSuite;
@@ -70,34 +69,32 @@ public abstract class BaseTest {
         return createTestUser(createRandomUserDto());
     }
 
-    public static UserDto createTestUserRandomValidEmail() throws ExecutionException, InterruptedException {
+    protected static UserDto createTestUserRandomValidEmail() throws ExecutionException, InterruptedException {
         return createTestUser(createRandomUserDtoWithRandomValidEmail());
     }
 
-    private static UserDto createTestUser(Set<String> roles) throws ExecutionException, InterruptedException {
+    protected static UserDto createTestUser(Set<String> roles) throws ExecutionException, InterruptedException {
         return createTestUser(createRandomUserDto(roles));
     }
 
-    public static UserDto createTestUser(UserDto user) throws ExecutionException, InterruptedException {
+    protected static UserDto createTestUser(UserDto user) throws ExecutionException, InterruptedException {
         createTestUsers(Set.of(user));
         return user;
     }
 
-    private static void createTestUsers(Set<UserDto> users) throws ExecutionException, InterruptedException {
+    protected static void createTestUsers(Set<UserDto> users) throws ExecutionException, InterruptedException {
         Iterator<UserDto> iterator = users.iterator();
         Set<UserDto> batch = new HashSet<>();
-        Response response;
         while (iterator.hasNext()) {
             batch.clear();
             while (iterator.hasNext() &&
                     batch.size() < MAX_BATCH_SIZE_OF_USER_CREATION_AT_A_TIME) {
                 batch.add(iterator.next());
             }
-            response = createUsers(
+            createUsers(
                     batch,
                     null
-            );
-            response.then()
+            ).then()
                     .statusCode(200);
             TEST_USERS.addAll(batch);
         }
