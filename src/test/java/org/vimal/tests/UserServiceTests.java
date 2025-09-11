@@ -328,6 +328,7 @@ public class UserServiceTests extends BaseTest {
                 user.getUsername(),
                 user.getPassword()
         );
+        user.setUsername("Updated_" + user.getUsername());
         Map<String, String> body = new HashMap<>();
         body.put("username", "Updated_" + user.getUsername());
         body.put("firstName", "Updated " + user.getFirstName());
