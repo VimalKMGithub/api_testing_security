@@ -89,7 +89,7 @@ public class AdminServiceTests extends BaseTest {
 
     @Test
     public void test_Create_Users_Using_User_With_Role_Admin() throws ExecutionException, InterruptedException {
-        UserDto creator = createTestUser(ROLE_SET_FOR_ADMIN_CAN_CREATE_UPDATE_DELETE_USERS);
+        UserDto creator = createTestUser(Set.of(ROLE_ADMIN.name()));
         Set<UserDto> usersThatCanBeCreatedByAdmin = new HashSet<>();
         usersThatCanBeCreatedByAdmin.add(createRandomUserDto());
         usersThatCanBeCreatedByAdmin.add(createRandomUserDto(ROLE_SET_FOR_ADMIN_CAN_CREATE_UPDATE_DELETE_USERS));
@@ -101,6 +101,42 @@ public class AdminServiceTests extends BaseTest {
                 creator.getPassword()
         );
         Iterator<UserDto> iterator = usersThatCanBeCreatedByAdmin.iterator();
+        Set<UserDto> batch = new HashSet<>();
+        Response response;
+        while (iterator.hasNext()) {
+            batch.clear();
+            while (iterator.hasNext() &&
+                    batch.size() < MAX_BATCH_SIZE_OF_USER_CREATION_AT_A_TIME) {
+                batch.add(iterator.next());
+            }
+            TEST_USERS.addAll(batch);
+            response = createUsers(
+                    accessToken,
+                    batch,
+                    null
+            );
+            validateResponseOfUsersCreation(
+                    response,
+                    creator,
+                    batch
+            );
+        }
+    }
+
+    @Test
+    public void test_Create_Users_Using_User_With_Role_Mange_Users() throws ExecutionException, InterruptedException {
+        UserDto creator = createTestUser(Set.of(ROLE_MANAGE_USERS.name()));
+        Set<UserDto> usersThatCanBeCreatedByManageUsers = new HashSet<>();
+        usersThatCanBeCreatedByManageUsers.add(createRandomUserDto());
+        usersThatCanBeCreatedByManageUsers.add(createRandomUserDto(ROLE_SET_FOR_ADMIN_CAN_CREATE_UPDATE_DELETE_USERS));
+        for (String role : ROLE_SET_FOR_ADMIN_CAN_CREATE_UPDATE_DELETE_USERS) {
+            usersThatCanBeCreatedByManageUsers.add(createRandomUserDto(Set.of(role)));
+        }
+        String accessToken = getAccessToken(
+                creator.getUsername(),
+                creator.getPassword()
+        );
+        Iterator<UserDto> iterator = usersThatCanBeCreatedByManageUsers.iterator();
         Set<UserDto> batch = new HashSet<>();
         Response response;
         while (iterator.hasNext()) {
