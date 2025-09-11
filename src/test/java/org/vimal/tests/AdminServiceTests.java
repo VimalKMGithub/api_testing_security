@@ -11,6 +11,7 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
+import static org.hamcrest.Matchers.containsStringIgnoringCase;
 import static org.vimal.api.AdminCalls.createUsers;
 import static org.vimal.api.AuthenticationCalls.getAccessToken;
 import static org.vimal.constants.Common.MAX_BATCH_SIZE_OF_USER_CREATION_AT_A_TIME;
@@ -51,20 +52,13 @@ public class AdminServiceTests extends BaseTest {
         return Collections.unmodifiableSet(roles);
     }
 
-    @Test
-    public void test_Create_Users_Using_User_With_Role_Super_Admin() throws ExecutionException, InterruptedException {
-        UserDto creator = createTestUser(Set.of(ROLE_SUPER_ADMIN.name()));
-        Set<UserDto> usersThatCanBeCreatedBySuperAdmin = new HashSet<>();
-        usersThatCanBeCreatedBySuperAdmin.add(createRandomUserDto());
-        usersThatCanBeCreatedBySuperAdmin.add(createRandomUserDto(ROLE_SET_FOR_SUPER_ADMIN_CAN_CREATE_UPDATE_DELETE_USERS));
-        for (String role : ROLE_SET_FOR_SUPER_ADMIN_CAN_CREATE_UPDATE_DELETE_USERS) {
-            usersThatCanBeCreatedBySuperAdmin.add(createRandomUserDto(Set.of(role)));
-        }
+    private void createUsersAndVerifyResponse(UserDto creator,
+                                              Set<UserDto> users) throws ExecutionException, InterruptedException {
         String accessToken = getAccessToken(
                 creator.getUsername(),
                 creator.getPassword()
         );
-        Iterator<UserDto> iterator = usersThatCanBeCreatedBySuperAdmin.iterator();
+        Iterator<UserDto> iterator = users.iterator();
         Set<UserDto> batch = new HashSet<>();
         Response response;
         while (iterator.hasNext()) {
@@ -85,6 +79,21 @@ public class AdminServiceTests extends BaseTest {
                     batch
             );
         }
+    }
+
+    @Test
+    public void test_Create_Users_Using_User_With_Role_Super_Admin() throws ExecutionException, InterruptedException {
+        UserDto creator = createTestUser(Set.of(ROLE_SUPER_ADMIN.name()));
+        Set<UserDto> usersThatCanBeCreatedBySuperAdmin = new HashSet<>();
+        usersThatCanBeCreatedBySuperAdmin.add(createRandomUserDto());
+        usersThatCanBeCreatedBySuperAdmin.add(createRandomUserDto(ROLE_SET_FOR_SUPER_ADMIN_CAN_CREATE_UPDATE_DELETE_USERS));
+        for (String role : ROLE_SET_FOR_SUPER_ADMIN_CAN_CREATE_UPDATE_DELETE_USERS) {
+            usersThatCanBeCreatedBySuperAdmin.add(createRandomUserDto(Set.of(role)));
+        }
+        createUsersAndVerifyResponse(
+                creator,
+                usersThatCanBeCreatedBySuperAdmin
+        );
     }
 
     @Test
@@ -96,31 +105,10 @@ public class AdminServiceTests extends BaseTest {
         for (String role : ROLE_SET_FOR_ADMIN_CAN_CREATE_UPDATE_DELETE_USERS) {
             usersThatCanBeCreatedByAdmin.add(createRandomUserDto(Set.of(role)));
         }
-        String accessToken = getAccessToken(
-                creator.getUsername(),
-                creator.getPassword()
+        createUsersAndVerifyResponse(
+                creator,
+                usersThatCanBeCreatedByAdmin
         );
-        Iterator<UserDto> iterator = usersThatCanBeCreatedByAdmin.iterator();
-        Set<UserDto> batch = new HashSet<>();
-        Response response;
-        while (iterator.hasNext()) {
-            batch.clear();
-            while (iterator.hasNext() &&
-                    batch.size() < MAX_BATCH_SIZE_OF_USER_CREATION_AT_A_TIME) {
-                batch.add(iterator.next());
-            }
-            TEST_USERS.addAll(batch);
-            response = createUsers(
-                    accessToken,
-                    batch,
-                    null
-            );
-            validateResponseOfUsersCreation(
-                    response,
-                    creator,
-                    batch
-            );
-        }
     }
 
     @Test
@@ -132,30 +120,32 @@ public class AdminServiceTests extends BaseTest {
         for (String role : ROLE_SET_FOR_ADMIN_CAN_CREATE_UPDATE_DELETE_USERS) {
             usersThatCanBeCreatedByManageUsers.add(createRandomUserDto(Set.of(role)));
         }
-        String accessToken = getAccessToken(
-                creator.getUsername(),
-                creator.getPassword()
+        createUsersAndVerifyResponse(
+                creator,
+                usersThatCanBeCreatedByManageUsers
         );
-        Iterator<UserDto> iterator = usersThatCanBeCreatedByManageUsers.iterator();
-        Set<UserDto> batch = new HashSet<>();
-        Response response;
-        while (iterator.hasNext()) {
-            batch.clear();
-            while (iterator.hasNext() &&
-                    batch.size() < MAX_BATCH_SIZE_OF_USER_CREATION_AT_A_TIME) {
-                batch.add(iterator.next());
-            }
-            TEST_USERS.addAll(batch);
-            response = createUsers(
-                    accessToken,
-                    batch,
+    }
+
+    @Test
+    public void test_Create_Users_Using_User_With_Role_Cannot_Create_Users() throws ExecutionException, InterruptedException {
+        Set<UserDto> creators = new HashSet<>();
+        creators.add(createRandomUserDto(USERS_WITH_THESE_ROLES_CANNOT_CREATE_READ_UPDATE_DELETE_USERS));
+        for (String role : USERS_WITH_THESE_ROLES_CANNOT_CREATE_READ_UPDATE_DELETE_USERS) {
+            creators.add(createRandomUserDto(Set.of(role)));
+        }
+        createTestUsers(creators);
+        Set<UserDto> testSet = Set.of(createRandomUserDto());
+        for (UserDto creator : creators) {
+            createUsers(
+                    getAccessToken(
+                            creator.getUsername(),
+                            creator.getPassword()
+                    ),
+                    testSet,
                     null
-            );
-            validateResponseOfUsersCreation(
-                    response,
-                    creator,
-                    batch
-            );
+            ).then()
+                    .statusCode(403)
+                    .body("message", containsStringIgnoringCase("Access Denied"));
         }
     }
 }
