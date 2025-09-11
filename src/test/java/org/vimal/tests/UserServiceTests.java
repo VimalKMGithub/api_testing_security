@@ -328,7 +328,6 @@ public class UserServiceTests extends BaseTest {
                 user.getUsername(),
                 user.getPassword()
         );
-        user.setUsername("Updated_" + user.getUsername());
         Map<String, String> body = new HashMap<>();
         body.put("username", "Updated_" + user.getUsername());
         body.put("firstName", "Updated " + user.getFirstName());
@@ -342,6 +341,7 @@ public class UserServiceTests extends BaseTest {
                 .body("user.username", equalTo("Updated_" + user.getUsername()))
                 .body("user.firstName", equalTo("Updated " + user.getFirstName()))
                 .body("user.updatedBy", containsStringIgnoringCase("SELF"));
+        user.setUsername("Updated_" + user.getUsername());
     }
 
     @Test
