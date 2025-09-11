@@ -57,6 +57,9 @@ public class AdminServiceTests extends BaseTest {
         Set<UserDto> usersThatCanBeCreatedBySuperAdmin = new HashSet<>();
         usersThatCanBeCreatedBySuperAdmin.add(createRandomUserDto());
         usersThatCanBeCreatedBySuperAdmin.add(createRandomUserDto(ROLE_SET_FOR_SUPER_ADMIN_CAN_CREATE_UPDATE_DELETE_USERS));
+        for (String role : ROLE_SET_FOR_SUPER_ADMIN_CAN_CREATE_UPDATE_DELETE_USERS) {
+            usersThatCanBeCreatedBySuperAdmin.add(createRandomUserDto(Set.of(role)));
+        }
         String accessToken = getAccessToken(
                 creator.getUsername(),
                 creator.getPassword()
