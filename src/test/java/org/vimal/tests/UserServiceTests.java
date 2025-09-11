@@ -18,8 +18,7 @@ import static org.vimal.api.UserCalls.*;
 import static org.vimal.constants.Common.AUTHENTICATOR_APP_MFA;
 import static org.vimal.constants.Common.ENABLE;
 import static org.vimal.helpers.DtosHelper.createRandomUserDto;
-import static org.vimal.helpers.InvalidInputsHelper.INVALID_OTPS;
-import static org.vimal.helpers.InvalidInputsHelper.INVALID_PASSWORDS;
+import static org.vimal.helpers.InvalidInputsHelper.*;
 import static org.vimal.utils.QrUtility.extractSecretFromByteArrayOfQrCode;
 import static org.vimal.utils.TotpUtility.generateTotp;
 
@@ -342,5 +341,64 @@ public class UserServiceTests extends BaseTest {
                 .body("user.username", equalTo("Updated_" + user.getUsername()))
                 .body("user.firstName", equalTo("Updated " + user.getFirstName()))
                 .body("user.updatedBy", containsStringIgnoringCase("SELF"));
+    }
+
+    @Test
+    public void test_Update_Details_Failure_Invalid_Input() throws ExecutionException, InterruptedException {
+        UserDto user = createTestUser();
+        String accessToken = getAccessToken(
+                user.getUsername(),
+                user.getPassword()
+        );
+        Map<String, String> body = new HashMap<>();
+        for (String invalidUsername : INVALID_USERNAMES) {
+            body.put("username", invalidUsername);
+            updateDetails(
+                    accessToken,
+                    body
+            ).then()
+                    .statusCode(400)
+                    .body("invalid_inputs", not(empty()));
+        }
+        body.put("username", "ValidUsername");
+        for (String invalidFirstName : INVALID_NAMES) {
+            body.put("firstName", invalidFirstName);
+            updateDetails(
+                    accessToken,
+                    body
+            ).then()
+                    .statusCode(400)
+                    .body("invalid_inputs", not(empty()));
+        }
+        body.put("firstName", "ValidFirstName");
+        for (String invalidMiddleName : INVALID_NAMES) {
+            body.put("middleName", invalidMiddleName);
+            updateDetails(
+                    accessToken,
+                    body
+            ).then()
+                    .statusCode(400)
+                    .body("invalid_inputs", not(empty()));
+        }
+        body.put("middleName", "ValidMiddleName");
+        for (String invalidLastName : INVALID_NAMES) {
+            body.put("lastName", invalidLastName);
+            updateDetails(
+                    accessToken,
+                    body
+            ).then()
+                    .statusCode(400)
+                    .body("invalid_inputs", not(empty()));
+        }
+        body.put("lastName", "ValidLastName");
+        for (String invalidOldPassword : INVALID_PASSWORDS) {
+            body.put("oldPassword", invalidOldPassword);
+            updateDetails(
+                    accessToken,
+                    body
+            ).then()
+                    .statusCode(400)
+                    .body("invalid_inputs", not(empty()));
+        }
     }
 }
