@@ -16,6 +16,7 @@ import static org.vimal.api.AuthenticationCalls.getAccessToken;
 import static org.vimal.constants.Common.MAX_BATCH_SIZE_OF_USER_CREATION_AT_A_TIME;
 import static org.vimal.enums.Roles.*;
 import static org.vimal.helpers.DtosHelper.createRandomUserDto;
+import static org.vimal.helpers.ResponseValidatorHelper.validateResponseOfUsersCreation;
 
 public class AdminServiceTests extends BaseTest {
     private static final Set<String> USERS_WITH_THESE_ROLES_CANNOT_CREATE_READ_UPDATE_DELETE_USERS = Set.of(
@@ -74,6 +75,11 @@ public class AdminServiceTests extends BaseTest {
                     accessToken,
                     batch,
                     null
+            );
+            validateResponseOfUsersCreation(
+                    response,
+                    creator,
+                    batch
             );
         }
     }
