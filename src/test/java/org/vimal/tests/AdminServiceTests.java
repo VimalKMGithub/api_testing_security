@@ -86,4 +86,40 @@ public class AdminServiceTests extends BaseTest {
             );
         }
     }
+
+    @Test
+    public void test_Create_Users_Using_User_With_Role_Admin() throws ExecutionException, InterruptedException {
+        UserDto creator = createTestUser(ROLE_SET_FOR_ADMIN_CAN_CREATE_UPDATE_DELETE_USERS);
+        Set<UserDto> usersThatCanBeCreatedByAdmin = new HashSet<>();
+        usersThatCanBeCreatedByAdmin.add(createRandomUserDto());
+        usersThatCanBeCreatedByAdmin.add(createRandomUserDto(ROLE_SET_FOR_ADMIN_CAN_CREATE_UPDATE_DELETE_USERS));
+        for (String role : ROLE_SET_FOR_ADMIN_CAN_CREATE_UPDATE_DELETE_USERS) {
+            usersThatCanBeCreatedByAdmin.add(createRandomUserDto(Set.of(role)));
+        }
+        String accessToken = getAccessToken(
+                creator.getUsername(),
+                creator.getPassword()
+        );
+        Iterator<UserDto> iterator = usersThatCanBeCreatedByAdmin.iterator();
+        Set<UserDto> batch = new HashSet<>();
+        Response response;
+        while (iterator.hasNext()) {
+            batch.clear();
+            while (iterator.hasNext() &&
+                    batch.size() < MAX_BATCH_SIZE_OF_USER_CREATION_AT_A_TIME) {
+                batch.add(iterator.next());
+            }
+            TEST_USERS.addAll(batch);
+            response = createUsers(
+                    accessToken,
+                    batch,
+                    null
+            );
+            validateResponseOfUsersCreation(
+                    response,
+                    creator,
+                    batch
+            );
+        }
+    }
 }
