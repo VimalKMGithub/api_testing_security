@@ -34,6 +34,24 @@ public class AdminServiceTests extends BaseTest {
             ROLE_ADMIN.name(),
             ROLE_SUPER_ADMIN.name()
     );
+    private static final Set<String> USERS_WITH_THESE_ROLES_CANNOT_CREATE_READ_UPDATE_DELETE_ROLES = Set.of(
+            ROLE_MANAGE_USERS.name(),
+            ROLE_MANAGE_PERMISSIONS.name()
+    );
+    private static final Set<String> USERS_WITH_THESE_ROLES_CAN_CREATE_DELETE_READ_UPDATE_ROLES = Set.of(
+            ROLE_MANAGE_ROLES.name(),
+            ROLE_ADMIN.name(),
+            ROLE_SUPER_ADMIN.name()
+    );
+    private static final Set<String> USERS_WITH_THESE_ROLES_CANNOT_READ_PERMISSIONS = Set.of(
+            ROLE_MANAGE_USERS.name(),
+            ROLE_MANAGE_ROLES.name()
+    );
+    private static final Set<String> USERS_WITH_THESE_ROLES_CAN_READ_PERMISSIONS = Set.of(
+            ROLE_MANAGE_PERMISSIONS.name(),
+            ROLE_ADMIN.name(),
+            ROLE_SUPER_ADMIN.name()
+    );
 
     private static Set<String> buildRoleSetForAdminCanCreateUpdateDeleteUsers() {
         Set<String> roles = new HashSet<>(USERS_WITH_THESE_ROLES_CANNOT_CREATE_READ_UPDATE_DELETE_USERS);
