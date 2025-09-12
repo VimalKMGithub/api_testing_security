@@ -15,7 +15,8 @@ import static org.hamcrest.Matchers.*;
 import static org.vimal.api.AdminCalls.createUsers;
 import static org.vimal.api.AdminCalls.deleteUsers;
 import static org.vimal.api.AuthenticationCalls.getAccessToken;
-import static org.vimal.constants.Common.*;
+import static org.vimal.constants.Common.ENABLE;
+import static org.vimal.constants.Common.MAX_BATCH_SIZE_OF_USER_CREATION_AT_A_TIME;
 import static org.vimal.enums.Roles.*;
 import static org.vimal.helpers.DtosHelper.createRandomUserDto;
 import static org.vimal.helpers.InvalidInputsHelper.*;
@@ -318,7 +319,7 @@ public class AdminServiceTests extends BaseTest {
                     accessToken,
                     batch,
                     ENABLE,
-                    DISABLE
+                    null
             );
             response.then()
                     .statusCode(statusCode);
@@ -405,7 +406,7 @@ public class AdminServiceTests extends BaseTest {
                     ),
                     Set.of("someUsername"),
                     ENABLE,
-                    DISABLE
+                    null
             ).then()
                     .statusCode(403)
                     .body("message", containsStringIgnoringCase("Access Denied"));
@@ -464,5 +465,34 @@ public class AdminServiceTests extends BaseTest {
                 usersThatCannotBeDeletedByManageUsers,
                 400
         );
+    }
+
+    @Test
+    public void test_Delete_Users_Invalid_Input() throws ExecutionException, InterruptedException {
+        UserDto deleter = createTestUser(Set.of(ROLE_SUPER_ADMIN.name()));
+        String accessToken = getAccessToken(
+                deleter.getUsername(),
+                deleter.getPassword()
+        );
+        for (String invalidIdentifier : INVALID_USERNAMES) {
+            deleteUsers(
+                    accessToken,
+                    Set.of(invalidIdentifier),
+                    ENABLE,
+                    null
+            ).then()
+                    .statusCode(400)
+                    .body("invalid_inputs", not(empty()));
+        }
+        for (String invalidIdentifier : INVALID_EMAILS) {
+            deleteUsers(
+                    accessToken,
+                    Set.of(invalidIdentifier),
+                    ENABLE,
+                    null
+            ).then()
+                    .statusCode(400)
+                    .body("invalid_inputs", not(empty()));
+        }
     }
 }
