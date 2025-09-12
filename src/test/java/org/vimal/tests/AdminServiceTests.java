@@ -392,4 +392,27 @@ public class AdminServiceTests extends BaseTest {
                 .statusCode(200)
                 .body("message", containsStringIgnoringCase("Users deleted successfully"));
     }
+
+    @Test
+    public void test_Delete_Users_Using_User_With_Role_Cannot_Delete_Users() throws ExecutionException, InterruptedException {
+        Set<UserDto> deleters = new HashSet<>();
+        deleters.add(createRandomUserDto(USERS_WITH_THESE_ROLES_CANNOT_CREATE_READ_UPDATE_DELETE_USERS));
+        for (String role : USERS_WITH_THESE_ROLES_CANNOT_CREATE_READ_UPDATE_DELETE_USERS) {
+            deleters.add(createRandomUserDto(Set.of(role)));
+        }
+        createTestUsers(deleters);
+        for (UserDto deleter : deleters) {
+            deleteUsers(
+                    getAccessToken(
+                            deleter.getUsername(),
+                            deleter.getPassword()
+                    ),
+                    Set.of("someUsername"),
+                    ENABLE,
+                    DISABLE
+            ).then()
+                    .statusCode(403)
+                    .body("message", containsStringIgnoringCase("Access Denied"));
+        }
+    }
 }
