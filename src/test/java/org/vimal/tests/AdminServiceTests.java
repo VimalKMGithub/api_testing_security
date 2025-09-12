@@ -547,4 +547,31 @@ public class AdminServiceTests extends BaseTest {
                     .body("message", containsStringIgnoringCase("Access Denied"));
         }
     }
+
+    @Test
+    public void test_Read_Users_Invalid_Input() throws ExecutionException, InterruptedException {
+        UserDto reader = createTestUser(Set.of(ROLE_SUPER_ADMIN.name()));
+        String accessToken = getAccessToken(
+                reader.getUsername(),
+                reader.getPassword()
+        );
+        for (String invalidIdentifier : INVALID_USERNAMES) {
+            readUsers(
+                    accessToken,
+                    Set.of(invalidIdentifier),
+                    null
+            ).then()
+                    .statusCode(400)
+                    .body("invalid_inputs", not(empty()));
+        }
+        for (String invalidIdentifier : INVALID_EMAILS) {
+            readUsers(
+                    accessToken,
+                    Set.of(invalidIdentifier),
+                    null
+            ).then()
+                    .statusCode(400)
+                    .body("invalid_inputs", not(empty()));
+        }
+    }
 }
