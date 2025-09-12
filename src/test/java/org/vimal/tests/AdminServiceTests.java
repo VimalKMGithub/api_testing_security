@@ -664,4 +664,58 @@ public class AdminServiceTests extends BaseTest {
                 200
         );
     }
+
+    @Test
+    public void test_Update_Users_Using_User_With_Role_Admin() throws ExecutionException, InterruptedException {
+        UserDto updater = createRandomUserDto(Set.of(ROLE_ADMIN.name()));
+        Set<UserDto> usersThatCanBeUpdatedByAdmin = new HashSet<>();
+        usersThatCanBeUpdatedByAdmin.add(createRandomUserDto());
+        usersThatCanBeUpdatedByAdmin.add(createRandomUserDto(ROLE_SET_FOR_ADMIN_CAN_CREATE_UPDATE_DELETE_USERS));
+        for (String role : ROLE_SET_FOR_ADMIN_CAN_CREATE_UPDATE_DELETE_USERS) {
+            usersThatCanBeUpdatedByAdmin.add(createRandomUserDto(Set.of(role)));
+        }
+        usersThatCanBeUpdatedByAdmin.add(updater);
+        createTestUsers(usersThatCanBeUpdatedByAdmin);
+        usersThatCanBeUpdatedByAdmin.remove(updater);
+        Set<UserDto> updatedInputs = new HashSet<>();
+        UserDto userTemp;
+        for (UserDto user : usersThatCanBeUpdatedByAdmin) {
+            userTemp = createRandomUserDto();
+            userTemp.setOldUsername(user.getUsername());
+            updatedInputs.add(userTemp);
+        }
+        updateUsersAndVerifyResponse(
+                updater,
+                usersThatCanBeUpdatedByAdmin,
+                updatedInputs,
+                200
+        );
+    }
+
+    @Test
+    public void test_Update_Users_Using_User_With_Role_Mange_Users() throws ExecutionException, InterruptedException {
+        UserDto updater = createRandomUserDto(Set.of(ROLE_MANAGE_USERS.name()));
+        Set<UserDto> usersThatCanBeUpdatedByManageUsers = new HashSet<>();
+        usersThatCanBeUpdatedByManageUsers.add(createRandomUserDto());
+        usersThatCanBeUpdatedByManageUsers.add(createRandomUserDto(ROLE_SET_FOR_ADMIN_CAN_CREATE_UPDATE_DELETE_USERS));
+        for (String role : ROLE_SET_FOR_ADMIN_CAN_CREATE_UPDATE_DELETE_USERS) {
+            usersThatCanBeUpdatedByManageUsers.add(createRandomUserDto(Set.of(role)));
+        }
+        usersThatCanBeUpdatedByManageUsers.add(updater);
+        createTestUsers(usersThatCanBeUpdatedByManageUsers);
+        usersThatCanBeUpdatedByManageUsers.remove(updater);
+        Set<UserDto> updatedInputs = new HashSet<>();
+        UserDto userTemp;
+        for (UserDto user : usersThatCanBeUpdatedByManageUsers) {
+            userTemp = createRandomUserDto();
+            userTemp.setOldUsername(user.getUsername());
+            updatedInputs.add(userTemp);
+        }
+        updateUsersAndVerifyResponse(
+                updater,
+                usersThatCanBeUpdatedByManageUsers,
+                updatedInputs,
+                200
+        );
+    }
 }
