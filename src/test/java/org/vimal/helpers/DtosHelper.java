@@ -54,7 +54,7 @@ public final class DtosHelper {
                 .build();
     }
 
-    private static RoleDto createRandomRoleDto() {
+    public static RoleDto createRandomRoleDto() {
         return createRandomRoleDto(null);
     }
 
@@ -66,7 +66,7 @@ public final class DtosHelper {
         return roleDtos;
     }
 
-    private static RoleDto createRandomRoleDto(Set<String> permissions) {
+    public static RoleDto createRandomRoleDto(Set<String> permissions) {
         String randomString = getCurrentFormattedLocalTimeStamp() + "_" + generateRandomStringAlphaNumeric();
         return RoleDto.builder()
                 .roleName("AutoTestRole_" + randomString)

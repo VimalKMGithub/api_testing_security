@@ -1,6 +1,7 @@
 package org.vimal.api;
 
 import io.restassured.response.Response;
+import org.vimal.dtos.RoleDto;
 import org.vimal.dtos.UserDto;
 
 import java.util.HashMap;
@@ -83,6 +84,45 @@ public final class AdminCalls {
                                 leniency.isBlank()) ? null : Map.of(LENIENCY, leniency),
                         null,
                         users
+                )
+        );
+    }
+
+    public static Response createRoles(String accessToken,
+                                       Set<RoleDto> roles,
+                                       String leniency) throws ExecutionException, InterruptedException {
+        return waitForResponse(() -> executeRequest(
+                        POST,
+                        ADMIN + "/create/roles",
+                        Map.of(AUTHORIZATION, BEARER + accessToken),
+                        (leniency == null ||
+                                leniency.isBlank()) ? null : Map.of(LENIENCY, leniency),
+                        null,
+                        roles
+                )
+        );
+    }
+
+    public static Response deleteRoles(String accessToken,
+                                       Set<String> roleNames,
+                                       String force,
+                                       String leniency) throws ExecutionException, InterruptedException {
+        Map<String, String> params = new HashMap<>();
+        if (force != null &&
+                !force.isBlank()) {
+            params.put(FORCE, force);
+        }
+        if (leniency != null &&
+                !leniency.isBlank()) {
+            params.put(LENIENCY, leniency);
+        }
+        return waitForResponse(() -> executeRequest(
+                        DELETE,
+                        ADMIN + "/delete/roles",
+                        Map.of(AUTHORIZATION, BEARER + accessToken),
+                        params.isEmpty() ? null : params,
+                        null,
+                        roleNames
                 )
         );
     }
