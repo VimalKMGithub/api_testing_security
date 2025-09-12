@@ -525,4 +525,26 @@ public class AdminServiceTests extends BaseTest {
                     .statusCode(200);
         }
     }
+
+    @Test
+    public void test_Read_Users_Using_User_With_Role_Cannot_Read_Users() throws ExecutionException, InterruptedException {
+        Set<UserDto> readers = new HashSet<>();
+        readers.add(createRandomUserDto(USERS_WITH_THESE_ROLES_CANNOT_CREATE_READ_UPDATE_DELETE_USERS));
+        for (String role : USERS_WITH_THESE_ROLES_CANNOT_CREATE_READ_UPDATE_DELETE_USERS) {
+            readers.add(createRandomUserDto(Set.of(role)));
+        }
+        createTestUsers(readers);
+        for (UserDto reader : readers) {
+            readUsers(
+                    getAccessToken(
+                            reader.getUsername(),
+                            reader.getPassword()
+                    ),
+                    Set.of("someUsername"),
+                    null
+            ).then()
+                    .statusCode(403)
+                    .body("message", containsStringIgnoringCase("Access Denied"));
+        }
+    }
 }
