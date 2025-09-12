@@ -12,8 +12,7 @@ import static org.vimal.api.ApiCalls.executeRequest;
 import static org.vimal.api.Common.waitForResponse;
 import static org.vimal.constants.Common.*;
 import static org.vimal.constants.SubPaths.ADMIN;
-import static org.vimal.enums.RequestMethods.DELETE;
-import static org.vimal.enums.RequestMethods.POST;
+import static org.vimal.enums.RequestMethods.*;
 
 public final class AdminCalls {
     private AdminCalls() {
@@ -52,6 +51,21 @@ public final class AdminCalls {
                         ADMIN + "/delete/users",
                         Map.of(AUTHORIZATION, BEARER + accessToken),
                         params.isEmpty() ? null : params,
+                        null,
+                        usernamesOrEmails
+                )
+        );
+    }
+
+    public static Response readUsers(String accessToken,
+                                     Set<String> usernamesOrEmails,
+                                     String leniency) throws ExecutionException, InterruptedException {
+        return waitForResponse(() -> executeRequest(
+                        GET,
+                        ADMIN + "/read/users",
+                        Map.of(AUTHORIZATION, BEARER + accessToken),
+                        (leniency == null ||
+                                leniency.isBlank()) ? null : Map.of(LENIENCY, leniency),
                         null,
                         usernamesOrEmails
                 )
