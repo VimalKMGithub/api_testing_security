@@ -429,4 +429,40 @@ public class AdminServiceTests extends BaseTest {
                 400
         );
     }
+
+    @Test
+    public void test_Delete_Users_Using_User_With_Role_Admin_Not_Allowed_To_Delete_Users() throws ExecutionException, InterruptedException {
+        UserDto deleter = createRandomUserDto(Set.of(ROLE_ADMIN.name()));
+        Set<UserDto> usersThatCannotBeDeletedByAdmin = new HashSet<>();
+        usersThatCannotBeDeletedByAdmin.add(createRandomUserDto(ROLE_SET_FOR_ADMIN_CANNOT_CREATE_UPDATE_DELETE_USERS));
+        for (String role : ROLE_SET_FOR_ADMIN_CANNOT_CREATE_UPDATE_DELETE_USERS) {
+            usersThatCannotBeDeletedByAdmin.add(createRandomUserDto(Set.of(role)));
+        }
+        usersThatCannotBeDeletedByAdmin.add(deleter);
+        createTestUsers(usersThatCannotBeDeletedByAdmin);
+        usersThatCannotBeDeletedByAdmin.remove(deleter);
+        deleteUsersAndVerifyResponse(
+                deleter,
+                usersThatCannotBeDeletedByAdmin,
+                400
+        );
+    }
+
+    @Test
+    public void test_Delete_Users_Using_User_With_Role_Mange_Users_Not_Allowed_To_Delete_Users() throws ExecutionException, InterruptedException {
+        UserDto deleter = createRandomUserDto(Set.of(ROLE_MANAGE_USERS.name()));
+        Set<UserDto> usersThatCannotBeDeletedByManageUsers = new HashSet<>();
+        usersThatCannotBeDeletedByManageUsers.add(createRandomUserDto(ROLE_SET_FOR_ADMIN_CANNOT_CREATE_UPDATE_DELETE_USERS));
+        for (String role : ROLE_SET_FOR_ADMIN_CANNOT_CREATE_UPDATE_DELETE_USERS) {
+            usersThatCannotBeDeletedByManageUsers.add(createRandomUserDto(Set.of(role)));
+        }
+        usersThatCannotBeDeletedByManageUsers.add(deleter);
+        createTestUsers(usersThatCannotBeDeletedByManageUsers);
+        usersThatCannotBeDeletedByManageUsers.remove(deleter);
+        deleteUsersAndVerifyResponse(
+                deleter,
+                usersThatCannotBeDeletedByManageUsers,
+                400
+        );
+    }
 }
