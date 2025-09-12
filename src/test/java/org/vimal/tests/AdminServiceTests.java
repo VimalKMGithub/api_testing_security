@@ -153,4 +153,19 @@ public class AdminServiceTests extends BaseTest {
                     .body("message", containsStringIgnoringCase("Access Denied"));
         }
     }
+
+    @Test
+    public void test_Create_Users_Using_User_With_Role_Super_Admin_Not_Allowed_To_Create_Users() throws ExecutionException, InterruptedException {
+        UserDto creator = createTestUser(Set.of(ROLE_SUPER_ADMIN.name()));
+        Set<UserDto> usersThatCannotBeCreatedBySuperAdmin = new HashSet<>();
+        usersThatCannotBeCreatedBySuperAdmin.add(createRandomUserDto(ROLE_SET_FOR_SUPER_ADMIN_CANNOT_CREATE_UPDATE_DELETE_USERS));
+        for (String role : ROLE_SET_FOR_SUPER_ADMIN_CANNOT_CREATE_UPDATE_DELETE_USERS) {
+            usersThatCannotBeCreatedBySuperAdmin.add(createRandomUserDto(Set.of(role)));
+        }
+        createUsersAndVerifyResponse(
+                creator,
+                usersThatCannotBeCreatedBySuperAdmin,
+                400
+        );
+    }
 }
