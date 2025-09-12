@@ -12,8 +12,7 @@ import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
 import static org.hamcrest.Matchers.*;
-import static org.vimal.api.AdminCalls.createUsers;
-import static org.vimal.api.AdminCalls.deleteUsers;
+import static org.vimal.api.AdminCalls.*;
 import static org.vimal.api.AuthenticationCalls.getAccessToken;
 import static org.vimal.constants.Common.ENABLE;
 import static org.vimal.constants.Common.MAX_BATCH_SIZE_OF_USER_CREATION_AT_A_TIME;
@@ -493,6 +492,37 @@ public class AdminServiceTests extends BaseTest {
             ).then()
                     .statusCode(400)
                     .body("invalid_inputs", not(empty()));
+        }
+    }
+
+    @Test
+    public void test_Read_Users_Using_User_With_Role_Can_Read_Users() throws ExecutionException, InterruptedException {
+        Set<UserDto> readers = new HashSet<>();
+        readers.add(createRandomUserDto(USERS_WITH_THESE_ROLES_CAN_READ_USERS));
+        for (String role : USERS_WITH_THESE_ROLES_CAN_READ_USERS) {
+            readers.add(createRandomUserDto(Set.of(role)));
+        }
+        createTestUsers(readers);
+        Set<String> identifiers = new HashSet<>();
+        int i = 0;
+        for (UserDto user : readers) {
+            if (i % 2 == 0) {
+                identifiers.add(user.getEmail());
+            } else {
+                identifiers.add(user.getUsername());
+            }
+            i++;
+        }
+        for (UserDto reader : readers) {
+            readUsers(
+                    getAccessToken(
+                            reader.getUsername(),
+                            reader.getPassword()
+                    ),
+                    identifiers,
+                    null
+            ).then()
+                    .statusCode(200);
         }
     }
 }
