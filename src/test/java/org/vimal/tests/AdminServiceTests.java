@@ -322,4 +322,74 @@ public class AdminServiceTests extends BaseTest {
                 .statusCode(200)
                 .body("message", containsStringIgnoringCase("Users deleted successfully"));
     }
+
+    @Test
+    public void test_Delete_Users_Using_User_With_Role_Admin() throws ExecutionException, InterruptedException {
+        UserDto deleter = createRandomUserDto(Set.of(ROLE_ADMIN.name()));
+        Set<UserDto> usersThatCanBeDeletedByAdmin = new HashSet<>();
+        usersThatCanBeDeletedByAdmin.add(createRandomUserDto());
+        usersThatCanBeDeletedByAdmin.add(createRandomUserDto(ROLE_SET_FOR_ADMIN_CAN_CREATE_UPDATE_DELETE_USERS));
+        for (String role : ROLE_SET_FOR_ADMIN_CAN_CREATE_UPDATE_DELETE_USERS) {
+            usersThatCanBeDeletedByAdmin.add(createRandomUserDto(Set.of(role)));
+        }
+        usersThatCanBeDeletedByAdmin.add(deleter);
+        createTestUsers(usersThatCanBeDeletedByAdmin);
+        usersThatCanBeDeletedByAdmin.remove(deleter);
+        Set<String> identifiers = new HashSet<>();
+        int i = 0;
+        for (UserDto user : usersThatCanBeDeletedByAdmin) {
+            if (i % 2 == 0) {
+                identifiers.add(user.getEmail());
+            } else {
+                identifiers.add(user.getUsername());
+            }
+            i++;
+        }
+        deleteUsers(
+                getAccessToken(
+                        deleter.getUsername(),
+                        deleter.getPassword()
+                ),
+                identifiers,
+                ENABLE,
+                DISABLE
+        ).then()
+                .statusCode(200)
+                .body("message", containsStringIgnoringCase("Users deleted successfully"));
+    }
+
+    @Test
+    public void test_Delete_Users_Using_User_With_Role_Mange_Users() throws ExecutionException, InterruptedException {
+        UserDto deleter = createRandomUserDto(Set.of(ROLE_MANAGE_USERS.name()));
+        Set<UserDto> usersThatCanBeDeletedByManageUsers = new HashSet<>();
+        usersThatCanBeDeletedByManageUsers.add(createRandomUserDto());
+        usersThatCanBeDeletedByManageUsers.add(createRandomUserDto(ROLE_SET_FOR_ADMIN_CAN_CREATE_UPDATE_DELETE_USERS));
+        for (String role : ROLE_SET_FOR_ADMIN_CAN_CREATE_UPDATE_DELETE_USERS) {
+            usersThatCanBeDeletedByManageUsers.add(createRandomUserDto(Set.of(role)));
+        }
+        usersThatCanBeDeletedByManageUsers.add(deleter);
+        createTestUsers(usersThatCanBeDeletedByManageUsers);
+        usersThatCanBeDeletedByManageUsers.remove(deleter);
+        Set<String> identifiers = new HashSet<>();
+        int i = 0;
+        for (UserDto user : usersThatCanBeDeletedByManageUsers) {
+            if (i % 2 == 0) {
+                identifiers.add(user.getEmail());
+            } else {
+                identifiers.add(user.getUsername());
+            }
+            i++;
+        }
+        deleteUsers(
+                getAccessToken(
+                        deleter.getUsername(),
+                        deleter.getPassword()
+                ),
+                identifiers,
+                ENABLE,
+                DISABLE
+        ).then()
+                .statusCode(200)
+                .body("message", containsStringIgnoringCase("Users deleted successfully"));
+    }
 }
