@@ -718,4 +718,27 @@ public class AdminServiceTests extends BaseTest {
                 200
         );
     }
+
+    @Test
+    public void test_Update_Users_Using_User_With_Role_Cannot_Update_Users() throws ExecutionException, InterruptedException {
+        Set<UserDto> updaters = new HashSet<>();
+        updaters.add(createRandomUserDto(USERS_WITH_THESE_ROLES_CANNOT_CREATE_READ_UPDATE_DELETE_USERS));
+        for (String role : USERS_WITH_THESE_ROLES_CANNOT_CREATE_READ_UPDATE_DELETE_USERS) {
+            updaters.add(createRandomUserDto(Set.of(role)));
+        }
+        createTestUsers(updaters);
+        Set<UserDto> testSet = Set.of(createRandomUserDto());
+        for (UserDto updater : updaters) {
+            updateUsers(
+                    getAccessToken(
+                            updater.getUsername(),
+                            updater.getPassword()
+                    ),
+                    testSet,
+                    null
+            ).then()
+                    .statusCode(403)
+                    .body("message", containsStringIgnoringCase("Access Denied"));
+        }
+    }
 }
