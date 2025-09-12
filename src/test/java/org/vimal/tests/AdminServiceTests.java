@@ -19,7 +19,7 @@ import static org.vimal.constants.Common.MAX_BATCH_SIZE_OF_USER_CREATION_AT_A_TI
 import static org.vimal.enums.Roles.*;
 import static org.vimal.helpers.DtosHelper.createRandomUserDto;
 import static org.vimal.helpers.InvalidInputsHelper.*;
-import static org.vimal.helpers.ResponseValidatorHelper.validateResponseOfUsersCreation;
+import static org.vimal.helpers.ResponseValidatorHelper.validateResponseOfUsersCreationOrRead;
 import static org.vimal.utils.DateTimeUtility.getCurrentFormattedLocalTimeStamp;
 import static org.vimal.utils.RandomStringUtility.generateRandomStringAlphaNumeric;
 
@@ -78,11 +78,12 @@ public class AdminServiceTests extends BaseTest {
                     batch,
                     null
             );
-            validateResponseOfUsersCreation(
+            validateResponseOfUsersCreationOrRead(
                     response,
                     creator,
                     batch,
-                    statusCode
+                    statusCode,
+                    "created_users."
             );
         }
     }
@@ -513,16 +514,23 @@ public class AdminServiceTests extends BaseTest {
             }
             i++;
         }
+        Response response;
         for (UserDto reader : readers) {
-            readUsers(
+            response = readUsers(
                     getAccessToken(
                             reader.getUsername(),
                             reader.getPassword()
                     ),
                     identifiers,
                     null
-            ).then()
-                    .statusCode(200);
+            );
+            validateResponseOfUsersCreationOrRead(
+                    response,
+                    reader,
+                    readers,
+                    200,
+                    "found_users."
+            );
         }
     }
 
