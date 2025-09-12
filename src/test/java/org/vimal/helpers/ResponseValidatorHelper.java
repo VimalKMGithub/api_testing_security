@@ -33,10 +33,13 @@ public final class ResponseValidatorHelper {
                     .body(findPath + "firstName", equalTo(user.getFirstName()))
                     .body(findPath + "middleName", equalTo(user.getMiddleName()))
                     .body(findPath + "lastName", equalTo(user.getLastName()))
-                    .body(findPath + "createdBy", equalTo(creatorOrReader.getUsername()))
                     .body(findPath + "roles", (user.getRoles() != null) ?
                             containsInAnyOrder(user.getRoles().toArray()) :
                             empty());
+            if (pathPrefix.equals("created_users.")) {
+                response.then()
+                        .body(findPath + "createdBy", equalTo(creatorOrReader.getUsername()));
+            }
         }
     }
 }
