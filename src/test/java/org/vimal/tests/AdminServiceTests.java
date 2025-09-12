@@ -540,16 +540,6 @@ public class AdminServiceTests extends BaseTest {
             readers.add(createRandomUserDto(Set.of(role)));
         }
         createTestUsers(readers);
-        Set<String> identifiers = new HashSet<>();
-        int i = 0;
-        for (UserDto user : readers) {
-            if (i % 2 == 0) {
-                identifiers.add(user.getEmail());
-            } else {
-                identifiers.add(user.getUsername());
-            }
-            i++;
-        }
         for (UserDto reader : readers) {
             readUsersAndVerifyResponse(
                     reader,
