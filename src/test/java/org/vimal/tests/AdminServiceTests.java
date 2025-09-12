@@ -3,6 +3,7 @@ package org.vimal.tests;
 import io.restassured.response.Response;
 import org.testng.annotations.Test;
 import org.vimal.BaseTest;
+import org.vimal.dtos.RoleDto;
 import org.vimal.dtos.UserDto;
 
 import java.util.*;
@@ -13,10 +14,10 @@ import static org.vimal.api.AdminCalls.*;
 import static org.vimal.api.AuthenticationCalls.getAccessToken;
 import static org.vimal.constants.Common.*;
 import static org.vimal.enums.Roles.*;
+import static org.vimal.helpers.DtosHelper.createRandomRoleDto;
 import static org.vimal.helpers.DtosHelper.createRandomUserDto;
 import static org.vimal.helpers.InvalidInputsHelper.*;
-import static org.vimal.helpers.ResponseValidatorHelper.validateResponseOfUsersCreationOrRead;
-import static org.vimal.helpers.ResponseValidatorHelper.validateResponseOfUsersUpdation;
+import static org.vimal.helpers.ResponseValidatorHelper.*;
 import static org.vimal.utils.DateTimeUtility.getCurrentFormattedLocalTimeStamp;
 import static org.vimal.utils.RandomStringUtility.generateRandomStringAlphaNumeric;
 
@@ -934,5 +935,36 @@ public class AdminServiceTests extends BaseTest {
         ).then()
                 .statusCode(400)
                 .body("invalid_inputs", not(empty()));
+    }
+
+    @Test
+    public void test_Create_Roles_Using_User_With_Role_Who_Can_Create_Roles() throws ExecutionException, InterruptedException {
+        Set<UserDto> creators = new HashSet<>();
+        creators.add(createRandomUserDto(USERS_WITH_THESE_ROLES_CAN_CREATE_DELETE_READ_UPDATE_ROLES));
+        for (String role : USERS_WITH_THESE_ROLES_CAN_CREATE_DELETE_READ_UPDATE_ROLES) {
+            creators.add(createRandomUserDto(Set.of(role)));
+        }
+        createTestUsers(creators);
+        Set<RoleDto> tempSet;
+        Response response;
+        for (UserDto creator : creators) {
+            tempSet = Set.of(createRandomRoleDto());
+            TEST_ROLES.addAll(tempSet);
+            response = createRoles(
+                    getAccessToken(
+                            creator.getUsername(),
+                            creator.getPassword()
+                    ),
+                    tempSet,
+                    null
+            );
+            validateResponseOfRolesCreationOrRead(
+                    response,
+                    creator,
+                    tempSet,
+                    200,
+                    "created_roles."
+            );
+        }
     }
 }

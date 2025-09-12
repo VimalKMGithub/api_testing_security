@@ -1,6 +1,7 @@
 package org.vimal.helpers;
 
 import io.restassured.response.Response;
+import org.vimal.dtos.RoleDto;
 import org.vimal.dtos.UserDto;
 
 import java.util.HashMap;
@@ -80,6 +81,35 @@ public final class ResponseValidatorHelper {
                             (user.getRoles() != null) ?
                                     containsInAnyOrder(user.getRoles().toArray()) :
                                     empty());
+        }
+    }
+
+    public static void validateResponseOfRolesCreationOrRead(Response response,
+                                                             UserDto creatorOrReader,
+                                                             Set<RoleDto> roles,
+                                                             int statusCode,
+                                                             String pathPrefix) {
+        response.then()
+                .statusCode(statusCode);
+        if (statusCode != 200) {
+            response.then()
+                    .body("invalid_inputs", not(empty()));
+            return;
+        }
+        response.then()
+                .body(pathPrefix + "size()", equalTo(roles.size()));
+        String findPath;
+        for (RoleDto role : roles) {
+            findPath = pathPrefix + "find { it.roleName == '" + role.getRoleName() + "' }.";
+            response.then()
+                    .body(findPath + "description", equalTo(role.getDescription()))
+                    .body(findPath + "permissions", (role.getPermissions() != null) ?
+                            containsInAnyOrder(role.getPermissions().toArray()) :
+                            empty());
+            if (pathPrefix.equals("created_users.")) {
+                response.then()
+                        .body(findPath + "createdBy", equalTo(creatorOrReader.getUsername()));
+            }
         }
     }
 }
