@@ -5,10 +5,7 @@ import org.testng.annotations.Test;
 import org.vimal.BaseTest;
 import org.vimal.dtos.UserDto;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 
 import static org.hamcrest.Matchers.*;
@@ -19,6 +16,7 @@ import static org.vimal.enums.Roles.*;
 import static org.vimal.helpers.DtosHelper.createRandomUserDto;
 import static org.vimal.helpers.InvalidInputsHelper.*;
 import static org.vimal.helpers.ResponseValidatorHelper.validateResponseOfUsersCreationOrRead;
+import static org.vimal.helpers.ResponseValidatorHelper.validateResponseOfUsersUpdation;
 import static org.vimal.utils.DateTimeUtility.getCurrentFormattedLocalTimeStamp;
 import static org.vimal.utils.RandomStringUtility.generateRandomStringAlphaNumeric;
 
@@ -288,7 +286,7 @@ public class AdminServiceTests extends BaseTest {
                 .body("invalid_inputs", not(empty()));
     }
 
-    private void deleteUsersAndVerifyResponse(UserDto creator,
+    private void deleteUsersAndVerifyResponse(UserDto deleter,
                                               Set<UserDto> users,
                                               int statusCode) throws ExecutionException, InterruptedException {
         Set<String> identifiers = new HashSet<>();
@@ -302,8 +300,8 @@ public class AdminServiceTests extends BaseTest {
             i++;
         }
         String accessToken = getAccessToken(
-                creator.getUsername(),
-                creator.getPassword()
+                deleter.getUsername(),
+                deleter.getPassword()
         );
         Iterator<String> iterator = identifiers.iterator();
         Set<String> batch = new HashSet<>();
@@ -495,12 +493,12 @@ public class AdminServiceTests extends BaseTest {
         }
     }
 
-    private void readUsersAndVerifyResponse(UserDto creator,
+    private void readUsersAndVerifyResponse(UserDto reader,
                                             Set<UserDto> users,
                                             int statusCode) throws ExecutionException, InterruptedException {
         String accessToken = getAccessToken(
-                creator.getUsername(),
-                creator.getPassword()
+                reader.getUsername(),
+                reader.getPassword()
         );
         Iterator<UserDto> iterator = users.iterator();
         Set<String> batch = new HashSet<>();
@@ -516,7 +514,6 @@ public class AdminServiceTests extends BaseTest {
                 batchUsers.add(user);
                 batch.add(user.getUsername());
             }
-            TEST_USERS.addAll(batch);
             response = readUsers(
                     accessToken,
                     batch,
@@ -524,7 +521,7 @@ public class AdminServiceTests extends BaseTest {
             );
             validateResponseOfUsersCreationOrRead(
                     response,
-                    creator,
+                    reader,
                     batchUsers,
                     statusCode,
                     "found_users."
@@ -596,5 +593,75 @@ public class AdminServiceTests extends BaseTest {
                     .statusCode(400)
                     .body("invalid_inputs", not(empty()));
         }
+    }
+
+    private void updateUsersAndVerifyResponse(UserDto updater,
+                                              Set<UserDto> users,
+                                              Set<UserDto> updatedInputs,
+                                              int statusCode) throws ExecutionException, InterruptedException {
+        String accessToken = getAccessToken(
+                updater.getUsername(),
+                updater.getPassword()
+        );
+        Map<String, UserDto> usernameToUserMap = new HashMap<>();
+        for (UserDto user : users) {
+            usernameToUserMap.put(user.getUsername(), user);
+        }
+        Iterator<UserDto> iterator = updatedInputs.iterator();
+        Set<UserDto> batch = new HashSet<>();
+        Set<UserDto> batchUsers = new HashSet<>();
+        Response response;
+        UserDto user;
+        while (iterator.hasNext()) {
+            batch.clear();
+            batchUsers.clear();
+            while (iterator.hasNext() &&
+                    batch.size() < MAX_BATCH_SIZE_OF_USER_UPDATE_AT_A_TIME) {
+                user = iterator.next();
+                batch.add(user);
+                batchUsers.add(usernameToUserMap.get(user.getOldUsername()));
+            }
+            TEST_USERS.addAll(batch);
+            response = updateUsers(
+                    accessToken,
+                    batch,
+                    null
+            );
+            validateResponseOfUsersUpdation(
+                    response,
+                    updater,
+                    batchUsers,
+                    batch,
+                    statusCode,
+                    "updated_users."
+            );
+        }
+    }
+
+    @Test
+    public void test_Update_Users_Using_User_With_Role_Super_Admin() throws ExecutionException, InterruptedException {
+        UserDto updater = createRandomUserDto(Set.of(ROLE_SUPER_ADMIN.name()));
+        Set<UserDto> usersThatCanBeUpdatedBySuperAdmin = new HashSet<>();
+        usersThatCanBeUpdatedBySuperAdmin.add(createRandomUserDto());
+        usersThatCanBeUpdatedBySuperAdmin.add(createRandomUserDto(ROLE_SET_FOR_SUPER_ADMIN_CAN_CREATE_UPDATE_DELETE_USERS));
+        for (String role : ROLE_SET_FOR_SUPER_ADMIN_CAN_CREATE_UPDATE_DELETE_USERS) {
+            usersThatCanBeUpdatedBySuperAdmin.add(createRandomUserDto(Set.of(role)));
+        }
+        usersThatCanBeUpdatedBySuperAdmin.add(updater);
+        createTestUsers(usersThatCanBeUpdatedBySuperAdmin);
+        usersThatCanBeUpdatedBySuperAdmin.remove(updater);
+        Set<UserDto> updatedInputs = new HashSet<>();
+        UserDto userTemp;
+        for (UserDto user : usersThatCanBeUpdatedBySuperAdmin) {
+            userTemp = createRandomUserDto();
+            userTemp.setOldUsername(user.getUsername());
+            updatedInputs.add(userTemp);
+        }
+        updateUsersAndVerifyResponse(
+                updater,
+                usersThatCanBeUpdatedBySuperAdmin,
+                updatedInputs,
+                200
+        );
     }
 }

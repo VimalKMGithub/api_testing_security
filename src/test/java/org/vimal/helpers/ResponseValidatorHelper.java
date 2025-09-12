@@ -3,6 +3,8 @@ package org.vimal.helpers;
 import io.restassured.response.Response;
 import org.vimal.dtos.UserDto;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 import static org.hamcrest.Matchers.*;
@@ -40,6 +42,44 @@ public final class ResponseValidatorHelper {
                 response.then()
                         .body(findPath + "createdBy", equalTo(creatorOrReader.getUsername()));
             }
+        }
+    }
+
+    public static void validateResponseOfUsersUpdation(Response response,
+                                                       UserDto updater,
+                                                       Set<UserDto> users,
+                                                       Set<UserDto> updatedInputs,
+                                                       int statusCode,
+                                                       String pathPrefix) {
+        response.then()
+                .statusCode(statusCode);
+        if (statusCode != 200) {
+            response.then()
+                    .body("invalid_inputs", not(empty()));
+            return;
+        }
+        response.then()
+                .body(pathPrefix + "size()", equalTo(users.size()));
+        Map<String, UserDto> oldUsernameToUpdatedInputMap = new HashMap<>();
+        String findPath;
+        for (UserDto updatedInput : updatedInputs) {
+            oldUsernameToUpdatedInputMap.put(updatedInput.getOldUsername(), updatedInput);
+        }
+        UserDto updatedInput;
+        for (UserDto user : users) {
+            updatedInput = oldUsernameToUpdatedInputMap.get(user.getUsername());
+            findPath = pathPrefix + "find { it.username == '" + updatedInput.getUsername() + "' }.";
+            response.then()
+                    .body(findPath + "email", updatedInput.getEmail() != null ? equalTo(updatedInput.getEmail()) : equalTo(user.getEmail()))
+                    .body(findPath + "firstName", updatedInput.getFirstName() != null ? equalTo(updatedInput.getFirstName()) : equalTo(user.getFirstName()))
+                    .body(findPath + "middleName", updatedInput.getMiddleName() != null ? equalTo(updatedInput.getMiddleName()) : equalTo(user.getMiddleName()))
+                    .body(findPath + "lastName", updatedInput.getLastName() != null ? equalTo(updatedInput.getLastName()) : equalTo(user.getLastName()))
+                    .body(findPath + "updatedBy", equalTo(updater.getUsername()))
+                    .body(findPath + "roles", (updatedInput.getRoles() != null) ?
+                            containsInAnyOrder(updatedInput.getRoles().toArray()) :
+                            (user.getRoles() != null) ?
+                                    containsInAnyOrder(user.getRoles().toArray()) :
+                                    empty());
         }
     }
 }
