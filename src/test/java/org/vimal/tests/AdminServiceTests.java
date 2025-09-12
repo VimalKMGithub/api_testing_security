@@ -967,4 +967,27 @@ public class AdminServiceTests extends BaseTest {
             );
         }
     }
+
+    @Test
+    public void test_Create_Roles_Using_User_With_Role_Who_Cannot_Create_Roles() throws ExecutionException, InterruptedException {
+        Set<UserDto> creators = new HashSet<>();
+        creators.add(createRandomUserDto(USERS_WITH_THESE_ROLES_CANNOT_CREATE_READ_UPDATE_DELETE_ROLES));
+        for (String role : USERS_WITH_THESE_ROLES_CANNOT_CREATE_READ_UPDATE_DELETE_ROLES) {
+            creators.add(createRandomUserDto(Set.of(role)));
+        }
+        createTestUsers(creators);
+        Set<RoleDto> testSet = Set.of(createRandomRoleDto());
+        for (UserDto creator : creators) {
+            createRoles(
+                    getAccessToken(
+                            creator.getUsername(),
+                            creator.getPassword()
+                    ),
+                    testSet,
+                    null
+            ).then()
+                    .statusCode(403)
+                    .body("message", containsStringIgnoringCase("Access Denied"));
+        }
+    }
 }
