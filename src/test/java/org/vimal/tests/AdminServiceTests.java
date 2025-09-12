@@ -300,16 +300,22 @@ public class AdminServiceTests extends BaseTest {
         usersThatCanBeDeletedBySuperAdmin.add(deleter);
         createTestUsers(usersThatCanBeDeletedBySuperAdmin);
         usersThatCanBeDeletedBySuperAdmin.remove(deleter);
-        Set<String> usernames = new HashSet<>();
+        Set<String> identifiers = new HashSet<>();
+        int i = 0;
         for (UserDto user : usersThatCanBeDeletedBySuperAdmin) {
-            usernames.add(user.getUsername());
+            if (i % 2 == 0) {
+                identifiers.add(user.getEmail());
+            } else {
+                identifiers.add(user.getUsername());
+            }
+            i++;
         }
         deleteUsers(
                 getAccessToken(
                         deleter.getUsername(),
                         deleter.getPassword()
                 ),
-                usernames,
+                identifiers,
                 ENABLE,
                 DISABLE
         ).then()
