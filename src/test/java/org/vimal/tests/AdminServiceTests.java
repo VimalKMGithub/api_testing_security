@@ -741,4 +741,82 @@ public class AdminServiceTests extends BaseTest {
                     .body("message", containsStringIgnoringCase("Access Denied"));
         }
     }
+
+    @Test
+    public void test_Update_Users_Using_User_With_Role_Super_Admin_Not_Allowed_To_Update_Users() throws ExecutionException, InterruptedException {
+        UserDto updater = createRandomUserDto(Set.of(ROLE_SUPER_ADMIN.name()));
+        Set<UserDto> usersThatCannotBeUpdatedBySuperAdmin = new HashSet<>();
+        usersThatCannotBeUpdatedBySuperAdmin.add(createRandomUserDto(ROLE_SET_FOR_SUPER_ADMIN_CANNOT_CREATE_UPDATE_DELETE_USERS));
+        for (String role : ROLE_SET_FOR_SUPER_ADMIN_CANNOT_CREATE_UPDATE_DELETE_USERS) {
+            usersThatCannotBeUpdatedBySuperAdmin.add(createRandomUserDto(Set.of(role)));
+        }
+        usersThatCannotBeUpdatedBySuperAdmin.add(updater);
+        createTestUsers(usersThatCannotBeUpdatedBySuperAdmin);
+        usersThatCannotBeUpdatedBySuperAdmin.remove(updater);
+        Set<UserDto> updatedInputs = new HashSet<>();
+        UserDto userTemp;
+        for (UserDto user : usersThatCannotBeUpdatedBySuperAdmin) {
+            userTemp = createRandomUserDto();
+            userTemp.setOldUsername(user.getUsername());
+            updatedInputs.add(userTemp);
+        }
+        updateUsersAndVerifyResponse(
+                updater,
+                usersThatCannotBeUpdatedBySuperAdmin,
+                updatedInputs,
+                400
+        );
+    }
+
+    @Test
+    public void test_Update_Users_Using_User_With_Role_Admin_Not_Allowed_To_Update_Users() throws ExecutionException, InterruptedException {
+        UserDto updater = createRandomUserDto(Set.of(ROLE_ADMIN.name()));
+        Set<UserDto> usersThatCannotBeUpdatedByAdmin = new HashSet<>();
+        usersThatCannotBeUpdatedByAdmin.add(createRandomUserDto(ROLE_SET_FOR_ADMIN_CANNOT_CREATE_UPDATE_DELETE_USERS));
+        for (String role : ROLE_SET_FOR_ADMIN_CANNOT_CREATE_UPDATE_DELETE_USERS) {
+            usersThatCannotBeUpdatedByAdmin.add(createRandomUserDto(Set.of(role)));
+        }
+        usersThatCannotBeUpdatedByAdmin.add(updater);
+        createTestUsers(usersThatCannotBeUpdatedByAdmin);
+        usersThatCannotBeUpdatedByAdmin.remove(updater);
+        Set<UserDto> updatedInputs = new HashSet<>();
+        UserDto userTemp;
+        for (UserDto user : usersThatCannotBeUpdatedByAdmin) {
+            userTemp = createRandomUserDto();
+            userTemp.setOldUsername(user.getUsername());
+            updatedInputs.add(userTemp);
+        }
+        updateUsersAndVerifyResponse(
+                updater,
+                usersThatCannotBeUpdatedByAdmin,
+                updatedInputs,
+                400
+        );
+    }
+
+    @Test
+    public void test_Update_Users_Using_User_With_Role_Mange_Users_Not_Allowed_To_Update_Users() throws ExecutionException, InterruptedException {
+        UserDto updater = createRandomUserDto(Set.of(ROLE_MANAGE_USERS.name()));
+        Set<UserDto> usersThatCannotBeUpdatedByManageUsers = new HashSet<>();
+        usersThatCannotBeUpdatedByManageUsers.add(createRandomUserDto(ROLE_SET_FOR_ADMIN_CANNOT_CREATE_UPDATE_DELETE_USERS));
+        for (String role : ROLE_SET_FOR_ADMIN_CANNOT_CREATE_UPDATE_DELETE_USERS) {
+            usersThatCannotBeUpdatedByManageUsers.add(createRandomUserDto(Set.of(role)));
+        }
+        usersThatCannotBeUpdatedByManageUsers.add(updater);
+        createTestUsers(usersThatCannotBeUpdatedByManageUsers);
+        usersThatCannotBeUpdatedByManageUsers.remove(updater);
+        Set<UserDto> updatedInputs = new HashSet<>();
+        UserDto userTemp;
+        for (UserDto user : usersThatCannotBeUpdatedByManageUsers) {
+            userTemp = createRandomUserDto();
+            userTemp.setOldUsername(user.getUsername());
+            updatedInputs.add(userTemp);
+        }
+        updateUsersAndVerifyResponse(
+                updater,
+                usersThatCannotBeUpdatedByManageUsers,
+                updatedInputs,
+                400
+        );
+    }
 }
