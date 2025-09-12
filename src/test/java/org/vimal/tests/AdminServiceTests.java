@@ -288,6 +288,50 @@ public class AdminServiceTests extends BaseTest {
                 .body("invalid_inputs", not(empty()));
     }
 
+    private void deleteUsersAndVerifyResponse(UserDto creator,
+                                              Set<UserDto> users,
+                                              int statusCode) throws ExecutionException, InterruptedException {
+        Set<String> identifiers = new HashSet<>();
+        int i = 0;
+        for (UserDto user : users) {
+            if (i % 2 == 0) {
+                identifiers.add(user.getEmail());
+            } else {
+                identifiers.add(user.getUsername());
+            }
+            i++;
+        }
+        String accessToken = getAccessToken(
+                creator.getUsername(),
+                creator.getPassword()
+        );
+        Iterator<String> iterator = identifiers.iterator();
+        Set<String> batch = new HashSet<>();
+        Response response;
+        while (iterator.hasNext()) {
+            batch.clear();
+            while (iterator.hasNext() &&
+                    batch.size() < MAX_BATCH_SIZE_OF_USER_CREATION_AT_A_TIME) {
+                batch.add(iterator.next());
+            }
+            response = deleteUsers(
+                    accessToken,
+                    batch,
+                    ENABLE,
+                    DISABLE
+            );
+            response.then()
+                    .statusCode(statusCode);
+            if (statusCode != 200) {
+                response.then()
+                        .body("invalid_inputs", not(empty()));
+            } else {
+                response.then()
+                        .body("message", containsStringIgnoringCase("Users deleted successfully"));
+            }
+        }
+    }
+
     @Test
     public void test_Delete_Users_Using_User_With_Role_Super_Admin() throws ExecutionException, InterruptedException {
         UserDto deleter = createRandomUserDto(Set.of(ROLE_SUPER_ADMIN.name()));
@@ -300,27 +344,11 @@ public class AdminServiceTests extends BaseTest {
         usersThatCanBeDeletedBySuperAdmin.add(deleter);
         createTestUsers(usersThatCanBeDeletedBySuperAdmin);
         usersThatCanBeDeletedBySuperAdmin.remove(deleter);
-        Set<String> identifiers = new HashSet<>();
-        int i = 0;
-        for (UserDto user : usersThatCanBeDeletedBySuperAdmin) {
-            if (i % 2 == 0) {
-                identifiers.add(user.getEmail());
-            } else {
-                identifiers.add(user.getUsername());
-            }
-            i++;
-        }
-        deleteUsers(
-                getAccessToken(
-                        deleter.getUsername(),
-                        deleter.getPassword()
-                ),
-                identifiers,
-                ENABLE,
-                DISABLE
-        ).then()
-                .statusCode(200)
-                .body("message", containsStringIgnoringCase("Users deleted successfully"));
+        deleteUsersAndVerifyResponse(
+                deleter,
+                usersThatCanBeDeletedBySuperAdmin,
+                200
+        );
     }
 
     @Test
@@ -335,27 +363,11 @@ public class AdminServiceTests extends BaseTest {
         usersThatCanBeDeletedByAdmin.add(deleter);
         createTestUsers(usersThatCanBeDeletedByAdmin);
         usersThatCanBeDeletedByAdmin.remove(deleter);
-        Set<String> identifiers = new HashSet<>();
-        int i = 0;
-        for (UserDto user : usersThatCanBeDeletedByAdmin) {
-            if (i % 2 == 0) {
-                identifiers.add(user.getEmail());
-            } else {
-                identifiers.add(user.getUsername());
-            }
-            i++;
-        }
-        deleteUsers(
-                getAccessToken(
-                        deleter.getUsername(),
-                        deleter.getPassword()
-                ),
-                identifiers,
-                ENABLE,
-                DISABLE
-        ).then()
-                .statusCode(200)
-                .body("message", containsStringIgnoringCase("Users deleted successfully"));
+        deleteUsersAndVerifyResponse(
+                deleter,
+                usersThatCanBeDeletedByAdmin,
+                200
+        );
     }
 
     @Test
@@ -370,27 +382,11 @@ public class AdminServiceTests extends BaseTest {
         usersThatCanBeDeletedByManageUsers.add(deleter);
         createTestUsers(usersThatCanBeDeletedByManageUsers);
         usersThatCanBeDeletedByManageUsers.remove(deleter);
-        Set<String> identifiers = new HashSet<>();
-        int i = 0;
-        for (UserDto user : usersThatCanBeDeletedByManageUsers) {
-            if (i % 2 == 0) {
-                identifiers.add(user.getEmail());
-            } else {
-                identifiers.add(user.getUsername());
-            }
-            i++;
-        }
-        deleteUsers(
-                getAccessToken(
-                        deleter.getUsername(),
-                        deleter.getPassword()
-                ),
-                identifiers,
-                ENABLE,
-                DISABLE
-        ).then()
-                .statusCode(200)
-                .body("message", containsStringIgnoringCase("Users deleted successfully"));
+        deleteUsersAndVerifyResponse(
+                deleter,
+                usersThatCanBeDeletedByManageUsers,
+                200
+        );
     }
 
     @Test
