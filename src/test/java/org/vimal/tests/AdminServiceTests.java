@@ -11,13 +11,16 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
-import static org.hamcrest.Matchers.containsStringIgnoringCase;
+import static org.hamcrest.Matchers.*;
 import static org.vimal.api.AdminCalls.createUsers;
 import static org.vimal.api.AuthenticationCalls.getAccessToken;
 import static org.vimal.constants.Common.MAX_BATCH_SIZE_OF_USER_CREATION_AT_A_TIME;
 import static org.vimal.enums.Roles.*;
 import static org.vimal.helpers.DtosHelper.createRandomUserDto;
+import static org.vimal.helpers.InvalidInputsHelper.*;
 import static org.vimal.helpers.ResponseValidatorHelper.validateResponseOfUsersCreation;
+import static org.vimal.utils.DateTimeUtility.getCurrentFormattedLocalTimeStamp;
+import static org.vimal.utils.RandomStringUtility.generateRandomStringAlphaNumeric;
 
 public class AdminServiceTests extends BaseTest {
     private static final Set<String> USERS_WITH_THESE_ROLES_CANNOT_CREATE_READ_UPDATE_DELETE_USERS = Set.of(
@@ -197,5 +200,90 @@ public class AdminServiceTests extends BaseTest {
                 usersThatCannotBeCreatedByManageUsers,
                 400
         );
+    }
+
+    @Test
+    public void test_Create_Users_Invalid_Input() throws ExecutionException, InterruptedException {
+        UserDto creator = createTestUser(Set.of(ROLE_SUPER_ADMIN.name()));
+        UserDto user = createRandomUserDto();
+        String accessToken = getAccessToken(
+                creator.getUsername(),
+                creator.getPassword()
+        );
+        for (String invalidUsername : INVALID_USERNAMES) {
+            user.setUsername(invalidUsername);
+            createUsers(
+                    accessToken,
+                    Set.of(user),
+                    null
+            ).then()
+                    .statusCode(400)
+                    .body("invalid_inputs", not(empty()));
+        }
+        String randomString = getCurrentFormattedLocalTimeStamp() + "_" + generateRandomStringAlphaNumeric();
+        user.setUsername("AutoTestUser_" + randomString);
+        for (String invalidEmail : INVALID_EMAILS) {
+            user.setEmail(invalidEmail);
+            createUsers(
+                    accessToken,
+                    Set.of(user),
+                    null
+            ).then()
+                    .statusCode(400)
+                    .body("invalid_inputs", not(empty()));
+        }
+        user.setEmail("user_" + randomString + "@example.com");
+        for (String invalidPassword : INVALID_PASSWORDS) {
+            user.setPassword(invalidPassword);
+            createUsers(
+                    accessToken,
+                    Set.of(user),
+                    null
+            ).then()
+                    .statusCode(400)
+                    .body("invalid_inputs", not(empty()));
+        }
+        user.setPassword("Password@1_" + randomString);
+        for (String invalidFirstName : INVALID_NAMES) {
+            user.setFirstName(invalidFirstName);
+            createUsers(
+                    accessToken,
+                    Set.of(user),
+                    null
+            ).then()
+                    .statusCode(400)
+                    .body("invalid_inputs", not(empty()));
+        }
+        user.setFirstName("AutoTestUser");
+        for (String invalidMiddleName : INVALID_NAMES) {
+            user.setMiddleName(invalidMiddleName);
+            createUsers(
+                    accessToken,
+                    Set.of(user),
+                    null
+            ).then()
+                    .statusCode(400)
+                    .body("invalid_inputs", not(empty()));
+        }
+        user.setMiddleName(null);
+        for (String invalidLastName : INVALID_NAMES) {
+            user.setLastName(invalidLastName);
+            createUsers(
+                    accessToken,
+                    Set.of(user),
+                    null
+            ).then()
+                    .statusCode(400)
+                    .body("invalid_inputs", not(empty()));
+        }
+        user.setLastName(null);
+        user.setRoles(Set.of("InvalidRoleName" + randomString));
+        createUsers(
+                accessToken,
+                Set.of(user),
+                null
+        ).then()
+                .statusCode(400)
+                .body("invalid_inputs", not(empty()));
     }
 }
