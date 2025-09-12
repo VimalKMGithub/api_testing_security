@@ -204,16 +204,17 @@ public class AdminServiceTests extends BaseTest {
     @Test
     public void test_Create_Users_Invalid_Input() throws ExecutionException, InterruptedException {
         UserDto creator = createTestUser(Set.of(ROLE_SUPER_ADMIN.name()));
-        UserDto user = createRandomUserDto();
         String accessToken = getAccessToken(
                 creator.getUsername(),
                 creator.getPassword()
         );
+        UserDto user = createRandomUserDto();
+        Set<UserDto> testSet = Set.of(user);
         for (String invalidUsername : INVALID_USERNAMES) {
             user.setUsername(invalidUsername);
             createUsers(
                     accessToken,
-                    Set.of(user),
+                    testSet,
                     null
             ).then()
                     .statusCode(400)
@@ -225,7 +226,7 @@ public class AdminServiceTests extends BaseTest {
             user.setEmail(invalidEmail);
             createUsers(
                     accessToken,
-                    Set.of(user),
+                    testSet,
                     null
             ).then()
                     .statusCode(400)
@@ -236,7 +237,7 @@ public class AdminServiceTests extends BaseTest {
             user.setPassword(invalidPassword);
             createUsers(
                     accessToken,
-                    Set.of(user),
+                    testSet,
                     null
             ).then()
                     .statusCode(400)
@@ -247,7 +248,7 @@ public class AdminServiceTests extends BaseTest {
             user.setFirstName(invalidFirstName);
             createUsers(
                     accessToken,
-                    Set.of(user),
+                    testSet,
                     null
             ).then()
                     .statusCode(400)
@@ -258,7 +259,7 @@ public class AdminServiceTests extends BaseTest {
             user.setMiddleName(invalidMiddleName);
             createUsers(
                     accessToken,
-                    Set.of(user),
+                    testSet,
                     null
             ).then()
                     .statusCode(400)
@@ -269,7 +270,7 @@ public class AdminServiceTests extends BaseTest {
             user.setLastName(invalidLastName);
             createUsers(
                     accessToken,
-                    Set.of(user),
+                    testSet,
                     null
             ).then()
                     .statusCode(400)
@@ -279,7 +280,7 @@ public class AdminServiceTests extends BaseTest {
         user.setRoles(Set.of("InvalidRoleName" + randomString));
         createUsers(
                 accessToken,
-                Set.of(user),
+                testSet,
                 null
         ).then()
                 .statusCode(400)
@@ -818,5 +819,102 @@ public class AdminServiceTests extends BaseTest {
                 updatedInputs,
                 400
         );
+    }
+
+    @Test
+    public void test_Update_Users_Invalid_Input() throws ExecutionException, InterruptedException {
+        UserDto updater = createTestUser(Set.of(ROLE_SUPER_ADMIN.name()));
+        String accessToken = getAccessToken(
+                updater.getUsername(),
+                updater.getPassword()
+        );
+        UserDto user = createRandomUserDto();
+        Set<UserDto> testSet = Set.of(user);
+        for (String invalidUsername : INVALID_USERNAMES) {
+            user.setOldUsername(invalidUsername);
+            updateUsers(
+                    accessToken,
+                    testSet,
+                    null
+            ).then()
+                    .statusCode(400)
+                    .body("invalid_inputs", not(empty()));
+        }
+        String randomString = getCurrentFormattedLocalTimeStamp() + "_" + generateRandomStringAlphaNumeric();
+        user.setOldUsername("AutoTestUser_" + randomString);
+        for (String invalidUsername : INVALID_USERNAMES) {
+            user.setUsername(invalidUsername);
+            updateUsers(
+                    accessToken,
+                    testSet,
+                    null
+            ).then()
+                    .statusCode(400)
+                    .body("invalid_inputs", not(empty()));
+        }
+        user.setUsername("AutoTestUser_" + randomString);
+        for (String invalidEmail : INVALID_EMAILS) {
+            user.setEmail(invalidEmail);
+            updateUsers(
+                    accessToken,
+                    testSet,
+                    null
+            ).then()
+                    .statusCode(400)
+                    .body("invalid_inputs", not(empty()));
+        }
+        user.setEmail("user_" + randomString + "@example.com");
+        for (String invalidPassword : INVALID_PASSWORDS) {
+            user.setPassword(invalidPassword);
+            updateUsers(
+                    accessToken,
+                    testSet,
+                    null
+            ).then()
+                    .statusCode(400)
+                    .body("invalid_inputs", not(empty()));
+        }
+        user.setPassword("Password@1_" + randomString);
+        for (String invalidFirstName : INVALID_NAMES) {
+            user.setFirstName(invalidFirstName);
+            updateUsers(
+                    accessToken,
+                    testSet,
+                    null
+            ).then()
+                    .statusCode(400)
+                    .body("invalid_inputs", not(empty()));
+        }
+        user.setFirstName("AutoTestUser");
+        for (String invalidMiddleName : INVALID_NAMES) {
+            user.setMiddleName(invalidMiddleName);
+            updateUsers(
+                    accessToken,
+                    testSet,
+                    null
+            ).then()
+                    .statusCode(400)
+                    .body("invalid_inputs", not(empty()));
+        }
+        user.setMiddleName(null);
+        for (String invalidLastName : INVALID_NAMES) {
+            user.setLastName(invalidLastName);
+            updateUsers(
+                    accessToken,
+                    testSet,
+                    null
+            ).then()
+                    .statusCode(400)
+                    .body("invalid_inputs", not(empty()));
+        }
+        user.setLastName(null);
+        user.setRoles(Set.of("InvalidRoleName" + randomString));
+        updateUsers(
+                accessToken,
+                testSet,
+                null
+        ).then()
+                .statusCode(400)
+                .body("invalid_inputs", not(empty()));
     }
 }
