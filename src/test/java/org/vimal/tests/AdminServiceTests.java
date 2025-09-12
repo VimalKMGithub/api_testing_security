@@ -411,4 +411,22 @@ public class AdminServiceTests extends BaseTest {
                     .body("message", containsStringIgnoringCase("Access Denied"));
         }
     }
+
+    @Test
+    public void test_Delete_Users_Using_User_With_Role_Super_Admin_Not_Allowed_To_Delete_Users() throws ExecutionException, InterruptedException {
+        UserDto deleter = createRandomUserDto(Set.of(ROLE_SUPER_ADMIN.name()));
+        Set<UserDto> usersThatCannotBeDeletedBySuperAdmin = new HashSet<>();
+        usersThatCannotBeDeletedBySuperAdmin.add(createRandomUserDto(ROLE_SET_FOR_SUPER_ADMIN_CANNOT_CREATE_UPDATE_DELETE_USERS));
+        for (String role : ROLE_SET_FOR_SUPER_ADMIN_CANNOT_CREATE_UPDATE_DELETE_USERS) {
+            usersThatCannotBeDeletedBySuperAdmin.add(createRandomUserDto(Set.of(role)));
+        }
+        usersThatCannotBeDeletedBySuperAdmin.add(deleter);
+        createTestUsers(usersThatCannotBeDeletedBySuperAdmin);
+        usersThatCannotBeDeletedBySuperAdmin.remove(deleter);
+        deleteUsersAndVerifyResponse(
+                deleter,
+                usersThatCannotBeDeletedBySuperAdmin,
+                400
+        );
+    }
 }
