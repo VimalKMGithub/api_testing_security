@@ -15,4 +15,5 @@ public final class Common {
     public static final String LENIENCY = "leniency";
     public static final int MAX_BATCH_SIZE_OF_USER_CREATION_AT_A_TIME = 34;
     public static final int MAX_BATCH_SIZE_OF_USER_DELETION_AT_A_TIME = 34;
+    public static final int MAX_BATCH_SIZE_OF_USER_READ_AT_A_TIME = 100;
 }

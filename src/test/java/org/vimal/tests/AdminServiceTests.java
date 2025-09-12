@@ -14,8 +14,7 @@ import java.util.concurrent.ExecutionException;
 import static org.hamcrest.Matchers.*;
 import static org.vimal.api.AdminCalls.*;
 import static org.vimal.api.AuthenticationCalls.getAccessToken;
-import static org.vimal.constants.Common.ENABLE;
-import static org.vimal.constants.Common.MAX_BATCH_SIZE_OF_USER_CREATION_AT_A_TIME;
+import static org.vimal.constants.Common.*;
 import static org.vimal.enums.Roles.*;
 import static org.vimal.helpers.DtosHelper.createRandomUserDto;
 import static org.vimal.helpers.InvalidInputsHelper.*;
@@ -496,6 +495,43 @@ public class AdminServiceTests extends BaseTest {
         }
     }
 
+    private void readUsersAndVerifyResponse(UserDto creator,
+                                            Set<UserDto> users,
+                                            int statusCode) throws ExecutionException, InterruptedException {
+        String accessToken = getAccessToken(
+                creator.getUsername(),
+                creator.getPassword()
+        );
+        Iterator<UserDto> iterator = users.iterator();
+        Set<String> batch = new HashSet<>();
+        Set<UserDto> batchUsers = new HashSet<>();
+        Response response;
+        UserDto user;
+        while (iterator.hasNext()) {
+            batch.clear();
+            batchUsers.clear();
+            while (iterator.hasNext() &&
+                    batch.size() < MAX_BATCH_SIZE_OF_USER_READ_AT_A_TIME) {
+                user = iterator.next();
+                batchUsers.add(user);
+                batch.add(user.getUsername());
+            }
+            TEST_USERS.addAll(batch);
+            response = readUsers(
+                    accessToken,
+                    batch,
+                    null
+            );
+            validateResponseOfUsersCreationOrRead(
+                    response,
+                    creator,
+                    batchUsers,
+                    statusCode,
+                    "found_users."
+            );
+        }
+    }
+
     @Test
     public void test_Read_Users_Using_User_With_Role_Can_Read_Users() throws ExecutionException, InterruptedException {
         Set<UserDto> readers = new HashSet<>();
@@ -514,22 +550,11 @@ public class AdminServiceTests extends BaseTest {
             }
             i++;
         }
-        Response response;
         for (UserDto reader : readers) {
-            response = readUsers(
-                    getAccessToken(
-                            reader.getUsername(),
-                            reader.getPassword()
-                    ),
-                    identifiers,
-                    null
-            );
-            validateResponseOfUsersCreationOrRead(
-                    response,
+            readUsersAndVerifyResponse(
                     reader,
                     readers,
-                    200,
-                    "found_users."
+                    200
             );
         }
     }

@@ -71,4 +71,19 @@ public final class AdminCalls {
                 )
         );
     }
+
+    public static Response updateUsers(String accessToken,
+                                       Set<UserDto> users,
+                                       String leniency) throws ExecutionException, InterruptedException {
+        return waitForResponse(() -> executeRequest(
+                        PUT,
+                        ADMIN + "/update/users",
+                        Map.of(AUTHORIZATION, BEARER + accessToken),
+                        (leniency == null ||
+                                leniency.isBlank()) ? null : Map.of(LENIENCY, leniency),
+                        null,
+                        users
+                )
+        );
+    }
 }

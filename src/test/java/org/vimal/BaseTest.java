@@ -4,7 +4,6 @@ import io.restassured.RestAssured;
 import lombok.extern.slf4j.Slf4j;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeSuite;
-import org.vimal.dtos.RoleDto;
 import org.vimal.dtos.UserDto;
 
 import java.util.HashSet;
@@ -23,8 +22,8 @@ import static org.vimal.helpers.DtosHelper.createRandomUserDtoWithRandomValidEma
 
 @Slf4j
 public abstract class BaseTest {
-    protected static final Set<UserDto> TEST_USERS = ConcurrentHashMap.newKeySet();
-    protected static final Set<RoleDto> TEST_ROLES = ConcurrentHashMap.newKeySet();
+    protected static final Set<Object> TEST_USERS = ConcurrentHashMap.newKeySet();
+    protected static final Set<Object> TEST_ROLES = ConcurrentHashMap.newKeySet();
     private static final String BASE_URL = "http://localhost:8080";
     private static final String BASE_PATH = "api/v1";
     public static final String TEST_EMAIL = System.getenv("TEST_EMAIL");
