@@ -13,8 +13,9 @@ import java.util.concurrent.ExecutionException;
 
 import static org.hamcrest.Matchers.*;
 import static org.vimal.api.AdminCalls.createUsers;
+import static org.vimal.api.AdminCalls.deleteUsers;
 import static org.vimal.api.AuthenticationCalls.getAccessToken;
-import static org.vimal.constants.Common.MAX_BATCH_SIZE_OF_USER_CREATION_AT_A_TIME;
+import static org.vimal.constants.Common.*;
 import static org.vimal.enums.Roles.*;
 import static org.vimal.helpers.DtosHelper.createRandomUserDto;
 import static org.vimal.helpers.InvalidInputsHelper.*;
@@ -285,5 +286,34 @@ public class AdminServiceTests extends BaseTest {
         ).then()
                 .statusCode(400)
                 .body("invalid_inputs", not(empty()));
+    }
+
+    @Test
+    public void test_Delete_Users_Using_User_With_Role_Super_Admin() throws ExecutionException, InterruptedException {
+        UserDto deleter = createRandomUserDto(Set.of(ROLE_SUPER_ADMIN.name()));
+        Set<UserDto> usersThatCanBeDeletedBySuperAdmin = new HashSet<>();
+        usersThatCanBeDeletedBySuperAdmin.add(createRandomUserDto());
+        usersThatCanBeDeletedBySuperAdmin.add(createRandomUserDto(ROLE_SET_FOR_SUPER_ADMIN_CAN_CREATE_UPDATE_DELETE_USERS));
+        for (String role : ROLE_SET_FOR_SUPER_ADMIN_CAN_CREATE_UPDATE_DELETE_USERS) {
+            usersThatCanBeDeletedBySuperAdmin.add(createRandomUserDto(Set.of(role)));
+        }
+        usersThatCanBeDeletedBySuperAdmin.add(deleter);
+        createTestUsers(usersThatCanBeDeletedBySuperAdmin);
+        usersThatCanBeDeletedBySuperAdmin.remove(deleter);
+        Set<String> usernames = new HashSet<>();
+        for (UserDto user : usersThatCanBeDeletedBySuperAdmin) {
+            usernames.add(user.getUsername());
+        }
+        deleteUsers(
+                getAccessToken(
+                        deleter.getUsername(),
+                        deleter.getPassword()
+                ),
+                usernames,
+                ENABLE,
+                DISABLE
+        ).then()
+                .statusCode(200)
+                .body("message", containsStringIgnoringCase("Users deleted successfully"));
     }
 }
