@@ -168,4 +168,34 @@ public class AdminServiceTests extends BaseTest {
                 400
         );
     }
+
+    @Test
+    public void test_Create_Users_Using_User_With_Role_Admin_Not_Allowed_To_Create_Users() throws ExecutionException, InterruptedException {
+        UserDto creator = createTestUser(Set.of(ROLE_ADMIN.name()));
+        Set<UserDto> usersThatCannotBeCreatedByAdmin = new HashSet<>();
+        usersThatCannotBeCreatedByAdmin.add(createRandomUserDto(ROLE_SET_FOR_ADMIN_CANNOT_CREATE_UPDATE_DELETE_USERS));
+        for (String role : ROLE_SET_FOR_ADMIN_CANNOT_CREATE_UPDATE_DELETE_USERS) {
+            usersThatCannotBeCreatedByAdmin.add(createRandomUserDto(Set.of(role)));
+        }
+        createUsersAndVerifyResponse(
+                creator,
+                usersThatCannotBeCreatedByAdmin,
+                400
+        );
+    }
+
+    @Test
+    public void test_Create_Users_Using_User_With_Role_Mange_Users_Not_Allowed_To_Create_Users() throws ExecutionException, InterruptedException {
+        UserDto creator = createTestUser(Set.of(ROLE_MANAGE_USERS.name()));
+        Set<UserDto> usersThatCannotBeCreatedByManageUsers = new HashSet<>();
+        usersThatCannotBeCreatedByManageUsers.add(createRandomUserDto(ROLE_SET_FOR_ADMIN_CANNOT_CREATE_UPDATE_DELETE_USERS));
+        for (String role : ROLE_SET_FOR_ADMIN_CANNOT_CREATE_UPDATE_DELETE_USERS) {
+            usersThatCannotBeCreatedByManageUsers.add(createRandomUserDto(Set.of(role)));
+        }
+        createUsersAndVerifyResponse(
+                creator,
+                usersThatCannotBeCreatedByManageUsers,
+                400
+        );
+    }
 }
