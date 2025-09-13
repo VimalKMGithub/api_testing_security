@@ -139,16 +139,26 @@ public class AuthenticationServiceTests extends BaseTest {
                 .body("message", containsStringIgnoringCase("Invalid token"));
     }
 
-    @Test(dependsOnMethods = {"test_Revoke_Access_Token_Success"})
-    public void test_Refresh_Access_Token_Success(ITestContext context) throws ExecutionException, InterruptedException {
-        String attributeName = "refresh_token_from_test_Revoke_Access_Token_Success";
-        Response response = refreshAccessToken((String) context.getAttribute(attributeName));
-        context.removeAttribute(attributeName);
+    @Test
+    public void test_Refresh_Access_Token_Success() throws ExecutionException, InterruptedException {
+        UserDto user = createTestUser();
+        Response response = refreshAccessToken(
+                getRefreshToken(
+                        user.getUsername(),
+                        user.getPassword()
+                )
+        );
         response.then()
                 .statusCode(200)
                 .body("access_token", notNullValue())
                 .body("expires_in_seconds", equalTo(1800))
                 .body("token_type", containsStringIgnoringCase("Bearer"));
+        validateResponseOfGetSelfDetails(
+                getSelfDetails(response.jsonPath()
+                        .getString("access_token")
+                ),
+                user
+        );
     }
 
     @Test
@@ -166,21 +176,20 @@ public class AuthenticationServiceTests extends BaseTest {
     }
 
     @Test
-    public void test_Revoke_Access_Token_Success(ITestContext context) throws ExecutionException, InterruptedException {
+    public void test_Revoke_Access_Token_Success() throws ExecutionException, InterruptedException {
         UserDto user = createTestUser();
-        Response response = login(
+        String accessToken = getAccessToken(
                 user.getUsername(),
                 user.getPassword()
         );
-        response.then()
-                .statusCode(200);
-        context.setAttribute("refresh_token_from_test_Revoke_Access_Token_Success", response.jsonPath()
-                .getString("refresh_token"));
-        response = revokeAccessToken(response.jsonPath()
-                .getString("access_token"));
-        response.then()
+        revokeAccessToken(accessToken)
+                .then()
                 .statusCode(200)
                 .body("message", containsStringIgnoringCase("Access token revoked successfully"));
+        getSelfDetails(accessToken).then()
+                .statusCode(401)
+                .body("error", containsStringIgnoringCase("Unauthorized"))
+                .body("message", containsStringIgnoringCase("Invalid token"));
     }
 
     @Test
