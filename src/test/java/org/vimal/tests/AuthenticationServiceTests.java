@@ -25,7 +25,7 @@ import static org.vimal.utils.TotpUtility.generateTotp;
 
 public class AuthenticationServiceTests extends BaseTest {
     @Test
-    public void test_Login_Success(ITestContext context) throws ExecutionException, InterruptedException {
+    public void test_Login_Success() throws ExecutionException, InterruptedException {
         UserDto user = createTestUser();
         Response response = login(
                 user.getUsername(),
@@ -37,9 +37,6 @@ public class AuthenticationServiceTests extends BaseTest {
                 .body("refresh_token", notNullValue())
                 .body("expires_in_seconds", equalTo(1800))
                 .body("token_type", containsStringIgnoringCase("Bearer"));
-        context.setAttribute("user_from_test_Login_Success", user);
-        context.setAttribute("access_token_from_test_Login_Success", response.jsonPath()
-                .getString("access_token"));
         validateResponseOfGetSelfDetails(
                 getSelfDetails(response.jsonPath()
                         .getString("access_token")
@@ -108,7 +105,6 @@ public class AuthenticationServiceTests extends BaseTest {
     }
 
     @Test(dependsOnMethods = {
-            "test_Login_Success",
             "test_Request_To_Enable_Authenticator_App_Mfa_Success",
             "test_Verify_To_Enable_Authenticator_App_Mfa_Success"
     })
