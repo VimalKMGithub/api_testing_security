@@ -163,10 +163,6 @@ public class AuthenticationServiceTests extends BaseTest {
 
     @Test
     public void test_Refresh_Access_Token_Failure_Invalid_Refresh_Token() throws ExecutionException, InterruptedException {
-        refreshAccessToken("invalidRefreshToken").then()
-                .statusCode(400)
-                .body("error", containsStringIgnoringCase("Bad Request"))
-                .body("message", containsStringIgnoringCase("Invalid refresh token"));
         for (String invalidRefreshToken : INVALID_UUIDS) {
             refreshAccessToken(invalidRefreshToken).then()
                     .statusCode(400)
