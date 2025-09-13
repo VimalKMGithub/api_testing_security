@@ -126,13 +126,17 @@ public class AuthenticationServiceTests extends BaseTest {
     @Test
     public void test_Logout_Success() throws ExecutionException, InterruptedException {
         UserDto user = createTestUser();
-        logout(getAccessToken(
-                        user.getUsername(),
-                        user.getPassword()
-                )
-        ).then()
+        String accessToken = getAccessToken(
+                user.getUsername(),
+                user.getPassword()
+        );
+        logout(accessToken).then()
                 .statusCode(200)
                 .body("message", containsStringIgnoringCase("Logout successful"));
+        getSelfDetails(accessToken).then()
+                .statusCode(401)
+                .body("error", containsStringIgnoringCase("Unauthorized"))
+                .body("message", containsStringIgnoringCase("Invalid token"));
     }
 
     @Test(dependsOnMethods = {"test_Revoke_Access_Token_Success"})
