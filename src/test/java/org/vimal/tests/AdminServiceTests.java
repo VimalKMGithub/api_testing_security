@@ -1308,4 +1308,26 @@ public class AdminServiceTests extends BaseTest {
                     .body("found_permissions.permissionName", containsInAnyOrder(permissionNames.toArray()));
         }
     }
+
+    @Test
+    public void test_Read_Permissions_Using_User_With_Role_Who_Cannot_Read_Permissions() throws ExecutionException, InterruptedException {
+        Set<UserDto> readers = new HashSet<>();
+        readers.add(createRandomUserDto(USERS_WITH_THESE_ROLES_CANNOT_READ_PERMISSIONS));
+        for (String role : USERS_WITH_THESE_ROLES_CANNOT_READ_PERMISSIONS) {
+            readers.add(createRandomUserDto(Set.of(role)));
+        }
+        createTestUsers(readers);
+        for (UserDto reader : readers) {
+            readPermissions(
+                    getAccessToken(
+                            reader.getUsername(),
+                            reader.getPassword()
+                    ),
+                    Set.of("CAN_READ_USER"),
+                    null
+            ).then()
+                    .statusCode(403)
+                    .body("message", containsStringIgnoringCase("Access Denied"));
+        }
+    }
 }
