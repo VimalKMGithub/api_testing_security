@@ -1096,6 +1096,14 @@ public class AdminServiceTests extends BaseTest {
                     .statusCode(400)
                     .body("invalid_inputs", not(empty()));
         }
+        deleteRoles(
+                accessToken,
+                Set.of(ROLE_SUPER_ADMIN.name()),
+                ENABLE,
+                null
+        ).then()
+                .statusCode(400)
+                .body("invalid_inputs", not(empty()));
     }
 
     @Test
