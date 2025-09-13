@@ -1330,4 +1330,22 @@ public class AdminServiceTests extends BaseTest {
                     .body("message", containsStringIgnoringCase("Access Denied"));
         }
     }
+
+    @Test
+    public void test_Read_Permissions_Invalid_Input() throws ExecutionException, InterruptedException {
+        UserDto reader = createTestUser(Set.of(ROLE_SUPER_ADMIN.name()));
+        String accessToken = getAccessToken(
+                reader.getUsername(),
+                reader.getPassword()
+        );
+        for (String invalidPermissionName : INVALID_ROLE_OR_PERMISSION_NAMES) {
+            readPermissions(
+                    accessToken,
+                    Set.of(invalidPermissionName),
+                    null
+            ).then()
+                    .statusCode(400)
+                    .body("invalid_inputs", not(empty()));
+        }
+    }
 }
