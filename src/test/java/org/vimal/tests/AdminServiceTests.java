@@ -1284,4 +1284,28 @@ public class AdminServiceTests extends BaseTest {
                 .statusCode(400)
                 .body("invalid_inputs", not(empty()));
     }
+
+    @Test
+    public void test_Read_Permissions_Using_User_With_Role_Who_Can_Read_Permissions() throws ExecutionException, InterruptedException {
+        Set<UserDto> readers = new HashSet<>();
+        readers.add(createRandomUserDto(USERS_WITH_THESE_ROLES_CAN_READ_PERMISSIONS));
+        for (String role : USERS_WITH_THESE_ROLES_CAN_READ_PERMISSIONS) {
+            readers.add(createRandomUserDto(Set.of(role)));
+        }
+        createTestUsers(readers);
+        Set<String> permissionNames = Set.of("CAN_READ_USER");
+        for (UserDto reader : readers) {
+            readPermissions(
+                    getAccessToken(
+                            reader.getUsername(),
+                            reader.getPassword()
+                    ),
+                    permissionNames,
+                    null
+            ).then()
+                    .statusCode(200)
+                    .body("found_permissions.size()", equalTo(permissionNames.size()))
+                    .body("found_permissions.permissionName", containsInAnyOrder(permissionNames.toArray()));
+        }
+    }
 }
