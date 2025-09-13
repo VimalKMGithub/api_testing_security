@@ -13,9 +13,11 @@ import java.util.concurrent.ExecutionException;
 
 import static org.hamcrest.Matchers.*;
 import static org.vimal.api.AuthenticationCalls.*;
+import static org.vimal.api.UserCalls.getSelfDetails;
 import static org.vimal.constants.Common.AUTHENTICATOR_APP_MFA;
 import static org.vimal.constants.Common.ENABLE;
 import static org.vimal.helpers.InvalidInputsHelper.*;
+import static org.vimal.helpers.ResponseValidatorHelper.validateResponseOfGetSelfDetails;
 import static org.vimal.utils.DateTimeUtility.getCurrentFormattedLocalTimeStamp;
 import static org.vimal.utils.QrUtility.extractSecretFromByteArrayOfQrCode;
 import static org.vimal.utils.RandomStringUtility.generateRandomStringAlphaNumeric;
@@ -38,6 +40,12 @@ public class AuthenticationServiceTests extends BaseTest {
         context.setAttribute("user_from_test_Login_Success", user);
         context.setAttribute("access_token_from_test_Login_Success", response.jsonPath()
                 .getString("access_token"));
+        validateResponseOfGetSelfDetails(
+                getSelfDetails(response.jsonPath()
+                        .getString("access_token")
+                ),
+                user
+        );
     }
 
     @Test

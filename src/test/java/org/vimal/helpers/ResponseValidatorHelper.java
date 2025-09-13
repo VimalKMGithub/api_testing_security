@@ -14,6 +14,20 @@ public final class ResponseValidatorHelper {
     private ResponseValidatorHelper() {
     }
 
+    public static void validateResponseOfGetSelfDetails(Response response,
+                                                        UserDto user) {
+        response.then()
+                .statusCode(200)
+                .body("username", equalTo(user.getUsername()))
+                .body("email", equalTo(user.getEmail()))
+                .body("firstName", equalTo(user.getFirstName()))
+                .body("middleName", equalTo(user.getMiddleName()))
+                .body("lastName", equalTo(user.getLastName()))
+                .body("roles", (user.getRoles() != null) ?
+                        containsInAnyOrder(user.getRoles().toArray()) :
+                        empty());
+    }
+
     public static void validateResponseOfUsersCreationOrRead(Response response,
                                                              UserDto creatorOrReader,
                                                              Set<UserDto> users,
