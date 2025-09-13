@@ -280,15 +280,6 @@ public class AuthenticationServiceTests extends BaseTest {
                 user.getUsername(),
                 user.getPassword()
         );
-        verifyToggleMfa(
-                accessToken,
-                AUTHENTICATOR_APP_MFA,
-                ENABLE,
-                "123456"
-        ).then()
-                .statusCode(400)
-                .body("error", containsStringIgnoringCase("Bad Request"))
-                .body("message", containsStringIgnoringCase("Invalid Totp"));
         for (String invalidOtp : INVALID_OTPS) {
             verifyToggleMfa(
                     accessToken,
