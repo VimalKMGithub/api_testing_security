@@ -14,8 +14,7 @@ import static org.vimal.api.AdminCalls.*;
 import static org.vimal.api.AuthenticationCalls.getAccessToken;
 import static org.vimal.constants.Common.*;
 import static org.vimal.enums.Roles.*;
-import static org.vimal.helpers.DtosHelper.createRandomRoleDto;
-import static org.vimal.helpers.DtosHelper.createRandomUserDto;
+import static org.vimal.helpers.DtosHelper.*;
 import static org.vimal.helpers.InvalidInputsHelper.*;
 import static org.vimal.helpers.ResponseValidatorHelper.*;
 import static org.vimal.utils.DateTimeUtility.getCurrentFormattedLocalTimeStamp;
@@ -1029,5 +1028,73 @@ public class AdminServiceTests extends BaseTest {
         ).then()
                 .statusCode(400)
                 .body("invalid_inputs", not(empty()));
+    }
+
+    @Test
+    public void test_Delete_Roles_Using_User_With_Role_Who_Can_Delete_Roles() throws ExecutionException, InterruptedException {
+        Set<UserDto> deleters = new HashSet<>();
+        deleters.add(createRandomUserDto(USERS_WITH_THESE_ROLES_CAN_CREATE_DELETE_READ_UPDATE_ROLES));
+        for (String role : USERS_WITH_THESE_ROLES_CAN_CREATE_DELETE_READ_UPDATE_ROLES) {
+            deleters.add(createRandomUserDto(Set.of(role)));
+        }
+        createTestUsers(deleters);
+        Set<RoleDto> rolesToBeDeleted = createRandomRoleDtos(deleters.size());
+        createTestRoles(rolesToBeDeleted);
+        Iterator<RoleDto> iterator = rolesToBeDeleted.iterator();
+        for (UserDto deleter : deleters) {
+            deleteRoles(
+                    getAccessToken(
+                            deleter.getUsername(),
+                            deleter.getPassword()
+                    ),
+                    Set.of(iterator.next().getRoleName()),
+                    ENABLE,
+                    null
+            ).then()
+                    .statusCode(200)
+                    .body("message", containsStringIgnoringCase("Roles deleted successfully"));
+        }
+    }
+
+    @Test
+    public void test_Delete_Roles_Using_User_With_Role_Who_Cannot_Delete_Roles() throws ExecutionException, InterruptedException {
+        Set<UserDto> deleters = new HashSet<>();
+        deleters.add(createRandomUserDto(USERS_WITH_THESE_ROLES_CANNOT_CREATE_READ_UPDATE_DELETE_ROLES));
+        for (String role : USERS_WITH_THESE_ROLES_CANNOT_CREATE_READ_UPDATE_DELETE_ROLES) {
+            deleters.add(createRandomUserDto(Set.of(role)));
+        }
+        createTestUsers(deleters);
+        for (UserDto deleter : deleters) {
+            deleteRoles(
+                    getAccessToken(
+                            deleter.getUsername(),
+                            deleter.getPassword()
+                    ),
+                    Set.of("testRoleName"),
+                    ENABLE,
+                    null
+            ).then()
+                    .statusCode(403)
+                    .body("message", containsStringIgnoringCase("Access Denied"));
+        }
+    }
+
+    @Test
+    public void test_Delete_Roles_Invalid_Input() throws ExecutionException, InterruptedException {
+        UserDto deleter = createTestUser(Set.of(ROLE_SUPER_ADMIN.name()));
+        String accessToken = getAccessToken(
+                deleter.getUsername(),
+                deleter.getPassword()
+        );
+        for (String invalidRoleName : INVALID_ROLE_OR_PERMISSION_NAMES) {
+            deleteRoles(
+                    accessToken,
+                    Set.of(invalidRoleName),
+                    ENABLE,
+                    null
+            ).then()
+                    .statusCode(400)
+                    .body("invalid_inputs", not(empty()));
+        }
     }
 }

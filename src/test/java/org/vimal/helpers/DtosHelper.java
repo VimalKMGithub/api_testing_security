@@ -58,7 +58,7 @@ public final class DtosHelper {
         return createRandomRoleDto(null);
     }
 
-    private static Set<RoleDto> createRandomRoleDtos(int count) {
+    public static Set<RoleDto> createRandomRoleDtos(int count) {
         Set<RoleDto> roleDtos = new HashSet<>();
         for (int i = 0; i < count; i++) {
             roleDtos.add(createRandomRoleDto());
