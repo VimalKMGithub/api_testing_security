@@ -126,4 +126,19 @@ public final class AdminCalls {
                 )
         );
     }
+
+    public static Response readRoles(String accessToken,
+                                     Set<String> roleNames,
+                                     String leniency) throws ExecutionException, InterruptedException {
+        return waitForResponse(() -> executeRequest(
+                        GET,
+                        ADMIN + "/read/roles",
+                        Map.of(AUTHORIZATION, BEARER + accessToken),
+                        (leniency == null ||
+                                leniency.isBlank()) ? null : Map.of(LENIENCY, leniency),
+                        null,
+                        roleNames
+                )
+        );
+    }
 }

@@ -1097,4 +1097,75 @@ public class AdminServiceTests extends BaseTest {
                     .body("invalid_inputs", not(empty()));
         }
     }
+
+    @Test
+    public void test_Read_Roles_Using_User_With_Role_Who_Can_Read_Roles() throws ExecutionException, InterruptedException {
+        Set<UserDto> readers = new HashSet<>();
+        readers.add(createRandomUserDto(USERS_WITH_THESE_ROLES_CAN_CREATE_DELETE_READ_UPDATE_ROLES));
+        for (String role : USERS_WITH_THESE_ROLES_CAN_CREATE_DELETE_READ_UPDATE_ROLES) {
+            readers.add(createRandomUserDto(Set.of(role)));
+        }
+        createTestUsers(readers);
+        Response response;
+        RoleDto role = createTestRole();
+        Set<String> roleNames = Set.of(role.getRoleName());
+        Set<RoleDto> tempSet = Set.of(role);
+        for (UserDto reader : readers) {
+            response = readRoles(
+                    getAccessToken(
+                            reader.getUsername(),
+                            reader.getPassword()
+                    ),
+                    roleNames,
+                    null
+            );
+            validateResponseOfRolesCreationOrRead(
+                    response,
+                    reader,
+                    tempSet,
+                    200,
+                    "found_roles."
+            );
+        }
+    }
+
+    @Test
+    public void test_Read_Roles_Using_User_With_Role_Who_Cannot_Read_Roles() throws ExecutionException, InterruptedException {
+        Set<UserDto> readers = new HashSet<>();
+        readers.add(createRandomUserDto(USERS_WITH_THESE_ROLES_CANNOT_CREATE_READ_UPDATE_DELETE_ROLES));
+        for (String role : USERS_WITH_THESE_ROLES_CANNOT_CREATE_READ_UPDATE_DELETE_ROLES) {
+            readers.add(createRandomUserDto(Set.of(role)));
+        }
+        createTestUsers(readers);
+        for (UserDto reader : readers) {
+            readRoles(
+                    getAccessToken(
+                            reader.getUsername(),
+                            reader.getPassword()
+                    ),
+                    Set.of("someRoleName"),
+                    null
+            ).then()
+                    .statusCode(403)
+                    .body("message", containsStringIgnoringCase("Access Denied"));
+        }
+    }
+
+    @Test
+    public void test_Read_Roles_Invalid_Input() throws ExecutionException, InterruptedException {
+        UserDto reader = createTestUser(Set.of(ROLE_SUPER_ADMIN.name()));
+        String accessToken = getAccessToken(
+                reader.getUsername(),
+                reader.getPassword()
+        );
+        for (String invalidRoleName : INVALID_ROLE_OR_PERMISSION_NAMES) {
+            readRoles(
+                    accessToken,
+                    Set.of(invalidRoleName),
+                    null
+            ).then()
+                    .statusCode(400)
+                    .body("invalid_inputs", not(empty()));
+        }
+    }
 }
