@@ -109,9 +109,9 @@ public class AuthenticationServiceTests extends BaseTest {
             "test_Verify_To_Enable_Authenticator_App_Mfa_Success"
     })
     public void test_Get_StateToken_On_Login_When_Any_Mfa_Is_Enabled(ITestContext context) throws ExecutionException, InterruptedException {
-        String attributeName = "user_from_test_Login_Success";
-        UserDto user = (UserDto) context.getAttribute(attributeName);
-        context.removeAttribute(attributeName);
+        String contextAttributeUser = "user_from_test_Request_To_Enable_Authenticator_App_Mfa_Success";
+        UserDto user = (UserDto) context.getAttribute(contextAttributeUser);
+        context.removeAttribute(contextAttributeUser);
         Response response = login(
                 user.getUsername(),
                 user.getPassword()
@@ -191,10 +191,17 @@ public class AuthenticationServiceTests extends BaseTest {
                 .body("message", containsStringIgnoringCase("Refresh token revoked successfully"));
     }
 
-    @Test(dependsOnMethods = {"test_Login_Success"})
+    @Test
     public void test_Request_To_Enable_Authenticator_App_Mfa_Success(ITestContext context) throws ExecutionException, InterruptedException {
+        UserDto user = createTestUser();
+        context.setAttribute("user_from_test_Request_To_Enable_Authenticator_App_Mfa_Success", user);
+        String accessToken = getAccessToken(
+                user.getUsername(),
+                user.getPassword()
+        );
+        context.setAttribute("access_token_from_test_Request_To_Enable_Authenticator_App_Mfa_Success", accessToken);
         Response response = requestToToggleMfa(
-                (String) context.getAttribute("access_token_from_test_Login_Success"),
+                accessToken,
                 AUTHENTICATOR_APP_MFA,
                 ENABLE
         );
@@ -205,7 +212,6 @@ public class AuthenticationServiceTests extends BaseTest {
     }
 
     @Test(dependsOnMethods = {
-            "test_Login_Success",
             "test_Request_To_Enable_Authenticator_App_Mfa_Success",
             "test_Verify_To_Enable_Authenticator_App_Mfa_Success",
             "test_Get_StateToken_On_Login_When_Any_Mfa_Is_Enabled",
@@ -222,26 +228,22 @@ public class AuthenticationServiceTests extends BaseTest {
                 .body("message", containsStringIgnoringCase("Mfa is already enabled"));
     }
 
-    @Test(dependsOnMethods = {
-            "test_Login_Success",
-            "test_Request_To_Enable_Authenticator_App_Mfa_Success"
-    })
+    @Test(dependsOnMethods = {"test_Request_To_Enable_Authenticator_App_Mfa_Success"})
     public void test_Verify_To_Enable_Authenticator_App_Mfa_Success(ITestContext context) throws NotFoundException, IOException, InvalidKeyException, ExecutionException, InterruptedException {
-        String attributeName = "access_token_from_test_Login_Success";
+        String contextAttributeAccessToken = "access_token_from_test_Request_To_Enable_Authenticator_App_Mfa_Success";
         Response response = verifyToggleMfa(
-                (String) context.getAttribute(attributeName),
+                (String) context.getAttribute(contextAttributeAccessToken),
                 AUTHENTICATOR_APP_MFA,
                 ENABLE,
                 generateTotp(extractSecretFromByteArrayOfQrCode((byte[]) context.getAttribute("mfa_secret_from_test_Request_To_Enable_Authenticator_App_Mfa_Success")))
         );
-        context.removeAttribute(attributeName);
+        context.removeAttribute(contextAttributeAccessToken);
         response.then()
                 .statusCode(200)
                 .body("message", containsStringIgnoringCase("Authenticator app Mfa enabled successfully"));
     }
 
     @Test(dependsOnMethods = {
-            "test_Login_Success",
             "test_Request_To_Enable_Authenticator_App_Mfa_Success",
             "test_Verify_To_Enable_Authenticator_App_Mfa_Success",
             "test_Get_StateToken_On_Login_When_Any_Mfa_Is_Enabled",
@@ -289,21 +291,20 @@ public class AuthenticationServiceTests extends BaseTest {
     }
 
     @Test(dependsOnMethods = {
-            "test_Login_Success",
             "test_Request_To_Enable_Authenticator_App_Mfa_Success",
             "test_Verify_To_Enable_Authenticator_App_Mfa_Success",
             "test_Get_StateToken_On_Login_When_Any_Mfa_Is_Enabled"
     })
     public void test_Verify_Mfa_To_Login_Success(ITestContext context) throws InvalidKeyException, NotFoundException, IOException, ExecutionException, InterruptedException {
-        String attributeName = "state_token_from_test_Get_StateToken_On_Login_When_Any_Mfa_Is_Enabled";
-        String attributeNameForMfa = "mfa_secret_from_test_Request_To_Enable_Authenticator_App_Mfa_Success";
+        String contextAttributeStateToken = "state_token_from_test_Get_StateToken_On_Login_When_Any_Mfa_Is_Enabled";
+        String contextAttributeMfaSecret = "mfa_secret_from_test_Request_To_Enable_Authenticator_App_Mfa_Success";
         Response response = verifyMfaToLogin(
                 AUTHENTICATOR_APP_MFA,
-                (String) context.getAttribute(attributeName),
-                generateTotp(extractSecretFromByteArrayOfQrCode((byte[]) context.getAttribute(attributeNameForMfa)))
+                (String) context.getAttribute(contextAttributeStateToken),
+                generateTotp(extractSecretFromByteArrayOfQrCode((byte[]) context.getAttribute(contextAttributeMfaSecret)))
         );
-        context.removeAttribute(attributeName);
-        context.removeAttribute(attributeNameForMfa);
+        context.removeAttribute(contextAttributeStateToken);
+        context.removeAttribute(contextAttributeMfaSecret);
         response.then()
                 .statusCode(200)
                 .body("access_token", notNullValue())
