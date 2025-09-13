@@ -141,4 +141,34 @@ public final class AdminCalls {
                 )
         );
     }
+
+    public static Response updateRoles(String accessToken,
+                                       Set<RoleDto> roles,
+                                       String leniency) throws ExecutionException, InterruptedException {
+        return waitForResponse(() -> executeRequest(
+                        PUT,
+                        ADMIN + "/update/roles",
+                        Map.of(AUTHORIZATION, BEARER + accessToken),
+                        (leniency == null ||
+                                leniency.isBlank()) ? null : Map.of(LENIENCY, leniency),
+                        null,
+                        roles
+                )
+        );
+    }
+
+    public static Response readPermissions(String accessToken,
+                                           Set<String> permissionNames,
+                                           String leniency) throws ExecutionException, InterruptedException {
+        return waitForResponse(() -> executeRequest(
+                        GET,
+                        ADMIN + "/read/permissions",
+                        Map.of(AUTHORIZATION, BEARER + accessToken),
+                        (leniency == null ||
+                                leniency.isBlank()) ? null : Map.of(LENIENCY, leniency),
+                        null,
+                        permissionNames
+                )
+        );
+    }
 }

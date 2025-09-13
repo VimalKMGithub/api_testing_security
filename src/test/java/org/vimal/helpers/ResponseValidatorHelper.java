@@ -112,4 +112,39 @@ public final class ResponseValidatorHelper {
             }
         }
     }
+
+    public static void validateResponseOfRolesUpdation(Response response,
+                                                       UserDto updater,
+                                                       Set<RoleDto> roles,
+                                                       Set<RoleDto> updatedInputs,
+                                                       int statusCode,
+                                                       String pathPrefix) {
+        response.then()
+                .statusCode(statusCode);
+        if (statusCode != 200) {
+            response.then()
+                    .body("invalid_inputs", not(empty()));
+            return;
+        }
+        response.then()
+                .body(pathPrefix + "size()", equalTo(roles.size()));
+        Map<String, RoleDto> roleNameToUpdatedInputMap = new HashMap<>();
+        String findPath;
+        for (RoleDto updatedInput : updatedInputs) {
+            roleNameToUpdatedInputMap.put(updatedInput.getRoleName(), updatedInput);
+        }
+        RoleDto updatedInput;
+        for (RoleDto role : roles) {
+            updatedInput = roleNameToUpdatedInputMap.get(role.getRoleName());
+            findPath = pathPrefix + "find { it.roleName == '" + updatedInput.getRoleName() + "' }.";
+            response.then()
+                    .body(findPath + "description", updatedInput.getDescription() != null ? equalTo(updatedInput.getDescription()) : equalTo(role.getDescription()))
+                    .body(findPath + "updatedBy", equalTo(updater.getUsername()))
+                    .body(findPath + "permissions", (updatedInput.getPermissions() != null) ?
+                            containsInAnyOrder(updatedInput.getPermissions().toArray()) :
+                            (role.getPermissions() != null) ?
+                                    containsInAnyOrder(role.getPermissions().toArray()) :
+                                    empty());
+        }
+    }
 }
