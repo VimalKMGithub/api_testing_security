@@ -244,16 +244,15 @@ public class AuthenticationServiceTests extends BaseTest {
     @Test(dependsOnMethods = {"test_Request_To_Enable_Authenticator_App_Mfa_Success"})
     public void test_Verify_To_Enable_Authenticator_App_Mfa_Success(ITestContext context) throws NotFoundException, IOException, InvalidKeyException, ExecutionException, InterruptedException {
         String contextAttributeAccessToken = "access_token_from_test_Request_To_Enable_Authenticator_App_Mfa_Success";
-        Response response = verifyToggleMfa(
+        verifyToggleMfa(
                 (String) context.getAttribute(contextAttributeAccessToken),
                 AUTHENTICATOR_APP_MFA,
                 ENABLE,
                 generateTotp(extractSecretFromByteArrayOfQrCode((byte[]) context.getAttribute("mfa_secret_from_test_Request_To_Enable_Authenticator_App_Mfa_Success")))
-        );
-        context.removeAttribute(contextAttributeAccessToken);
-        response.then()
+        ).then()
                 .statusCode(200)
                 .body("message", containsStringIgnoringCase("Authenticator app Mfa enabled successfully"));
+        context.removeAttribute(contextAttributeAccessToken);
     }
 
     @Test(dependsOnMethods = {
