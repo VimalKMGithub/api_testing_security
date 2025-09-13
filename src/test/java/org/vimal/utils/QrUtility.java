@@ -36,7 +36,7 @@ public final class QrUtility {
                 return param.substring(7);
             }
         }
-        throw new IllegalArgumentException("No secret parameter found in Totp Url");
+        throw new RuntimeException("No secret parameter found in Totp Url");
     }
 
     private static String decodeByteArrayOfQrCode(byte[] byteArrayOfQrCode) throws IOException, NotFoundException {
