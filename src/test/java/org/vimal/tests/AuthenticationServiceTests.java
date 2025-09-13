@@ -16,7 +16,9 @@ import static org.vimal.api.AuthenticationCalls.*;
 import static org.vimal.constants.Common.AUTHENTICATOR_APP_MFA;
 import static org.vimal.constants.Common.ENABLE;
 import static org.vimal.helpers.InvalidInputsHelper.*;
+import static org.vimal.utils.DateTimeUtility.getCurrentFormattedLocalTimeStamp;
 import static org.vimal.utils.QrUtility.extractSecretFromByteArrayOfQrCode;
+import static org.vimal.utils.RandomStringUtility.generateRandomStringAlphaNumeric;
 import static org.vimal.utils.TotpUtility.generateTotp;
 
 public class AuthenticationServiceTests extends BaseTest {
@@ -40,13 +42,6 @@ public class AuthenticationServiceTests extends BaseTest {
 
     @Test
     public void test_Login_Failure_InvalidCredentials() throws ExecutionException, InterruptedException {
-        login(
-                "invalidUser",
-                "wrongPassword@1"
-        ).then()
-                .statusCode(401)
-                .body("error", containsStringIgnoringCase("Unauthorized"))
-                .body("message", containsStringIgnoringCase("Invalid credentials"));
         for (String invalidUsername : INVALID_USERNAMES) {
             login(
                     invalidUsername,
@@ -74,6 +69,13 @@ public class AuthenticationServiceTests extends BaseTest {
                     .body("error", containsStringIgnoringCase("Unauthorized"))
                     .body("message", containsStringIgnoringCase("Invalid credentials"));
         }
+        login(
+                "nonexistentUser_" + getCurrentFormattedLocalTimeStamp() + "_" + generateRandomStringAlphaNumeric(),
+                "SomePassword@1"
+        ).then()
+                .statusCode(401)
+                .body("error", containsStringIgnoringCase("Unauthorized"))
+                .body("message", containsStringIgnoringCase("Invalid credentials"));
     }
 
     @Test
