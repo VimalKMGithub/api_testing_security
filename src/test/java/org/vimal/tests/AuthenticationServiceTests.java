@@ -191,13 +191,17 @@ public class AuthenticationServiceTests extends BaseTest {
     @Test
     public void test_Revoke_Refresh_Token_Success() throws ExecutionException, InterruptedException {
         UserDto user = createTestUser();
-        revokeRefreshToken(getRefreshToken(
-                        user.getUsername(),
-                        user.getPassword()
-                )
-        ).then()
+        String refreshToken = getRefreshToken(
+                user.getUsername(),
+                user.getPassword()
+        );
+        revokeRefreshToken(refreshToken).then()
                 .statusCode(200)
                 .body("message", containsStringIgnoringCase("Refresh token revoked successfully"));
+        refreshAccessToken(refreshToken).then()
+                .statusCode(400)
+                .body("error", containsStringIgnoringCase("Bad Request"))
+                .body("message", containsStringIgnoringCase("Invalid refresh token"));
     }
 
     @Test
