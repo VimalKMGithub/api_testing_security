@@ -1244,4 +1244,44 @@ public class AdminServiceTests extends BaseTest {
                     .body("message", containsStringIgnoringCase("Access Denied"));
         }
     }
+
+    @Test
+    public void test_Update_Roles_Invalid_Input() throws ExecutionException, InterruptedException {
+        UserDto updater = createTestUser(Set.of(ROLE_SUPER_ADMIN.name()));
+        String accessToken = getAccessToken(
+                updater.getUsername(),
+                updater.getPassword()
+        );
+        RoleDto role = new RoleDto();
+        Set<RoleDto> testSet = Set.of(role);
+        for (String invalidRoleName : INVALID_ROLE_OR_PERMISSION_NAMES) {
+            role.setRoleName(invalidRoleName);
+            updateRoles(
+                    accessToken,
+                    testSet,
+                    null
+            ).then()
+                    .statusCode(400)
+                    .body("invalid_inputs", not(empty()));
+        }
+        String randomString = getCurrentFormattedLocalTimeStamp() + "_" + generateRandomStringAlphaNumeric();
+        role.setRoleName("AutoTestRole_" + randomString);
+        role.setDescription("d".repeat(256));
+        updateRoles(
+                accessToken,
+                testSet,
+                null
+        ).then()
+                .statusCode(400)
+                .body("invalid_inputs", not(empty()));
+        role.setDescription("AutoTestRole created by AdminServiceTests - updated");
+        role.setPermissions(Set.of("InvalidPermissionName" + randomString));
+        updateRoles(
+                accessToken,
+                testSet,
+                null
+        ).then()
+                .statusCode(400)
+                .body("invalid_inputs", not(empty()));
+    }
 }
