@@ -1176,4 +1176,49 @@ public class AdminServiceTests extends BaseTest {
                     .body("invalid_inputs", not(empty()));
         }
     }
+
+    @Test
+    public void test_Update_Roles_Using_User_With_Role_Who_Can_Update_Roles() throws ExecutionException, InterruptedException {
+        Set<UserDto> updaters = new HashSet<>();
+        updaters.add(createRandomUserDto(USERS_WITH_THESE_ROLES_CAN_CREATE_DELETE_READ_UPDATE_ROLES));
+        for (String role : USERS_WITH_THESE_ROLES_CAN_CREATE_DELETE_READ_UPDATE_ROLES) {
+            updaters.add(createRandomUserDto(Set.of(role)));
+        }
+        createTestUsers(updaters);
+        Set<RoleDto> rolesThatCanBeUpdated = createRandomRoleDtos(updaters.size());
+        createTestRoles(rolesThatCanBeUpdated);
+        Set<RoleDto> updatedInputs = new HashSet<>();
+        Map<String, RoleDto> roleNameToRoleMap = new HashMap<>();
+        for (RoleDto role : rolesThatCanBeUpdated) {
+            roleNameToRoleMap.put(role.getRoleName(), role);
+            updatedInputs.add(new RoleDto(
+                            role.getRoleName(),
+                            role.getDescription() + " - updated",
+                            role.getPermissions() != null ? new HashSet<>(role.getPermissions()) : null
+                    )
+            );
+        }
+        Iterator<RoleDto> iterator = updatedInputs.iterator();
+        Response response;
+        RoleDto updatedInput;
+        for (UserDto updater : updaters) {
+            updatedInput = iterator.next();
+            response = updateRoles(
+                    getAccessToken(
+                            updater.getUsername(),
+                            updater.getPassword()
+                    ),
+                    Set.of(updatedInput),
+                    null
+            );
+            validateResponseOfRolesUpdation(
+                    response,
+                    updater,
+                    Set.of(roleNameToRoleMap.get(updatedInput.getRoleName())),
+                    Set.of(updatedInput),
+                    200,
+                    "updated_roles."
+            );
+        }
+    }
 }
