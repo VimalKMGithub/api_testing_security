@@ -13,6 +13,7 @@ import static org.hamcrest.Matchers.*;
 import static org.vimal.api.AdminCalls.*;
 import static org.vimal.api.AuthenticationCalls.getAccessToken;
 import static org.vimal.constants.Common.*;
+import static org.vimal.enums.Permissions.CAN_CREATE_USER;
 import static org.vimal.enums.Roles.*;
 import static org.vimal.helpers.DtosHelper.*;
 import static org.vimal.helpers.InvalidInputsHelper.*;
@@ -1279,7 +1280,7 @@ public class AdminServiceTests extends BaseTest {
             readers.add(createRandomUserDto(Set.of(role)));
         }
         createTestUsers(readers);
-        Set<String> permissionNames = Set.of("CAN_READ_USER");
+        Set<String> permissionNames = Set.of(CAN_CREATE_USER.name());
         for (UserDto reader : readers) {
             readPermissions(
                     getAccessToken(
@@ -1309,7 +1310,7 @@ public class AdminServiceTests extends BaseTest {
                             reader.getUsername(),
                             reader.getPassword()
                     ),
-                    Set.of("CAN_READ_USER"),
+                    Set.of(CAN_CREATE_USER.name()),
                     null
             ).then()
                     .statusCode(403)
@@ -1331,7 +1332,7 @@ public class AdminServiceTests extends BaseTest {
                     null
             ).then()
                     .statusCode(400)
-                    .body("invalid_inputs", not(empty()));
+                    .body("invalid_permission_names", not(empty()));
         }
     }
 }
