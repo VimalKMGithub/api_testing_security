@@ -25,7 +25,7 @@ import static org.vimal.helpers.DtosHelper.*;
 
 @Slf4j
 public abstract class BaseTest {
-    protected static final Set<UserDto> TEST_USERS = ConcurrentHashMap.newKeySet();
+    protected static final Set<Object> TEST_USERS = ConcurrentHashMap.newKeySet();
     protected static final Set<RoleDto> TEST_ROLES = ConcurrentHashMap.newKeySet();
     private static final String BASE_URL = "http://localhost:8080";
     private static final String BASE_PATH = "api/v1";

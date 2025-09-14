@@ -636,10 +636,10 @@ public class AdminServiceTests extends BaseTest {
             while (iterator.hasNext() &&
                     batch.size() < MAX_BATCH_SIZE_OF_USER_UPDATE_AT_A_TIME) {
                 user = iterator.next();
+                TEST_USERS.add(user.getUsername());
                 batch.add(user);
                 batchUsers.add(usernameToUserMap.get(user.getOldUsername()));
             }
-            TEST_USERS.addAll(batch);
             response = updateUsers(
                     accessToken,
                     batch,
