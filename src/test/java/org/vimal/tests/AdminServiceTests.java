@@ -1101,7 +1101,7 @@ public class AdminServiceTests extends BaseTest {
                 null
         ).then()
                 .statusCode(400)
-                .body("invalid_inputs", not(empty()));
+                .body("system_roles_cannot_be_deleted", containsInAnyOrder(ROLE_SUPER_ADMIN.name()));
     }
 
     @Test
