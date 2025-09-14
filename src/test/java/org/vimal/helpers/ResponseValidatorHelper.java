@@ -37,7 +37,7 @@ public final class ResponseValidatorHelper {
                 .statusCode(statusCode);
         if (statusCode != 200) {
             response.then()
-                    .body("invalid_inputs", not(empty()));
+                    .body("not_allowed_to_assign_roles", not(empty()));
             return;
         }
         response.then()
@@ -70,7 +70,7 @@ public final class ResponseValidatorHelper {
                 .statusCode(statusCode);
         if (statusCode != 200) {
             response.then()
-                    .body("invalid_inputs", not(empty()));
+                    .body("cannot_update_users_having_roles_higher_or_equal_than_updater", not(empty()));
             return;
         }
         response.then()
