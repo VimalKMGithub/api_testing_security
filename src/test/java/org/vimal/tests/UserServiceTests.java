@@ -97,8 +97,9 @@ public class UserServiceTests extends BaseTest {
     @Test
     public void test_Reset_Password_Success() throws ExecutionException, InterruptedException, InvalidKeyException, NotFoundException, IOException {
         Map<String, Object> map = createTestUserAuthenticatorAppMfaEnabled();
+        UserDto user = (UserDto) map.get("user");
         resetPassword(Map.of(
-                        "usernameOrEmail", ((UserDto) map.get("user")).getUsername(),
+                        "usernameOrEmail", user.getUsername(),
                         "otpTotp", generateTotp((String) map.get("secret")),
                         "method", AUTHENTICATOR_APP_MFA,
                         "password", "NewPassword@123",
@@ -107,6 +108,12 @@ public class UserServiceTests extends BaseTest {
         ).then()
                 .statusCode(200)
                 .body("message", containsStringIgnoringCase("Password reset successful"));
+        login(
+                user.getUsername(),
+                "NewPassword@123"
+        ).then()
+                .statusCode(200)
+                .body("state_token", notNullValue());
     }
 
     @Test
