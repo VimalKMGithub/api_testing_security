@@ -302,7 +302,7 @@ public class AdminServiceTests extends BaseTest {
                 null
         ).then()
                 .statusCode(400)
-                .body("invalid_inputs", not(empty()));
+                .body("missing_roles", containsInAnyOrder("InvalidRoleName" + randomString));
     }
 
     private void deleteUsersAndVerifyResponse(UserDto deleter,
