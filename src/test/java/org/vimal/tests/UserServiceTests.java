@@ -216,6 +216,13 @@ public class UserServiceTests extends BaseTest {
         ).then()
                 .statusCode(200)
                 .body("message", containsStringIgnoringCase("Password changed successfully"));
+        UserDto user = (UserDto) map.get("user");
+        login(
+                user.getUsername(),
+                "NewPassword@123"
+        ).then()
+                .statusCode(200)
+                .body("state_token", notNullValue());
     }
 
     private String getAccessTokenForUserWhoseAuthenticatorAppMfaIsEnabled(Map<String, Object> map) throws ExecutionException, InterruptedException, InvalidKeyException {
