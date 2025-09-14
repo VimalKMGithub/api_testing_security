@@ -184,7 +184,7 @@ public class UserServiceTests extends BaseTest {
         }
         map.put("oldPassword", user.getPassword());
         for (String invalidPassword : INVALID_PASSWORDS) {
-            map.put("oldPassword", invalidPassword);
+            map.put("password", invalidPassword);
             changePassword(
                     accessToken,
                     map
