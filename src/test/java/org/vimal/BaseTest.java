@@ -25,7 +25,7 @@ import static org.vimal.helpers.DtosHelper.*;
 
 @Slf4j
 public abstract class BaseTest {
-    protected static final Set<Object> TEST_USERS = ConcurrentHashMap.newKeySet();
+    protected static final Set<UserDto> TEST_USERS = ConcurrentHashMap.newKeySet();
     protected static final Set<RoleDto> TEST_ROLES = ConcurrentHashMap.newKeySet();
     private static final String BASE_URL = "http://localhost:8080";
     private static final String BASE_PATH = "api/v1";
@@ -92,18 +92,20 @@ public abstract class BaseTest {
     protected static void createTestUsers(Set<UserDto> users) throws ExecutionException, InterruptedException {
         Iterator<UserDto> iterator = users.iterator();
         Set<UserDto> batch = new HashSet<>();
+        UserDto user;
         while (iterator.hasNext()) {
             batch.clear();
             while (iterator.hasNext() &&
                     batch.size() < MAX_BATCH_SIZE_OF_USER_CREATION_AT_A_TIME) {
-                batch.add(iterator.next());
+                user = iterator.next();
+                TEST_USERS.add(user);
+                batch.add(user);
             }
             createUsers(
                     batch,
                     null
             ).then()
                     .statusCode(200);
-            TEST_USERS.addAll(batch);
         }
     }
 
@@ -123,18 +125,20 @@ public abstract class BaseTest {
     protected static void createTestRoles(Set<RoleDto> roles) throws ExecutionException, InterruptedException {
         Iterator<RoleDto> iterator = roles.iterator();
         Set<RoleDto> batch = new HashSet<>();
+        RoleDto role;
         while (iterator.hasNext()) {
             batch.clear();
             while (iterator.hasNext() &&
                     batch.size() < MAX_BATCH_SIZE_OF_ROLE_CREATION_AT_A_TIME) {
-                batch.add(iterator.next());
+                role = iterator.next();
+                TEST_ROLES.add(role);
+                batch.add(role);
             }
             createRoles(
                     batch,
                     null
             ).then()
                     .statusCode(200);
-            TEST_ROLES.addAll(batch);
         }
     }
 }

@@ -82,13 +82,15 @@ public class AdminServiceTests extends BaseTest {
         Iterator<UserDto> iterator = users.iterator();
         Set<UserDto> batch = new HashSet<>();
         Response response;
+        UserDto user;
         while (iterator.hasNext()) {
             batch.clear();
             while (iterator.hasNext() &&
                     batch.size() < MAX_BATCH_SIZE_OF_USER_CREATION_AT_A_TIME) {
-                batch.add(iterator.next());
+                user = iterator.next();
+                TEST_USERS.add(user);
+                batch.add(user);
             }
-            TEST_USERS.addAll(batch);
             response = createUsers(
                     accessToken,
                     batch,
@@ -636,7 +638,7 @@ public class AdminServiceTests extends BaseTest {
             while (iterator.hasNext() &&
                     batch.size() < MAX_BATCH_SIZE_OF_USER_UPDATE_AT_A_TIME) {
                 user = iterator.next();
-                TEST_USERS.add(user.getUsername());
+                TEST_USERS.add(user);
                 batch.add(user);
                 batchUsers.add(usernameToUserMap.get(user.getOldUsername()));
             }
@@ -944,10 +946,12 @@ public class AdminServiceTests extends BaseTest {
         }
         createTestUsers(creators);
         Set<RoleDto> tempSet;
+        RoleDto role;
         Response response;
         for (UserDto creator : creators) {
-            tempSet = Set.of(createRandomRoleDto());
-            TEST_ROLES.addAll(tempSet);
+            role = createRandomRoleDto();
+            tempSet = Set.of(role);
+            TEST_ROLES.add(role);
             response = createRoles(
                     getAccessToken(
                             creator.getUsername(),
@@ -1062,13 +1066,14 @@ public class AdminServiceTests extends BaseTest {
             deleters.add(createRandomUserDto(Set.of(role)));
         }
         createTestUsers(deleters);
+        Set<String> testSet = Set.of("someRoleName");
         for (UserDto deleter : deleters) {
             deleteRoles(
                     getAccessToken(
                             deleter.getUsername(),
                             deleter.getPassword()
                     ),
-                    Set.of("testRoleName"),
+                    testSet,
                     ENABLE,
                     null
             ).then()
@@ -1142,13 +1147,14 @@ public class AdminServiceTests extends BaseTest {
             readers.add(createRandomUserDto(Set.of(role)));
         }
         createTestUsers(readers);
+        Set<String> testSet = Set.of("someRoleName");
         for (UserDto reader : readers) {
             readRoles(
                     getAccessToken(
                             reader.getUsername(),
                             reader.getPassword()
                     ),
-                    Set.of("someRoleName"),
+                    testSet,
                     null
             ).then()
                     .statusCode(403)
@@ -1198,21 +1204,23 @@ public class AdminServiceTests extends BaseTest {
         Iterator<RoleDto> iterator = updatedInputs.iterator();
         Response response;
         RoleDto updatedInput;
+        Set<RoleDto> tempSet;
         for (UserDto updater : updaters) {
             updatedInput = iterator.next();
+            tempSet = Set.of(updatedInput);
             response = updateRoles(
                     getAccessToken(
                             updater.getUsername(),
                             updater.getPassword()
                     ),
-                    Set.of(updatedInput),
+                    tempSet,
                     null
             );
             validateResponseOfRolesUpdation(
                     response,
                     updater,
                     Set.of(roleNameToRoleMap.get(updatedInput.getRoleName())),
-                    Set.of(updatedInput),
+                    tempSet,
                     "updated_roles."
             );
         }
@@ -1304,13 +1312,14 @@ public class AdminServiceTests extends BaseTest {
             readers.add(createRandomUserDto(Set.of(role)));
         }
         createTestUsers(readers);
+        Set<String> testSet = Set.of(CAN_CREATE_USER.name());
         for (UserDto reader : readers) {
             readPermissions(
                     getAccessToken(
                             reader.getUsername(),
                             reader.getPassword()
                     ),
-                    Set.of(CAN_CREATE_USER.name()),
+                    testSet,
                     null
             ).then()
                     .statusCode(403)
