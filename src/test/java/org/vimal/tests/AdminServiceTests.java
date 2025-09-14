@@ -1171,7 +1171,7 @@ public class AdminServiceTests extends BaseTest {
                     null
             ).then()
                     .statusCode(400)
-                    .body("invalid_inputs", not(empty()));
+                    .body("invalid_role_names", not(empty()));
         }
     }
 
