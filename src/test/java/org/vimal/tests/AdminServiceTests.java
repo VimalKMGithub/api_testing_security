@@ -295,14 +295,14 @@ public class AdminServiceTests extends BaseTest {
                     .body("invalid_inputs", not(empty()));
         }
         user.setLastName(null);
-        user.setRoles(Set.of("InvalidRoleName" + randomString));
+        user.setRoles(Set.of("InvalidRoleName_" + randomString));
         createUsers(
                 accessToken,
                 testSet,
                 null
         ).then()
                 .statusCode(400)
-                .body("missing_roles", containsInAnyOrder("InvalidRoleName" + randomString));
+                .body("missing_roles", containsInAnyOrder("InvalidRoleName_" + randomString));
     }
 
     private void deleteUsersAndVerifyResponse(UserDto deleter,
@@ -1018,14 +1018,14 @@ public class AdminServiceTests extends BaseTest {
                 .statusCode(400)
                 .body("invalid_inputs", not(empty()));
         role.setDescription("AutoTestRole created by AdminServiceTests");
-        role.setPermissions(Set.of("InvalidPermissionName" + randomString));
+        role.setPermissions(Set.of("InvalidPermissionName_" + randomString));
         createRoles(
                 accessToken,
                 testSet,
                 null
         ).then()
-                .statusCode(400)
-                .body("invalid_inputs", not(empty()));
+                .statusCode(200)
+                .body("missing_permissions", containsInAnyOrder("InvalidPermissionName_" + randomString));
     }
 
     @Test
