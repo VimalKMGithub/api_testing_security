@@ -19,6 +19,7 @@ import static org.vimal.constants.Common.AUTHENTICATOR_APP_MFA;
 import static org.vimal.constants.Common.ENABLE;
 import static org.vimal.helpers.DtosHelper.createRandomUserDto;
 import static org.vimal.helpers.InvalidInputsHelper.*;
+import static org.vimal.helpers.ResponseValidatorHelper.validateResponseOfGetSelfDetails;
 import static org.vimal.utils.QrUtility.extractSecretFromByteArrayOfQrCode;
 import static org.vimal.utils.TotpUtility.generateTotp;
 
@@ -42,18 +43,15 @@ public class UserServiceTests extends BaseTest {
     @Test
     public void test_Get_Self_Details_Success() throws ExecutionException, InterruptedException {
         UserDto user = createTestUser();
-        getSelfDetails(getAccessToken(
-                        user.getUsername(),
-                        user.getPassword()
-                )
-        ).then()
-                .statusCode(200)
-                .body("id", notNullValue())
-                .body("username", equalTo(user.getUsername()))
-                .body("email", equalTo(user.getEmail()))
-                .body("firstName", equalTo(user.getFirstName()))
-                .body("middleName", equalTo(user.getMiddleName()))
-                .body("lastName", equalTo(user.getLastName()));
+        validateResponseOfGetSelfDetails(
+                getSelfDetails(
+                        getAccessToken(
+                                user.getUsername(),
+                                user.getPassword()
+                        )
+                ),
+                user
+        );
     }
 
     @Test
