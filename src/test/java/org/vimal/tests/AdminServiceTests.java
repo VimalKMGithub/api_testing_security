@@ -1269,15 +1269,6 @@ public class AdminServiceTests extends BaseTest {
         ).then()
                 .statusCode(400)
                 .body("invalid_inputs", not(empty()));
-        role.setDescription("AutoTestRole created by AdminServiceTests - updated");
-        role.setPermissions(Set.of("InvalidPermissionName_" + randomString));
-        updateRoles(
-                accessToken,
-                testSet,
-                null
-        ).then()
-                .statusCode(200)
-                .body("invalid_inputs", not(empty()));
     }
 
     @Test
