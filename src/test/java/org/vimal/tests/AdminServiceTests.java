@@ -513,8 +513,7 @@ public class AdminServiceTests extends BaseTest {
     }
 
     private void readUsersAndVerifyResponse(UserDto reader,
-                                            Set<UserDto> users,
-                                            int statusCode) throws ExecutionException, InterruptedException {
+                                            Set<UserDto> users) throws ExecutionException, InterruptedException {
         String accessToken = getAccessToken(
                 reader.getUsername(),
                 reader.getPassword()
@@ -542,7 +541,7 @@ public class AdminServiceTests extends BaseTest {
                     response,
                     reader,
                     batchUsers,
-                    statusCode,
+                    200,
                     "found_users."
             );
         }
@@ -559,8 +558,7 @@ public class AdminServiceTests extends BaseTest {
         for (UserDto reader : readers) {
             readUsersAndVerifyResponse(
                     reader,
-                    readers,
-                    200
+                    readers
             );
         }
     }
