@@ -341,7 +341,7 @@ public class AdminServiceTests extends BaseTest {
                     .statusCode(statusCode);
             if (statusCode != 200) {
                 response.then()
-                        .body("invalid_inputs", not(empty()));
+                        .body("not_allowed_to_delete_users_having_roles", not(empty()));
             } else {
                 response.then()
                         .body("message", containsStringIgnoringCase("Users deleted successfully"));
