@@ -157,6 +157,12 @@ public class UserServiceTests extends BaseTest {
         ).then()
                 .statusCode(200)
                 .body("message", containsStringIgnoringCase("Password changed successfully"));
+        login(
+                user.getUsername(),
+                "NewPassword@123"
+        ).then()
+                .statusCode(200)
+                .body("access_token", notNullValue());
     }
 
     @Test
