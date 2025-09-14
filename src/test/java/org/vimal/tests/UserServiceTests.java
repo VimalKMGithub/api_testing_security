@@ -326,6 +326,14 @@ public class UserServiceTests extends BaseTest {
         ).then()
                 .statusCode(200)
                 .body("message", containsStringIgnoringCase("Account deleted successfully"));
+        UserDto user = (UserDto) map.get("user");
+        login(
+                user.getUsername(),
+                user.getPassword()
+        ).then()
+                .statusCode(401)
+                .body("error", containsStringIgnoringCase("Unauthorized"))
+                .body("message", containsStringIgnoringCase("Bad credentials"));
     }
 
     @Test
