@@ -1024,7 +1024,7 @@ public class AdminServiceTests extends BaseTest {
                 testSet,
                 null
         ).then()
-                .statusCode(200)
+                .statusCode(400)
                 .body("missing_permissions", containsInAnyOrder("InvalidPermissionName_" + randomString));
     }
 
