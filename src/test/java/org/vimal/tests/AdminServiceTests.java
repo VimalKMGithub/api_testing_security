@@ -329,7 +329,7 @@ public class AdminServiceTests extends BaseTest {
         while (iterator.hasNext()) {
             batch.clear();
             while (iterator.hasNext() &&
-                    batch.size() < MAX_BATCH_SIZE_OF_USER_CREATION_AT_A_TIME) {
+                    batch.size() < MAX_BATCH_SIZE_OF_USER_DELETION_AT_A_TIME) {
                 batch.add(iterator.next());
             }
             response = deleteUsers(

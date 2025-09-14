@@ -21,9 +21,11 @@ public final class CleanUpHelper {
         while (iterator.hasNext()) {
             batch.clear();
             while (iterator.hasNext() &&
-                    batch.size() <= MAX_BATCH_SIZE_OF_USER_DELETION_AT_A_TIME) {
+                    batch.size() < MAX_BATCH_SIZE_OF_USER_DELETION_AT_A_TIME) {
                 batch.add(iterator.next());
             }
+            System.out.println(batch.size());
+            System.out.println(batch);
             try {
                 deleteUsers(
                         batch,
@@ -65,7 +67,7 @@ public final class CleanUpHelper {
         while (iterator.hasNext()) {
             batch.clear();
             while (iterator.hasNext() &&
-                    batch.size() <= MAX_BATCH_SIZE_OF_ROLE_DELETION_AT_A_TIME) {
+                    batch.size() < MAX_BATCH_SIZE_OF_ROLE_DELETION_AT_A_TIME) {
                 batch.add(iterator.next());
             }
             try {
