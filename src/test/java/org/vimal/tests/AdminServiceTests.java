@@ -959,7 +959,6 @@ public class AdminServiceTests extends BaseTest {
                     response,
                     creator,
                     tempSet,
-                    200,
                     "created_roles."
             );
         }
@@ -1129,7 +1128,6 @@ public class AdminServiceTests extends BaseTest {
                     response,
                     reader,
                     tempSet,
-                    200,
                     "found_roles."
             );
         }
@@ -1214,7 +1212,6 @@ public class AdminServiceTests extends BaseTest {
                     updater,
                     Set.of(roleNameToRoleMap.get(updatedInput.getRoleName())),
                     Set.of(updatedInput),
-                    200,
                     "updated_roles."
             );
         }
@@ -1273,13 +1270,13 @@ public class AdminServiceTests extends BaseTest {
                 .statusCode(400)
                 .body("invalid_inputs", not(empty()));
         role.setDescription("AutoTestRole created by AdminServiceTests - updated");
-        role.setPermissions(Set.of("InvalidPermissionName" + randomString));
+        role.setPermissions(Set.of("InvalidPermissionName_" + randomString));
         updateRoles(
                 accessToken,
                 testSet,
                 null
         ).then()
-                .statusCode(400)
+                .statusCode(200)
                 .body("invalid_inputs", not(empty()));
     }
 

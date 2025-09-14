@@ -101,16 +101,9 @@ public final class ResponseValidatorHelper {
     public static void validateResponseOfRolesCreationOrRead(Response response,
                                                              UserDto creatorOrReader,
                                                              Set<RoleDto> roles,
-                                                             int statusCode,
                                                              String pathPrefix) {
         response.then()
-                .statusCode(statusCode);
-        if (statusCode != 200) {
-            response.then()
-                    .body("invalid_inputs", not(empty()));
-            return;
-        }
-        response.then()
+                .statusCode(200)
                 .body(pathPrefix + "size()", equalTo(roles.size()));
         String findPath;
         for (RoleDto role : roles) {
@@ -131,16 +124,9 @@ public final class ResponseValidatorHelper {
                                                        UserDto updater,
                                                        Set<RoleDto> roles,
                                                        Set<RoleDto> updatedInputs,
-                                                       int statusCode,
                                                        String pathPrefix) {
         response.then()
-                .statusCode(statusCode);
-        if (statusCode != 200) {
-            response.then()
-                    .body("invalid_inputs", not(empty()));
-            return;
-        }
-        response.then()
+                .statusCode(200)
                 .body(pathPrefix + "size()", equalTo(roles.size()));
         Map<String, RoleDto> roleNameToUpdatedInputMap = new HashMap<>();
         String findPath;
