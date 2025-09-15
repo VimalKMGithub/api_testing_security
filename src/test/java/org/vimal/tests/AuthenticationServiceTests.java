@@ -39,8 +39,7 @@ public class AuthenticationServiceTests extends BaseTest {
                 .body("token_type", containsStringIgnoringCase("Bearer"));
         validateResponseOfGetSelfDetails(
                 getSelfDetails(response.jsonPath()
-                        .getString("access_token")
-                ),
+                        .getString("access_token")),
                 user
         );
     }
@@ -155,8 +154,7 @@ public class AuthenticationServiceTests extends BaseTest {
                 .body("token_type", containsStringIgnoringCase("Bearer"));
         validateResponseOfGetSelfDetails(
                 getSelfDetails(response.jsonPath()
-                        .getString("access_token")
-                ),
+                        .getString("access_token")),
                 user
         );
     }

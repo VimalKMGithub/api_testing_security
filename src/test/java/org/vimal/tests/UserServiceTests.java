@@ -44,12 +44,10 @@ public class UserServiceTests extends BaseTest {
     public void test_Get_Self_Details_Success() throws ExecutionException, InterruptedException {
         UserDto user = createTestUser();
         validateResponseOfGetSelfDetails(
-                getSelfDetails(
-                        getAccessToken(
-                                user.getUsername(),
-                                user.getPassword()
-                        )
-                ),
+                getSelfDetails(getAccessToken(
+                        user.getUsername(),
+                        user.getPassword()
+                )),
                 user
         );
     }
