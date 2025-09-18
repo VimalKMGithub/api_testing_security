@@ -38,6 +38,26 @@ public final class UserCalls {
         );
     }
 
+    public static Response verifyEmail(String emailVerificationToken) throws ExecutionException, InterruptedException {
+        return waitForResponse(() -> executeRequest(
+                        POST,
+                        USER + "/verifyEmail",
+                        null,
+                        Map.of("emailVerificationToken", emailVerificationToken)
+                )
+        );
+    }
+
+    public static Response resendEmailVerificationLink(String usernameOrEmail) throws ExecutionException, InterruptedException {
+        return waitForResponse(() -> executeRequest(
+                        POST,
+                        USER + "/resend/emailVerification/link",
+                        null,
+                        Map.of("usernameOrEmail", usernameOrEmail)
+                )
+        );
+    }
+
     public static Response forgotPassword(String usernameOrEmail) throws ExecutionException, InterruptedException {
         return waitForResponse(() -> executeRequest(
                         POST,

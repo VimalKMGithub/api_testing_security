@@ -2,6 +2,8 @@ package org.vimal.tests;
 
 import com.google.zxing.NotFoundException;
 import io.restassured.response.Response;
+import jakarta.mail.MessagingException;
+import org.testng.ITestContext;
 import org.testng.annotations.Test;
 import org.vimal.BaseTest;
 import org.vimal.dtos.UserDto;
@@ -18,8 +20,10 @@ import static org.vimal.api.UserCalls.*;
 import static org.vimal.constants.Common.AUTHENTICATOR_APP_MFA;
 import static org.vimal.constants.Common.ENABLE;
 import static org.vimal.helpers.DtosHelper.createRandomUserDto;
+import static org.vimal.helpers.DtosHelper.createRandomUserDtoWithRandomValidEmail;
 import static org.vimal.helpers.InvalidInputsHelper.*;
 import static org.vimal.helpers.ResponseValidatorHelper.validateResponseOfGetSelfDetails;
+import static org.vimal.utils.MailReaderUtility.getToken;
 import static org.vimal.utils.QrUtility.extractSecretFromByteArrayOfQrCode;
 import static org.vimal.utils.TotpUtility.generateTotp;
 
@@ -50,6 +54,40 @@ public class UserServiceTests extends BaseTest {
                 )),
                 user
         );
+    }
+
+    @Test(dependsOnMethods = {"test_Resend_Email_Verification_Link_Success"})
+    public void test_Verify_Email_Success(ITestContext context) throws ExecutionException, InterruptedException, MessagingException, IOException {
+        String contextAttributeUser = "user_From_test_Resend_Email_Verification_Link_Success";
+        UserDto user = (UserDto) context.getAttribute(contextAttributeUser);
+        context.removeAttribute(contextAttributeUser);
+        verifyEmail(getToken(
+                user.getEmail(),
+                TEST_EMAIL_PASSWORD,
+                "Resending email verification link after registration"
+        )).then()
+                .statusCode(200)
+                .body("message", containsStringIgnoringCase("Email verification successful"));
+        getSelfDetails(getAccessToken(
+                user.getUsername(),
+                user.getPassword()
+        )).then()
+                .statusCode(200)
+                .body("emailVerified", equalTo(true));
+    }
+
+    @Test
+    public void test_Resend_Email_Verification_Link_Success(ITestContext context) throws ExecutionException, InterruptedException {
+        UserDto user = createRandomUserDtoWithRandomValidEmail();
+        context.setAttribute("user_From_test_Resend_Email_Verification_Link_Success", user);
+        user.setEmailVerified(false);
+        createTestUser(user);
+        resendEmailVerificationLink(user.getUsername()).then()
+                .statusCode(200)
+                .body("message", containsStringIgnoringCase("Email verification link resent successfully. Please check your email"));
+        resendEmailVerificationLink(user.getEmail()).then()
+                .statusCode(200)
+                .body("message", containsStringIgnoringCase("Email verification link resent successfully. Please check your email"));
     }
 
     @Test

@@ -20,7 +20,7 @@ public final class MailReaderUtility {
     private static final long DEFAULT_MAX_WAIT_MS = 60000;
     private static final long DEFAULT_POLL_INTERVAL_MS = 3000;
     private static final int DEFAULT_OTP_LENGTH = 6;
-    private static final Pattern UUID_PATTERN = Pattern.compile("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$");
+    private static final Pattern UUID_PATTERN = Pattern.compile("[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}");
     private static final Pattern DEFAULT_OTP_PATTERN = Pattern.compile("\\b\\d{" + DEFAULT_OTP_LENGTH + "}\\b");
     private static final Set<String> DEFAULT_SEARCH_FOLDERS = Set.of("INBOX", "[Gmail]/Spam");
 
