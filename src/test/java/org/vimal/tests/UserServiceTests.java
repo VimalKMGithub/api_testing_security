@@ -77,6 +77,15 @@ public class UserServiceTests extends BaseTest {
     }
 
     @Test
+    public void test_Verify_Email_Failure_Invalid_Token() throws ExecutionException, InterruptedException {
+        for (String invalidToken : INVALID_UUIDS) {
+            verifyEmail(invalidToken).then()
+                    .statusCode(400)
+                    .body("message", containsStringIgnoringCase("Invalid email verification token"));
+        }
+    }
+
+    @Test
     public void test_Resend_Email_Verification_Link_Success(ITestContext context) throws ExecutionException, InterruptedException {
         UserDto user = createRandomUserDtoWithRandomValidEmail();
         context.setAttribute("user_From_test_Resend_Email_Verification_Link_Success", user);
