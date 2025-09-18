@@ -100,6 +100,17 @@ public class UserServiceTests extends BaseTest {
     }
 
     @Test
+    public void test_Resend_Email_Verification_Link_Failure_Email_Already_Verified() throws ExecutionException, InterruptedException {
+        UserDto user = createTestUser();
+        resendEmailVerificationLink(user.getUsername()).then()
+                .statusCode(400)
+                .body("message", containsStringIgnoringCase("Email is already verified"));
+        resendEmailVerificationLink(user.getEmail()).then()
+                .statusCode(400)
+                .body("message", containsStringIgnoringCase("Email is already verified"));
+    }
+
+    @Test
     public void test_Forgot_Password_Failure_Email_Not_Verified() throws ExecutionException, InterruptedException {
         UserDto user = createRandomUserDto();
         user.setEmailVerified(false);
