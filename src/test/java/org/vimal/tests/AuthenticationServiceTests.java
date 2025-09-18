@@ -203,6 +203,16 @@ public class AuthenticationServiceTests extends BaseTest {
     }
 
     @Test
+    public void test_Revoke_Refresh_Token_Failure_Invalid_Refresh_Token() throws ExecutionException, InterruptedException {
+        for (String invalidRefreshToken : INVALID_UUIDS) {
+            revokeRefreshToken(invalidRefreshToken).then()
+                    .statusCode(400)
+                    .body("error", containsStringIgnoringCase("Bad Request"))
+                    .body("message", containsStringIgnoringCase("Invalid refresh token"));
+        }
+    }
+
+    @Test
     public void test_Request_To_Enable_Authenticator_App_Mfa_Success(ITestContext context) throws ExecutionException, InterruptedException {
         UserDto user = createTestUser();
         context.setAttribute("user_from_test_Request_To_Enable_Authenticator_App_Mfa_Success", user);
