@@ -36,7 +36,7 @@ public final class DtosHelper {
         return user;
     }
 
-    public static String validRandomEmail() {
+    private static String validRandomEmail() {
         int atIndex = TEST_EMAIL.indexOf('@');
         return TEST_EMAIL.substring(0, atIndex) + "+" + getCurrentFormattedLocalTimeStamp() + "_" + generateRandomStringAlphaNumeric() + "@" + TEST_EMAIL.substring(atIndex + 1);
     }

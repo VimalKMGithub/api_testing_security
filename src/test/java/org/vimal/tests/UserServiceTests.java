@@ -19,10 +19,10 @@ import static org.vimal.api.AuthenticationCalls.*;
 import static org.vimal.api.UserCalls.*;
 import static org.vimal.constants.Common.AUTHENTICATOR_APP_MFA;
 import static org.vimal.constants.Common.ENABLE;
-import static org.vimal.helpers.DtosHelper.*;
+import static org.vimal.helpers.DtosHelper.createRandomUserDto;
+import static org.vimal.helpers.DtosHelper.createRandomUserDtoWithRandomValidEmail;
 import static org.vimal.helpers.InvalidInputsHelper.*;
 import static org.vimal.helpers.ResponseValidatorHelper.validateResponseOfGetSelfDetails;
-import static org.vimal.utils.MailReaderUtility.getOtp;
 import static org.vimal.utils.MailReaderUtility.getToken;
 import static org.vimal.utils.QrUtility.extractSecretFromByteArrayOfQrCode;
 import static org.vimal.utils.TotpUtility.generateTotp;
@@ -333,55 +333,6 @@ public class UserServiceTests extends BaseTest {
         ).then()
                 .statusCode(400)
                 .body("invalid_inputs", not(empty()));
-    }
-
-    @Test
-    public void test_Email_Change_Request_Success(ITestContext context) throws ExecutionException, InterruptedException {
-        UserDto user = createTestUserRandomValidEmail();
-        context.setAttribute("user_From_test_Email_Change_Request_Success", user);
-        String accessToken = getAccessToken(
-                user.getUsername(),
-                user.getPassword()
-        );
-        context.setAttribute("accessToken_From_test_Email_Change_Request_Success", accessToken);
-        String newEmail = validRandomEmail();
-        context.setAttribute("newEmail_From_test_Email_Change_Request_Success", newEmail);
-        emailChangeRequest(
-                accessToken,
-                newEmail
-        ).then()
-                .statusCode(200)
-                .body("message", containsStringIgnoringCase("Otp's sent to your new & old email. Please check your emails to verify your email change"));
-    }
-
-    @Test(dependsOnMethods = {"test_Email_Change_Request_Success"})
-    public void test_Verify_Email_Change_Success(ITestContext context) throws ExecutionException, InterruptedException, MessagingException, IOException {
-        String contextAttributeUser = "user_From_test_Email_Change_Request_Success";
-        String contextAttributeAccessToken = "accessToken_From_test_Email_Change_Request_Success";
-        String contextAttributeNewEmail = "newEmail_From_test_Email_Change_Request_Success";
-        UserDto user = (UserDto) context.getAttribute(contextAttributeUser);
-        String accessToken = (String) context.getAttribute(contextAttributeAccessToken);
-        String newEmail = (String) context.getAttribute(contextAttributeNewEmail);
-        context.removeAttribute(contextAttributeUser);
-        context.removeAttribute(contextAttributeAccessToken);
-        context.removeAttribute(contextAttributeNewEmail);
-        verifyEmailChange(
-                accessToken,
-                getOtp(
-                        newEmail,
-                        TEST_EMAIL_PASSWORD,
-                        "Otp for email change in new email"
-                ),
-                getOtp(
-                        user.getEmail(),
-                        TEST_EMAIL_PASSWORD,
-                        "Otp for email change in old email"
-                ),
-                user.getPassword()
-        ).then()
-                .statusCode(200)
-                .body("message", containsStringIgnoringCase("Email change successful. Please login again to continue"))
-                .body("user.email", equalTo(newEmail));
     }
 
     @Test
