@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
 import static org.hamcrest.Matchers.*;
@@ -333,6 +334,36 @@ public class UserServiceTests extends BaseTest {
         ).then()
                 .statusCode(400)
                 .body("invalid_inputs", not(empty()));
+    }
+
+    @Test
+    public void test_Email_Change_Request_Failure_Invalid_Input() throws ExecutionException, InterruptedException {
+        UserDto user1 = createRandomUserDto();
+        UserDto user2 = createRandomUserDto();
+        createTestUsers(Set.of(user1, user2));
+        String accessToken = getAccessToken(
+                user1.getUsername(),
+                user1.getPassword()
+        );
+        for (String invalidEmail : INVALID_EMAILS) {
+            emailChangeRequest(
+                    accessToken,
+                    invalidEmail
+            ).then()
+                    .statusCode(400);
+        }
+        emailChangeRequest(
+                accessToken,
+                user1.getEmail()
+        ).then()
+                .statusCode(400)
+                .body("message", containsStringIgnoringCase("New email cannot be same as current email"));
+        emailChangeRequest(
+                accessToken,
+                user2.getEmail()
+        ).then()
+                .statusCode(400)
+                .body("message", containsStringIgnoringCase("is already taken"));
     }
 
     @Test
