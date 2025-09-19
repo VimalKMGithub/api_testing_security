@@ -106,6 +106,34 @@ public final class UserCalls {
         );
     }
 
+    public static Response emailChangeRequest(String accessToken,
+                                              String newEmail) throws ExecutionException, InterruptedException {
+        return waitForResponse(() -> executeRequest(
+                        POST,
+                        USER + "/email/change/request",
+                        Map.of(AUTHORIZATION, BEARER + accessToken),
+                        Map.of("newEmail", newEmail)
+                )
+        );
+    }
+
+    public static Response verifyEmailChange(String accessToken,
+                                             String newEmailOtp,
+                                             String oldEmailOtp,
+                                             String password) throws ExecutionException, InterruptedException {
+        return waitForResponse(() -> executeRequest(
+                        POST,
+                        USER + "/verify/email/change",
+                        Map.of(AUTHORIZATION, BEARER + accessToken),
+                        Map.of(
+                                "newEmailOtp", newEmailOtp,
+                                "oldEmailOtp", oldEmailOtp,
+                                "password", password
+                        )
+                )
+        );
+    }
+
     public static Response deleteAccount(String accessToken,
                                          String password) throws ExecutionException, InterruptedException {
         return waitForResponse(() -> executeRequest(
