@@ -367,6 +367,45 @@ public class UserServiceTests extends BaseTest {
     }
 
     @Test
+    public void test_Verify_Email_Change_Failure_Invalid_Input() throws ExecutionException, InterruptedException {
+        UserDto user = createTestUser();
+        String accessToken = getAccessToken(
+                user.getUsername(),
+                user.getPassword()
+        );
+        for (String invalidOtp : INVALID_OTPS) {
+            verifyEmailChange(
+                    accessToken,
+                    invalidOtp,
+                    "123456",
+                    "Somepassword@001"
+            ).then()
+                    .statusCode(400)
+                    .body("message", containsStringIgnoringCase("Invalid Otp's"));
+        }
+        for (String invalidOtp : INVALID_OTPS) {
+            verifyEmailChange(
+                    accessToken,
+                    "123456",
+                    invalidOtp,
+                    "Somepassword@001"
+            ).then()
+                    .statusCode(400)
+                    .body("message", containsStringIgnoringCase("Invalid Otp's"));
+        }
+        for (String invalidPassword : INVALID_PASSWORDS) {
+            verifyEmailChange(
+                    accessToken,
+                    "123456",
+                    "123456",
+                    invalidPassword
+            ).then()
+                    .statusCode(400)
+                    .body("message", containsStringIgnoringCase("Invalid password"));
+        }
+    }
+
+    @Test
     public void test_Delete_Account_Success() throws ExecutionException, InterruptedException {
         UserDto user = createTestUser();
         deleteAccount(getAccessToken(
