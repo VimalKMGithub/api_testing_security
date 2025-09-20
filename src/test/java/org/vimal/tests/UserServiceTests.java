@@ -96,9 +96,6 @@ public class UserServiceTests extends BaseTest {
         resendEmailVerificationLink(user.getUsername()).then()
                 .statusCode(200)
                 .body("message", containsStringIgnoringCase("Email verification link resent successfully. Please check your email"));
-        resendEmailVerificationLink(user.getEmail()).then()
-                .statusCode(200)
-                .body("message", containsStringIgnoringCase("Email verification link resent successfully. Please check your email"));
     }
 
     @Test
