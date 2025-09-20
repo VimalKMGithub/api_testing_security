@@ -387,7 +387,7 @@ public class UserServiceTests extends BaseTest {
     }
 
     @Test(dependsOnMethods = {"test_Email_Change_Request_Success"})
-    public void test_Verify_Email_Change_Success(ITestContext context) throws ExecutionException, InterruptedException, MessagingException, IOException {
+    public void test_Verify_Email_Change_Success(ITestContext context) throws ExecutionException, InterruptedException {
         String contextAttributeUser = "user_From_test_Email_Change_Request_Success";
         String contextAttributeAccessToken = "accessToken_From_test_Email_Change_Request_Success";
         String contextAttributeNewEmail = "newEmail_From_test_Email_Change_Request_Success";
